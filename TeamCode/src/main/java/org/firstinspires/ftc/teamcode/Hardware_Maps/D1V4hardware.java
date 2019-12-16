@@ -22,7 +22,7 @@ public class D1V4hardware extends RobotConstructor {
     //setup initial parameters that are provided to the parent robotconstructor class
     private static final String VuforiaKey = "AUJrAPb/////AAAAGV6Dp0zFW0tbif2eZk4u4LsrIQNxlQdiTbA2UJgYbEh7rb+s+Gg9soHReFwRRQz9xAiUcZi6d4jtD9+keLWR9xwcT+zJFSfdajjl89kWcf99HIxpWIMuNfAKhW83arD48Jnz/MTYxuBajilzcUxcPYQx24G/MeA6ZlyBhEauLXCKVrsdddL9kaEatPQx1MblEiH5wbdsMsXHz7w0B9CyEhQyZRLXb0zSbijn+JhHaHblBEk40x7gxkQYM1F+f+GfTrx5xR7ibvldNjRJ0obz1NJfuZugfW4R4vpV3C8Qebk7Jmy4YdL62Kb8W2Xk/S55jDhsdNW8rCPvVGJqjM5useObvRhomu0UT5EDH6hwOYxU";
     private static final String Webcamname = "Webcam 1";
-    private static double wheelDiameter = 4;
+    private static double wheelDiameter = 4.8;
     private static double dKp = 0.05;
     private static double minMoveSpeed = 0.1;
     public final static float CameraForwardDisplacement = (float)6.75;
@@ -31,7 +31,8 @@ public class D1V4hardware extends RobotConstructor {
     private static float rampingDistance = 12;
     private static int odometryUpdateRate = 50;
 
-    public final double inchesPerTick;
+    public final double inchesPerTickX;
+    public final double inchesPerTickY;
 
     //initialize the variables for the hardware devices
     public final DcMotor dcFrontLeft;
@@ -116,7 +117,8 @@ public class D1V4hardware extends RobotConstructor {
         dcInOut.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         dcOpenClose.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         //initialize a variable useful in the odometry function
-        inchesPerTick = (1/dcFrontLeft.getMotorType().getTicksPerRev())*getWheelCircumfrance();
+        inchesPerTickX = (1/dcFrontLeft.getMotorType().getTicksPerRev())*getWheelCircumfrance();
+        inchesPerTickY = inchesPerTickX*1.08333333333;
     }
     //intialize the last encoder positions of the drive motors
     private double lastFrontLeftPos = 0;
@@ -134,10 +136,10 @@ public class D1V4hardware extends RobotConstructor {
         //check if odometry is enabled
         if (useOdometry) {
             //find the offset per wheel
-            double frontLeftOffset = (dcFrontLeft.getCurrentPosition() - lastFrontLeftPos) * inchesPerTick;
-            double frontRightOffset = (dcFrontRight.getCurrentPosition() - lastFrontRightPos) * inchesPerTick;
-            double backLeftOffset = (dcBackLeft.getCurrentPosition() - lastBackLeftPos) * inchesPerTick;
-            double backRightOffset = (dcBackRight.getCurrentPosition() - lastBackRightPos) * inchesPerTick;
+            double frontLeftOffset = (dcFrontLeft.getCurrentPosition() - lastFrontLeftPos);
+            double frontRightOffset = (dcFrontRight.getCurrentPosition() - lastFrontRightPos);
+            double backLeftOffset = (dcBackLeft.getCurrentPosition() - lastBackLeftPos);
+            double backRightOffset = (dcBackRight.getCurrentPosition() - lastBackRightPos);
 
             //set the last positions to the current ones for the next iteration
             lastFrontLeftPos = dcFrontLeft.getCurrentPosition();
@@ -146,8 +148,8 @@ public class D1V4hardware extends RobotConstructor {
             lastBackRightPos = dcBackRight.getCurrentPosition();
 
             //find the x and y offsets using inverse kinematics
-            double yOffset = (frontLeftOffset + frontRightOffset + backLeftOffset + backRightOffset) / 4;
-            double xOffset = -(-frontLeftOffset + frontRightOffset + backLeftOffset - backRightOffset) / 4;
+            double yOffset = ((frontLeftOffset + frontRightOffset + backLeftOffset + backRightOffset)/4)*inchesPerTickY;
+            double xOffset = (-(-frontLeftOffset + frontRightOffset + backLeftOffset - backRightOffset)/4)*inchesPerTickX;
 
             //find the hypotenuse to run trigonometry
             double hypot = sqrt(pow(xOffset, 2) + pow(yOffset, 2));
@@ -170,6 +172,17 @@ public class D1V4hardware extends RobotConstructor {
     //overide the movement class
     @Override
     public void move(double x, double y, double rotation, double power) {
+        //if power is zero, set the motors to brake
+        if (power == 0) {
+            for(DcMotor motors : getDriveMotors()) {
+                motors.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            }
+        } else {
+            for (DcMotor motors : getDriveMotors()) {
+                if (motors.getZeroPowerBehavior() == DcMotor.ZeroPowerBehavior.BRAKE)
+                    motors.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+            }
+        }
         //invert the x input as it's flipped
         x = -x;
         //define initial kinimatics based off of mecanum drive

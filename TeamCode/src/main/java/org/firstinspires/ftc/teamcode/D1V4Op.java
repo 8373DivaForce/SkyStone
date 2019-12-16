@@ -19,7 +19,6 @@ public class D1V4Op extends LinearOpMode {
         boolean leftStickButton = false;
         boolean rightStickButton = false;
         double dOffset = 0;
-        robot.disableOdometry();
         waitForStart();
         while (opModeIsActive()) {
             telemetry.addData("fieldCentric", fieldCentric);
