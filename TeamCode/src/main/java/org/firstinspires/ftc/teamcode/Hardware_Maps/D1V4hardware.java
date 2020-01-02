@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.Hardware_Maps;
 
+import android.util.Log;
+
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -54,7 +56,7 @@ public class D1V4hardware extends RobotConstructor {
 
 
     //setup the constructor function
-    public D1V4hardware(LinearOpMode opMode) {
+    public D1V4hardware(LinearOpMode opMode, double rotation) {
         //provide the opMode given on creation as well as the variables defined above
         super(opMode, wheelDiameter, dKp, minMoveSpeed,rampingDistance, CameraForwardDisplacement, CameraLeftDisplacement, CameraVerticalDisplacement, Webcamname, VuforiaKey, odometryUpdateRate);
         //save the hardware map from the opMode
@@ -117,8 +119,20 @@ public class D1V4hardware extends RobotConstructor {
         dcInOut.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         dcOpenClose.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         //initialize a variable useful in the odometry function
-        inchesPerTickX = (1/dcFrontLeft.getMotorType().getTicksPerRev())*getWheelCircumfrance();
-        inchesPerTickY = inchesPerTickX*1.08333333333;
+        double tempInchPerTick = (1/dcFrontLeft.getMotorType().getTicksPerRev())*getWheelCircumfrance();
+        inchesPerTickX = tempInchPerTick*0.9015321375186846038863976083707;
+        inchesPerTickY = tempInchPerTick*1.0515021459227467811158798283262;
+        useOdometry = false;
+        setRotation(rotation);
+        initOdometry();
+    }
+    public D1V4hardware(LinearOpMode opMode, double x, double y, double rotation) {
+        this(opMode, rotation);
+        setPosition(x,y);
+        useOdometry = true;
+    }
+    public D1V4hardware(LinearOpMode opMode, FunctionLibrary.Point startingPos, double rotation) {
+        this(opMode, startingPos.x, startingPos.y, rotation);
     }
     //intialize the last encoder positions of the drive motors
     private double lastFrontLeftPos = 0;
@@ -126,7 +140,7 @@ public class D1V4hardware extends RobotConstructor {
     private double lastBackLeftPos = 0;
     private double lastBackRightPos = 0;
     //a boolean that allows you to disable the position tracking
-    boolean useOdometry = true;
+    boolean useOdometry;
     //overide the odometry function to make it robot specific
     @Override
     public void updateOdometry() {
@@ -151,6 +165,7 @@ public class D1V4hardware extends RobotConstructor {
             double yOffset = ((frontLeftOffset + frontRightOffset + backLeftOffset + backRightOffset)/4)*inchesPerTickY;
             double xOffset = (-(-frontLeftOffset + frontRightOffset + backLeftOffset - backRightOffset)/4)*inchesPerTickX;
 
+            Log.d("Odometry Update", "yOffset: " + yOffset + " xOffset: " + xOffset + "FrontLeft: " + frontLeftOffset + "FrontRight: " + frontRightOffset + "BackLeft" + backLeftOffset + " BackRight: " + backRightOffset);
             //find the hypotenuse to run trigonometry
             double hypot = sqrt(pow(xOffset, 2) + pow(yOffset, 2));
 
@@ -221,7 +236,7 @@ public class D1V4hardware extends RobotConstructor {
         //if that maximum power level is higher than 1,
         //find the scaler value that will bring it down to that
         //and scale all of the motors using it
-        if (max > 1) {
+        if (max > power) {
             double scaler = power/max;
             pFrontLeft = pFrontLeft * scaler;
             pFrontRight = pFrontRight * scaler;
@@ -260,5 +275,8 @@ public class D1V4hardware extends RobotConstructor {
 
     public void disableOdometry() {
         useOdometry = false;
+    }
+    public void enableOdometry() {
+        useOdometry = true;
     }
 }

@@ -16,7 +16,7 @@ public class RedNoFoundation extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
         //initialize the robot hardware and odometry
-        D1V4hardware robot = new D1V4hardware(this);
+        D1V4hardware robot = new D1V4hardware(this, -90);
         //initialize the auto functions class
         AutoFunctions auto = new AutoFunctions(robot);
 

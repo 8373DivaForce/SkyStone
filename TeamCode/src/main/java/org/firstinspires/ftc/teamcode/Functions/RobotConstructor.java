@@ -31,7 +31,7 @@ public class RobotConstructor {
     private final String VuforiaKey;
 
     private final Odometry odometry;
-    private Thread odometryThread;
+    public Thread odometryThread;
 
     private final float CameraForwardDisplacement;
     private final float CameraLeftDisplacement;
@@ -103,7 +103,6 @@ public class RobotConstructor {
         //create a new thread off of the odometry object
         this.odometryThread = new Thread(odometry);
         //start the thread
-        odometryThread.start();
 
         //define the webcame
         webcam = hMap.get(WebcamName.class, webcameName);
@@ -145,7 +144,6 @@ public class RobotConstructor {
         //create new thread from the odometry object
         this.odometryThread = new Thread(odometry);
         //start the odometry thread
-        odometryThread.start();
 
         //set the webcam to null for other functions
         webcam = null;
@@ -155,6 +153,11 @@ public class RobotConstructor {
     //this function gets overridden by the robot specific extension of this class
     public void move(double x, double y, double rotation, double power) {
 
+    }
+
+    public void initOdometry() {
+        if (!odometryThread.isAlive())
+            odometryThread.start();
     }
 
     //function for the odometry thread to run

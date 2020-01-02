@@ -21,7 +21,8 @@ public class FunctionLibrary {
     //a class that can be used to control any given motor through encoder ticks
     public static class motorMovement {
         //define the motor
-        double timerOffset = 0;
+        private double timerOffset = 0;
+        private double startingTimerOffset = 0;
         private final DcMotor[] motors;
         private int nState = 0;
         ElapsedTime timer = new ElapsedTime();
@@ -72,6 +73,7 @@ public class FunctionLibrary {
                     if (allAreReset) {
                         nReturn = 2;
                         timerOffset = timer.milliseconds();
+                        startingTimerOffset = timer.milliseconds();
                         nState = 2;
                     } else {
                         nReturn = 1;
@@ -103,7 +105,8 @@ public class FunctionLibrary {
                             nState = 0;
                             done = true;
                         } else if (Math.abs(currentPosition - lastState[i]) < minTicksPerCycle &&
-                                stopIfNotMoving && (timer.milliseconds() - timerOffset) > 200) {
+                                stopIfNotMoving && (timer.milliseconds() - timerOffset) > 200 &&
+                                (timer.milliseconds()-startingTimerOffset) > 400) {
                             nReturn = -2;
                             nState = 0;
                             done = true;

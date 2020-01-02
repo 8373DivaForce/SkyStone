@@ -13,7 +13,7 @@ public class D1V4Op extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
-        D1V4hardware robot = new D1V4hardware(this);
+        D1V4hardware robot = new D1V4hardware(this,0,0,0);
         robot.dcOpenClose.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         boolean fieldCentric = true;
         boolean leftStickButton = false;

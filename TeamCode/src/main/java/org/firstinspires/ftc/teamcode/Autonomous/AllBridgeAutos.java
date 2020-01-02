@@ -15,9 +15,6 @@ import java.io.File;
 public class AllBridgeAutos extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
-        D1V4hardware robot = new D1V4hardware(this);
-        AutoFunctions auto = new AutoFunctions(robot);
-        FunctionLibrary.motorMovement inoutControl = new FunctionLibrary.motorMovement(100,robot.dcInOut);
         String[] thingsToControl = {
                 "Alliance",
                 "Auto",
@@ -80,8 +77,9 @@ public class AllBridgeAutos extends LinearOpMode {
             }
             startingRotation = 90;
         }
-        robot.setRotation(startingRotation);
-        robot.setPosition(startPosition);
+        D1V4hardware robot = new D1V4hardware(this,startPosition,startingRotation);
+        AutoFunctions auto = new AutoFunctions(robot);
+        FunctionLibrary.motorMovement inoutControl = new FunctionLibrary.motorMovement(100,robot.dcInOut);
         waitForStart();
         int nSwitch = 0;
         int result = 0;

@@ -19,11 +19,6 @@ public class AllStoneAutos extends LinearOpMode {
     private final double mmPerInch = 25.4;
     @Override
     public void runOpMode() throws InterruptedException {
-        D1V4hardware robot = new D1V4hardware(this);
-        AutoFunctions auto = new AutoFunctions(robot);
-        FunctionLibrary.motorMovement inoutControl = new FunctionLibrary.motorMovement(100,robot.dcInOut);
-        FunctionLibrary.motorMovement upDownControl = new FunctionLibrary.motorMovement(100, robot.dcUpDown1, robot.dcUpDown2);
-        FunctionLibrary.motorMovement openCloseControl = new FunctionLibrary.motorMovement(3,robot.dcOpenClose);
         String[] thingsToControl = {
                 "Alliance",
                 "Auto",
@@ -66,30 +61,35 @@ public class AllStoneAutos extends LinearOpMode {
             if (EndPosition == 0) {
                 finalPosition = new FunctionLibrary.Point(62, 0);
             } else if (EndPosition == 1) {
-                finalPosition = new FunctionLibrary.Point(37.5, -12);
+                finalPosition = new FunctionLibrary.Point(37.5, 0);
             }
             startingRotation = -90;
         }
         else if (Alliance == 1) {
             if (Position == 0) {
                 startPosition = new FunctionLibrary.Point(-62, -38);
+                secondPosition = new FunctionLibrary.Point(-40, -50);
+                SkystoneTarget = new FunctionLibrary.Point(-24,-70);
             } else if (Position == 1) {
                 startPosition = new FunctionLibrary.Point(-62, -14);
                 secondPosition = new FunctionLibrary.Point(-40, -36);
                 SkystoneTarget = new FunctionLibrary.Point(-24,-46);
             }
             if (EndPosition == 0) {
-                finalPosition = new FunctionLibrary.Point(-62, 0);
+                finalPosition = new FunctionLibrary.Point(-58, 0);
             } else if (EndPosition == 1) {
-                finalPosition = new FunctionLibrary.Point(-36, -12);
+                finalPosition = new FunctionLibrary.Point(-36, 0);
             }
             startingRotation = 90;
         }
+        D1V4hardware robot = new D1V4hardware(this,startPosition,startingRotation);
+        AutoFunctions auto = new AutoFunctions(robot);
+        FunctionLibrary.motorMovement inoutControl = new FunctionLibrary.motorMovement(100,robot.dcInOut);
+        FunctionLibrary.motorMovement upDownControl = new FunctionLibrary.motorMovement(100, robot.dcUpDown1, robot.dcUpDown2);
+        FunctionLibrary.motorMovement openCloseControl = new FunctionLibrary.motorMovement(10,robot.dcOpenClose);
         robot.initVuforia(hardwareMap);
         telemetry.addData("Startup", "Ready to start!");
         telemetry.update();
-        robot.setRotation(startingRotation);
-        robot.setPosition(startPosition);
         waitForStart();
         robot.SkystoneTrackables.activate();
         int nSwitch = 0;
@@ -101,7 +101,7 @@ public class AllStoneAutos extends LinearOpMode {
 
             switch (nSwitch) {
                 case 0:
-                    result = inoutControl.move_using_encoder(200, 0.5, 5, 20, false);
+                    result = inoutControl.move_using_encoder(300, 0.5, 5, 20, false);
                     if (result < 0) {
                         nSwitch++;
                     }
@@ -139,7 +139,20 @@ public class AllStoneAutos extends LinearOpMode {
                         //skystone position was set above, so the program will just use that
                         resetStartTime();
                         nSwitch++;
+                        if (Math.abs(SkystoneTarget.y+70) < 10) {
+                            nSwitch = -10;
+                        }
                     }
+                    break;
+                case -10:
+                    destination = new FunctionLibrary.Point(secondPosition.x, SkystoneTarget.y+12);
+                    result = auto.gotoPosition(destination,0.75,1,135);
+                    if (result < 0) nSwitch--;
+                    break;
+                case -11:
+                    destination = new FunctionLibrary.Point(SkystoneTarget.x, SkystoneTarget.y+4);
+                    result = auto.gotoPosition(SkystoneTarget, 0.75, 1, 135);
+                    if (result < 0 ) nSwitch = 6;
                     break;
                 case 4:
                     destination = new FunctionLibrary.Point(secondPosition.x, SkystoneTarget.y);

@@ -13,7 +13,7 @@ public class BridgeBlueAuto extends LinearOpMode {
 
     public void runOpMode() throws InterruptedException {
         //initialize our hardware and backend stuff
-        D1V4hardware robot = new D1V4hardware(this);
+        D1V4hardware robot = new D1V4hardware(this,0);
         //initialize our auto functions class
         AutoFunctions auto = new AutoFunctions(robot);
 
