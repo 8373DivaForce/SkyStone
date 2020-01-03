@@ -15,7 +15,7 @@ import org.firstinspires.ftc.teamcode.Hardware_Maps.D1V4hardware;
 import java.io.File;
 
 @Autonomous
-public class AllStoneAutos extends LinearOpMode {
+public class TwoStoneAuto extends LinearOpMode {
     private final double mmPerInch = 25.4;
     @Override
     public void runOpMode() throws InterruptedException {
@@ -180,11 +180,47 @@ public class AllStoneAutos extends LinearOpMode {
                     if (result < 0) nSwitch++;
                     break;
                 case 9:
-                    result = openCloseControl.move_using_encoder(-2000,1,5,20,false);
+                    result = openCloseControl.move_encoder_to_position(200,1,5,20,false);
                     if (result < 0) nSwitch++;
                     break;
                 case 10:
                     result = auto.gotoPosition(finalPosition,1,1,0);
+                    if (result < 0) nSwitch++;
+                    break;
+                case 11:
+                    destination = new FunctionLibrary.Point(secondPosition.x - 8*Math.sin(Math.toRadians(startingRotation)), SkystoneTarget.y-24);
+                    result = auto.gotoPosition(destination,1,1,0);
+                    if (result < 0) nSwitch++;
+                    break;
+                case 12:
+                    result = auto.rotPID(startingRotation,1,4,2);
+                    if (result < 0) nSwitch++;
+                    break;
+                case 13:
+                    destination = new FunctionLibrary.Point(SkystoneTarget.x, SkystoneTarget.y - 24);
+                    result = auto.gotoPosition(destination,1,1,startingRotation);
+                    if (result < 0) nSwitch++;
+                    break;
+                case 14:
+                    result = openCloseControl.move_using_encoder(12501, 1, 8,10,true);
+                    if (result < 0) nSwitch++;
+                    break;
+                case 15:
+                    destination = new FunctionLibrary.Point(finalPosition.x, SkystoneTarget.y-24);
+                    result = auto.gotoPosition(destination, 1,1,startingRotation);
+                    if (result < 0) nSwitch++;
+                    break;
+                case 16:
+                    destination = new FunctionLibrary.Point(finalPosition.x, 12);
+                    result = auto.gotoPosition(destination, 1, 1, 0);
+                    if (result < 0) { nSwitch++; }
+                    break;
+                case 17:
+                    result = openCloseControl.move_using_encoder(-2000, 1,2,1,false);
+                    if (result < 0) nSwitch++;
+                    break;
+                case 18:
+                    result = auto.gotoPosition(finalPosition, 1,1, 0);
                     if (result < 0) nSwitch++;
                     break;
             }

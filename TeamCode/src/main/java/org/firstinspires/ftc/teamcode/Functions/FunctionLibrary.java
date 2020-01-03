@@ -35,7 +35,7 @@ public class FunctionLibrary {
             //take motor input and assign it to the stored motor variable
             this.motors = motors;
             lastState = new int[motors.length];
-            this.minTicksPerCycle = minTicksPerCycle;
+            this.minTicksPerCycle = minTicksPerCycle/200;
             startingPosition = new int[motors.length];
         }
 
@@ -104,16 +104,16 @@ public class FunctionLibrary {
                             nReturn = -1;
                             nState = 0;
                             done = true;
-                        } else if (Math.abs(currentPosition - lastState[i]) < minTicksPerCycle &&
-                                stopIfNotMoving && (timer.milliseconds() - timerOffset) > 200 &&
+                        } else if (Math.abs(currentPosition - lastState[i])/(timer.milliseconds()-timerOffset) < minTicksPerCycle &&
+                                stopIfNotMoving &&
                                 (timer.milliseconds()-startingTimerOffset) > 400) {
                             nReturn = -2;
                             nState = 0;
                             done = true;
                         } else if ((timer.milliseconds() - timerOffset) > 200) {
                             timerOffset = timer.milliseconds();
+                            lastState[i] = currentPosition;
                         }
-                        lastState[i] = currentPosition;
                     }
                     if (done) {
                         for (DcMotor motor : motors) {

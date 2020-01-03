@@ -133,7 +133,7 @@ public class AutoFunctions {
     //-1: done
     //0: reset timer
     //1: in progress
-    public int rotPID(double dAngle, double dPower, int nMaxError, int nTimeout) {
+    public int rotPID(double dAngle, double dPower, double nMaxError, int nTimeout) {
         int nReturn = 0;
         int direction = (int)(Math.abs(dAngle)/dAngle);
         switch(nState) {
@@ -147,22 +147,24 @@ public class AutoFunctions {
                 if (dAngle > 0) dAngle = dAngle%360;
                 if (dAngle < 0) {
                     dAngle = dAngle%-360;
-                    dAngle = 360+dAngle;
                 }
-                //take the current rotation
-                double gyroAngle = robot.getWorldRotation();
-                double rotation;
-                if (gyroAngle < 0) {
-                    rotation = gyroAngle+360;
-                } else {
-                    rotation = gyroAngle;
-                }
-                //compare current rotation to targetAngle to get how much the robot needs to turn
-                double dRotation = (rotation-dAngle);
+                if (dAngle > 180) dAngle -= 360;
+                if (dAngle < -180) dAngle += 360;
 
+                double dAngle360 = dAngle;
+                if (dAngle < 0) dAngle360 += 360;
+                //take the current rotation
+                double rotation = robot.getWorldRotation();
+                double rotation360 = rotation;
+                if (rotation < 0) rotation360 += 360;
+                //compare current rotation to targetAngle to get how much the robot needs to turn
+                double dRotation = (dAngle-rotation);
+                double dRotation360 = (dAngle360-rotation360);
+
+                if (Math.abs(dRotation360) < Math.abs(dRotation)) dRotation = dRotation360;
 
                 //divide the rotational difference and divide by 360 to get power
-                double dRotationPow = dRotation/360;
+                double dRotationPow = dRotation/45;
 
                 //If the rotation power is greated than desired power scale it down
                 if (dRotationPow > dPower) dRotationPow *= dPower/Math.abs(dRotationPow);

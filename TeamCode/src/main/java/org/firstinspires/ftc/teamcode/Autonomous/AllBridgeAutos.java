@@ -100,18 +100,12 @@ public class AllBridgeAutos extends LinearOpMode {
                     result = auto.gotoPosition(destination,1,1,startingRotation);
                     x = robot.getX()-destination.x;
                     y = robot.getY()-destination.y;
-                    telemetry.addData("OffX", x);
-                    telemetry.addData("OffY", y);
-                    telemetry.addData("TotalOff", Math.sqrt((x*x)+(y*y)));
                     if (result < 0) nSwitch++;
                     break;
                 case 2:
                     result = auto.gotoPosition(finalPosition, 1, 1, startingRotation);
                     x = robot.getX()-finalPosition.x;
                     y = robot.getY()-finalPosition.y;
-                    telemetry.addData("OffX", x);
-                    telemetry.addData("OffY", y);
-                    telemetry.addData("TotalOff", Math.sqrt((x*x)+(y*y)));
                     if (result < 0) nSwitch++;
                     break;
             }

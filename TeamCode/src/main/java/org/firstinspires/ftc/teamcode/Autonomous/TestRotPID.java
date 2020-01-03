@@ -14,7 +14,11 @@ public class TestRotPID extends LinearOpMode {
         D1V4hardware robot = new D1V4hardware(this,0);
         AutoFunctions auto = new AutoFunctions(robot);
         waitForStart();
-        while (auto.rotPID(90,1,5,10) > -1 && opModeIsActive());
+        while (auto.rotPID(180,1,1,10) > -1 && opModeIsActive()) {
+            telemetry.addData("angle:", robot.getWorldRotation());
+            telemetry.update();
+        };
+
 
     }
 }
