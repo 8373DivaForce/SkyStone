@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.Functions;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -29,6 +30,8 @@ public class FunctionLibrary {
         private final int minTicksPerCycle;
         int lastState[];
         int[] startingPosition;
+        private TouchSensor forwardLimit = null;
+        private TouchSensor backwardLimit = null;
 
         //define the inputs needed to create a new instance of the class
         public motorMovement(int minTicksPerCycle, DcMotor... motors) {
@@ -38,6 +41,10 @@ public class FunctionLibrary {
             this.minTicksPerCycle = minTicksPerCycle/200;
             startingPosition = new int[motors.length];
         }
+        public void limits(TouchSensor forwardLimit, TouchSensor backwardLimit) {
+            this.forwardLimit = forwardLimit;
+            this.backwardLimit = backwardLimit;
+        }
 
         //allows the motor to be moved using encoder ticks
         // 0: Starting, reset encoders
@@ -45,8 +52,13 @@ public class FunctionLibrary {
         // 2: encoders have been reset, start the movement
         // -1: movement is done
         // -2: program timeout
+        // -3: limit switches
         public int move_using_encoder(int ticks, double power, double timeout, int maxError, boolean stopIfNotMoving) {
             int nReturn = 0;
+            //find the time relative to when this function started getting called
+            double relativeTime = timer.milliseconds()-startingTimerOffset;
+            //find the amount of time since the last time we checked how fast the motors were moving
+            double currentIterationTime = timer.milliseconds()-timerOffset;
             switch (nState) {
                 case 0:
                     //reset the encoders
@@ -92,11 +104,13 @@ public class FunctionLibrary {
                         return -2;
                     }
                     for (int i = 0; i < motors.length; i++) {
+                        DcMotor motor = motors[i];
                         //set the motors power and position
-                        motors[i].setPower(power);
-                        motors[i].setTargetPosition(ticks + startingPosition[i]);
-                        motors[i].setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                        int currentPosition = motors[i].getCurrentPosition() - startingPosition[i];
+                        motor.setPower(power);
+                        motor.setTargetPosition(ticks + startingPosition[i]);
+                        motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                        //find the current position relative to where it was when this function started being called
+                        int currentPosition = motor.getCurrentPosition() - startingPosition[i];
                         //check if the motor has reached it's target
                         if (Math.abs(currentPosition - ticks) < maxError) {
                             //stop the motor
@@ -104,17 +118,27 @@ public class FunctionLibrary {
                             nReturn = -1;
                             nState = 0;
                             done = true;
-                        } else if (Math.abs(currentPosition - lastState[i])/(timer.milliseconds()-timerOffset) < minTicksPerCycle &&
-                                stopIfNotMoving &&
-                                (timer.milliseconds()-startingTimerOffset) > 400) {
+                        } else if (Math.abs(currentPosition - lastState[i])/currentIterationTime < minTicksPerCycle &&
+                                stopIfNotMoving && currentIterationTime > 50 && relativeTime > 400) {
+                            //stop the motors
+                            //tell the autonomous that the motors met resistance
                             nReturn = -2;
                             nState = 0;
                             done = true;
-                        } else if ((timer.milliseconds() - timerOffset) > 200) {
+                        } else if (currentIterationTime > 50) {//if it's been more than 50 ms since the last check
+                                                               //reset it so it'll wait another 50 ms
                             timerOffset = timer.milliseconds();
                             lastState[i] = currentPosition;
                         }
                     }
+                    if ((forwardLimit != null && backwardLimit != null) &&
+                        ((forwardLimit.isPressed() && (ticks + startingPosition[0]) > 0) ||
+                        (backwardLimit.isPressed() && (ticks + startingPosition[0]) < 0))) {
+                        nReturn = -3;
+                        done = true;
+                    }
+                    //check if any of the if statements say the program is done
+                    //if so, turn off all attached motors
                     if (done) {
                         for (DcMotor motor : motors) {
                             motor.setPower(0);
@@ -122,25 +146,33 @@ public class FunctionLibrary {
                     }
 
             }
+            //return the current state the function is in
             return nReturn;
         }
 
+        //like the function above, except it uses a tick position relative to where the motor was on startup
         public int move_encoder_to_position(int ticks, double power, double timeout, int maxError, boolean stopIfNotMoving) {
             int maxStartingPosition = 0;
             int minStartingPosition = 0;
+            //iterate through each motor to find which one has the highest tick value
             for (int i = 0; i < motors.length; i++) {
                 startingPosition[i] = motors[i].getCurrentPosition();
                 maxStartingPosition = max(startingPosition[i], maxStartingPosition);
                 minStartingPosition = min(startingPosition[i], minStartingPosition);
             }
-            if (abs(minStartingPosition) > abs(maxStartingPosition)) {
+
+            //use the above function to move the necessary amount of ticks and return what that function does
+            //move the amount of ticks needed according to the motor that is closest
+            //to the desired amount of ticks in order to avoid any damage caused by
+            //discrepancies between the two motor readings.
+            if (abs(minStartingPosition-ticks) < abs(maxStartingPosition-ticks)) {
                 return move_using_encoder(ticks-minStartingPosition, power, timeout, maxError, stopIfNotMoving);
             } else {
                 return move_using_encoder(ticks-maxStartingPosition, power, timeout, maxError, stopIfNotMoving);
             }
         }
     }
-    //function for retrieving the heading from the gyroscope given an offest and gyro
+    //function for retrieving the heading from a given gyroscope with an offset
     public static double GetYaw(double dOffsetgyro, BNO055IMU imu){
         double dFixCurHeading;
         //grab the imu orientation and apply the given offset
@@ -161,24 +193,25 @@ public class FunctionLibrary {
     //function for wrapping a given angle to be between -180 and 180 degrees
     public static double WrapAngleDegrees(double degrees) {
         // if degrees is positive then divide it by 360 and take the remainder
-        //this wraps the rotation to between 0 and 360
-        degrees = degrees > 0 ? degrees = degrees%360 : degrees;
-        //if degrees is negative then divide it by -360 and take the remainder
-        //this wraps the rotation to between -360 and 0
-        degrees = degrees < 0 ? degrees = degrees%-360 : degrees;
+        // if it is negative then divide it by -360 and take the remainder
+        //this wraps the rotation to between 0 and 360 or -360 and 0
+        degrees = degrees > 0 ? degrees%360 : degrees%-360;
 
         //if degrees is greater than 180, subtract 360 to make it be between -180 and 180
-        degrees = degrees > 180 ? degrees = degrees-360 : degrees;
-        //if degrees is less than 180, add 360 to make it between -180 and 180
-        degrees = degrees < 180 ? degrees = degrees+360 : degrees;
+        degrees = degrees > 180 ? degrees-360 : degrees;
+        //if degrees is less than -180, add 360 to make it between -180 and 180
+        degrees = degrees < -180 ? degrees+360 : degrees;
 
         //return the value
         return degrees;
     }
     //constructor class for a point containing an x and y position
     public static class Point {
+        //define the coordinates x and y as doubles
         public double x;
         public double y;
+        //take the x and y on creation of an instance of point
+        //and map them to the corresponding variable
         public Point(double x, double y) {
             this.x = x;
             this.y = y;
@@ -242,6 +275,27 @@ public class FunctionLibrary {
         }
         //return the points that were found
         return Points;
+    }
+    public static double scaleInput(double dVal) {
+        double[] scaleArray = {0.0, 0.05, 0.09, 0.10, 0.12, 0.15, 0.18, 0.24,
+                0.30, 0.36, 0.43, 0.50, 0.60, 0.72, 0.85, 1.00, 1.00};
+
+        // get the corresponding index for the scaleInput array.
+        int index = (int) (dVal * 16.0);
+        if (index < 0) {
+            index = -index;
+        } else if (index > 16) {
+            index = 16;
+        }
+
+        double dScale = 0.0;
+        if (dVal < 0) {
+            dScale = -scaleArray[index];
+        } else {
+            dScale = scaleArray[index];
+        }
+
+        return dScale;
     }
 
 }

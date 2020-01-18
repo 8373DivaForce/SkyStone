@@ -1,26 +1,34 @@
 package org.firstinspires.ftc.teamcode;
 
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
+import android.util.Log;
+
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
+import org.firstinspires.ftc.robotcore.external.matrices.VectorF;
+import org.firstinspires.ftc.teamcode.Functions.FunctionLibrary;
+import org.firstinspires.ftc.teamcode.Hardware_Maps.D1V4Mk2hardware;
 import org.firstinspires.ftc.teamcode.Hardware_Maps.D1V4hardware;
+
+import java.security.acl.Group;
 
 import static org.firstinspires.ftc.teamcode.Functions.FunctionLibrary.GetYaw;
 
-@TeleOp
-@Disabled
-public class D1V4Op extends LinearOpMode {
+@TeleOp(group = "A")
+public class D1V4Mk2Op extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
-        D1V4hardware robot = new D1V4hardware(this,0,0,0);
+        D1V4Mk2hardware robot = new D1V4Mk2hardware(this,0,0,0,"Right Webcam");
+        //robot.disableOdometry();
         robot.dcOpenClose.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         boolean fieldCentric = true;
         boolean leftStickButton = false;
         boolean rightStickButton = false;
         boolean xIsPressed = false;
+        boolean leftDPadPressed = false;
+        boolean rightDPadPressed = false;
         double dOffset = 0;
         waitForStart();
         while (opModeIsActive()) {
@@ -38,8 +46,8 @@ public class D1V4Op extends LinearOpMode {
                 rightStickButton = true;
             }
             else if(!gamepad1.right_stick_button && rightStickButton) rightStickButton = false;
-            double x = gamepad1.left_stick_x;
-            double y = gamepad1.left_stick_y;
+            double x = FunctionLibrary.scaleInput(gamepad1.left_stick_x);
+            double y = FunctionLibrary.scaleInput(gamepad1.left_stick_y);
             double dX;
             double dY;
             double rotation;
@@ -65,25 +73,12 @@ public class D1V4Op extends LinearOpMode {
             telemetry.addData("x: ", robot.getX());
             telemetry.addData("y: ", robot.getY());
             telemetry.update();
-            if (gamepad1.dpad_left) {
-                robot.csRight.setPower(-1);
-                robot.csLeft.setPower(-1);
-            } else if(gamepad1.dpad_right) {
-                robot.csRight.setPower(1);
-                robot.csLeft.setPower(1);
-            } else {
-                robot.csRight.setPower(0);
-                robot.csLeft.setPower(0);
-            }
             if (gamepad1.right_trigger > 0 && !robot.upperLimitSwitch.isPressed()) {
-                robot.dcUpDown1.setPower(gamepad1.right_trigger);
-                robot.dcUpDown2.setPower(gamepad1.right_trigger);
+                robot.dcLift.setPower(gamepad1.right_trigger);
             } else if (gamepad1.left_trigger > 0 && !robot.lowerLimitSwitch.isPressed()) {
-                robot.dcUpDown1.setPower(-gamepad1.left_trigger);
-                robot.dcUpDown2.setPower(-gamepad1.left_trigger);
+                robot.dcLift.setPower(-gamepad1.left_trigger);
             } else {
-                robot.dcUpDown1.setPower(0);
-                robot.dcUpDown2.setPower(0);
+                robot.dcLift.setPower(0);
             }
             if (gamepad1.y) {
                 robot.dcInOut.setPower(0.5);
@@ -100,7 +95,38 @@ public class D1V4Op extends LinearOpMode {
             } else {
                 robot.dcOpenClose.setPower(0);
             }
-
+            if (gamepad1.x && !xIsPressed) {
+                xIsPressed = true;
+                if (robot.sRFoundHook.getPosition() == 0) {
+                    robot.sRFoundHook.setPosition(0.9);
+                    robot.sLFoundHook.setPosition(0.9);
+                } else {
+                    robot.sRFoundHook.setPosition(0);
+                    robot.sLFoundHook.setPosition(0);
+                }
+            } else if(xIsPressed && !gamepad1.x) {
+                xIsPressed = false;
+            }
+            if (gamepad1.dpad_left && !leftDPadPressed) {
+                if (robot.sLStoneHook.getPosition() == 0) {
+                    robot.sLStoneHook.setPosition(0.8);
+                } else {
+                    robot.sLStoneHook.setPosition(0);
+                }
+                leftDPadPressed = true;
+            } else if(leftDPadPressed && !gamepad1.dpad_left) {
+                leftDPadPressed = false;
+            }
+            if (gamepad1.dpad_right && !rightDPadPressed) {
+                if (robot.sRStoneHook.getPosition() == 0) {
+                    robot.sRStoneHook.setPosition(0.7);
+                } else {
+                    robot.sRStoneHook.setPosition(0);
+                }
+                rightDPadPressed = true;
+            } else if(rightDPadPressed && !gamepad1.dpad_right) {
+                rightDPadPressed = false;
+            }
             telemetry.update();
         }
     }

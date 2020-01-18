@@ -8,12 +8,11 @@ import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
 import org.firstinspires.ftc.teamcode.Functions.AutoFunctions;
 import org.firstinspires.ftc.teamcode.Functions.FunctionLibrary;
 import org.firstinspires.ftc.teamcode.Hardware_Maps.D1V4Mk2hardware;
-import org.firstinspires.ftc.teamcode.Hardware_Maps.D1V4hardware;
 
 import java.io.File;
 
 @Autonomous
-public class AllBridgeAutos extends LinearOpMode {
+public class AllBridgeAutosWDelay extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
         String[] thingsToControl = {
@@ -82,7 +81,7 @@ public class AllBridgeAutos extends LinearOpMode {
         AutoFunctions auto = new AutoFunctions(robot);
         FunctionLibrary.motorMovement inoutControl = new FunctionLibrary.motorMovement(100,robot.dcInOut);
         waitForStart();
-        int nSwitch = 1;
+        int nSwitch = 0;
         int result = 0;
         double x;
         double y;
@@ -90,14 +89,34 @@ public class AllBridgeAutos extends LinearOpMode {
         while (opModeIsActive()) {
 
             switch (nSwitch) {
+                case 0:
+                    result = inoutControl.move_using_encoder(200, 0.5, 5, 20, false);
+                    if (result < 0) {
+                        nSwitch++;
+                    }
+                    break;
                 case 1:
-                    destination = new FunctionLibrary.Point(finalPosition.x,startPosition.y);
+                    destination = new FunctionLibrary.Point(-6,startPosition.y);
                     result = auto.gotoPosition(destination,1,1,startingRotation);
                     x = robot.getX()-destination.x;
                     y = robot.getY()-destination.y;
                     if (result < 0) nSwitch++;
                     break;
                 case 2:
+                    resetStartTime();
+                    nSwitch++;
+                    break;
+                case 3:
+                    if (getRuntime() > 10) nSwitch++;
+                    break;
+                case 4:
+                    destination = new FunctionLibrary.Point(finalPosition.x,startPosition.y);
+                    result = auto.gotoPosition(destination,1,1,startingRotation);
+                    x = robot.getX()-destination.x;
+                    y = robot.getY()-destination.y;
+                    if (result < 0) nSwitch++;
+                    break;
+                case 5:
                     result = auto.gotoPosition(finalPosition, 1, 1, startingRotation);
                     x = robot.getX()-finalPosition.x;
                     y = robot.getY()-finalPosition.y;

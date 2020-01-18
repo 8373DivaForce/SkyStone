@@ -5,13 +5,14 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.TouchSensor;
 
 import java.util.ArrayList;
 import java.util.Map;
 
 
 //This class iterates through motors, CRServos, and servos and allows for their individual control
-@TeleOp
+@TeleOp(group = "D")
 public class CheckAllHardwareDevices extends LinearOpMode {
     //boolean that allows you to control two motors with the same joystick
     boolean slaveMotors = false;
@@ -177,7 +178,9 @@ public class CheckAllHardwareDevices extends LinearOpMode {
                 telemetry.addData(entry.getKey(), entry.getValue().getPower());
                 if ((entry != crServos.get(selectedCRServo) && entry != crServos.get(selectedCRServo2)) || deviceType != "CRServos") entry.getValue().setPower(0);
             }
-
+            for (Map.Entry<String, TouchSensor> entry : hardwareMap.touchSensor.entrySet()) {
+                telemetry.addData(entry.getKey(), entry.getValue().isPressed());
+            }
             telemetry.update();
         }
     }

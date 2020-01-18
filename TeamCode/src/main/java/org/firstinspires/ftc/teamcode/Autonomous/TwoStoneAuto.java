@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.Autonomous;
 import android.util.Log;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ReadWriteFile;
 
@@ -15,6 +16,7 @@ import org.firstinspires.ftc.teamcode.Hardware_Maps.D1V4hardware;
 import java.io.File;
 
 @Autonomous
+@Disabled
 public class TwoStoneAuto extends LinearOpMode {
     private final double mmPerInch = 25.4;
     @Override

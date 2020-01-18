@@ -62,7 +62,7 @@ public class InitSkystoneVuforia {
         //get the view ID
         int cameraMonitorViewId = hMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hMap.appContext.getPackageName());
         //get the localizer parameters
-        VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
+        VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters(cameraMonitorViewId);
 
         //set the vuforiaLicenseKey
         parameters.vuforiaLicenseKey = VuforiaKey;

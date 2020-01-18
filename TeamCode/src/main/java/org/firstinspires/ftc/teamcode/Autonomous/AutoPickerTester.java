@@ -8,7 +8,7 @@ import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
 
 import java.io.File;
 
-@TeleOp
+@TeleOp(group = "C")
 public class AutoPickerTester extends LinearOpMode {
 
     @Override

@@ -19,7 +19,7 @@ public class AutoFunctions {
     private double dOffsetGyro = 0;
     private DataLogger Dl;
     private Odometry odometry;
-
+    private double startingAngle = 0;
     //this is the constant for error correction in PID.
     //This takes in the robotConstructor object
     public AutoFunctions(RobotConstructor robot) {
@@ -198,6 +198,43 @@ public class AutoFunctions {
                 }
         }
 
+        return nReturn;
+    }
+    public int turnDegrees(double degrees, double power, double maxError, double timeout) {
+        int nReturn = 0;
+        switch (nState) {
+            case 0:
+                startingAngle = robot.getWorldRotation();
+                timer.reset();
+                nState++;
+                break;
+            case 1:
+                double rotation = robot.getWorldRotation();
+                double worldAngle = startingAngle+degrees;
+                double difference = Math.abs(worldAngle-rotation);
+                double rotation360 = rotation;
+                if (rotation < 0) rotation360 += 360;
+                //compare current rotation to targetAngle to get how much the robot needs to turn
+                double dRotation = (degrees-rotation);
+                double dAngle360 = dRotation;
+                double dRotation360 = (dAngle360-rotation360);
+                while (dRotation360 < 0) dRotation360 += 360;
+
+                if (Math.abs(dRotation360) < Math.abs(dRotation)) dRotation = dRotation360;
+
+                double dPower = difference/50;
+                if (dPower > power) dPower = dPower;
+                robot.move(0,0,dPower, power);
+                if (difference < maxError) {
+                    nReturn = -1;
+                    robot.move(0,0,0,0);
+                } else if (timeout*1000 < timer.milliseconds()) {
+                    nReturn = -2;
+                    robot.move(0,0,0,0);
+                }
+
+
+        }
         return nReturn;
     }
     //takes a destination point, max power, and max error and navigates to that point using odometry data

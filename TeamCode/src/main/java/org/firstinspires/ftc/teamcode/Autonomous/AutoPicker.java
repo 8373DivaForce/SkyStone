@@ -10,7 +10,7 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
-@TeleOp
+@TeleOp(group="B")
 public class AutoPicker extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
@@ -22,6 +22,26 @@ public class AutoPicker extends LinearOpMode {
                 "Bridge",
                 "Foundation",
                 "Skystone"
+        };
+        String[][] startingPositions = new String[Autos.length][];
+
+        startingPositions[0] = new String[4];
+        startingPositions[0][0] = "Next To Quarry";
+        startingPositions[0][1] = "Right of SkyBridge";
+        startingPositions[0][2] = "Left of SkyBridge";
+        startingPositions[0][3] = "Next to Build Site";
+
+        startingPositions[1] = new String[2];
+        startingPositions[1][0] = "Left of SkyBridge";
+        startingPositions[1][1] = "Next to Build site";
+
+        startingPositions[2] = new String[2];
+        startingPositions[2][0] = "Next to Quarry";
+        startingPositions[2][1] = "Right of SkyBridge";
+
+        String[] FinalPositions = {
+                "Against Wall",
+                "Against Neutral Bridge"
         };
         HashMap<String, Integer> positions = new HashMap<>();
         HashMap<String, Integer> endPositions = new HashMap<>();
@@ -90,9 +110,10 @@ public class AutoPicker extends LinearOpMode {
                 dDownPressed = true;
             } else if (!gamepad1.dpad_down && dDownPressed) dDownPressed = false;
 
-            for (Map.Entry<String, Integer> entry : autoValues.entrySet()) {
-                telemetry.addData(entry.getKey(), entry.getValue());
-            }
+            telemetry.addData("Alliance", alliances[autoValues.get("Alliance")]);
+            telemetry.addData("Auto", autoValues.get("Auto"));
+            telemetry.addData("Starting Position", startingPositions[autoValues.get("Auto")][autoValues.get("Position")]);
+            telemetry.addData("End Position", FinalPositions[autoValues.get("EndPosition")]);
             telemetry.update();
         }
         File file = AppUtil.getInstance().getSettingsFile("AutoSelection");
