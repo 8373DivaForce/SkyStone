@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.Teleops;
 
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -6,17 +6,16 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.teamcode.Hardware_Maps.D1V4hardware;
+import org.firstinspires.ftc.teamcode.Hardware_Maps.Kisshardware;
 
 import static org.firstinspires.ftc.teamcode.Functions.FunctionLibrary.GetYaw;
 
 @TeleOp
-@Disabled
-public class D1V4Op extends LinearOpMode {
+public class KissOp extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
-        D1V4hardware robot = new D1V4hardware(this,0,0,0);
-        robot.dcOpenClose.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        Kisshardware robot = new Kisshardware(this,0,0,0);
         boolean fieldCentric = true;
         boolean leftStickButton = false;
         boolean rightStickButton = false;
@@ -65,41 +64,6 @@ public class D1V4Op extends LinearOpMode {
             telemetry.addData("x: ", robot.getX());
             telemetry.addData("y: ", robot.getY());
             telemetry.update();
-            if (gamepad1.dpad_left) {
-                robot.csRight.setPower(-1);
-                robot.csLeft.setPower(-1);
-            } else if(gamepad1.dpad_right) {
-                robot.csRight.setPower(1);
-                robot.csLeft.setPower(1);
-            } else {
-                robot.csRight.setPower(0);
-                robot.csLeft.setPower(0);
-            }
-            if (gamepad1.right_trigger > 0 && !robot.upperLimitSwitch.isPressed()) {
-                robot.dcUpDown1.setPower(gamepad1.right_trigger);
-                robot.dcUpDown2.setPower(gamepad1.right_trigger);
-            } else if (gamepad1.left_trigger > 0 && !robot.lowerLimitSwitch.isPressed()) {
-                robot.dcUpDown1.setPower(-gamepad1.left_trigger);
-                robot.dcUpDown2.setPower(-gamepad1.left_trigger);
-            } else {
-                robot.dcUpDown1.setPower(0);
-                robot.dcUpDown2.setPower(0);
-            }
-            if (gamepad1.y) {
-                robot.dcInOut.setPower(0.5);
-            } else if (gamepad1.a) {
-                robot.dcInOut.setPower(-0.5);
-            } else {
-                robot.dcInOut.setPower(0);
-            }
-
-            if (gamepad1.left_bumper) {
-                robot.dcOpenClose.setPower(-1);
-            } else if (gamepad1.right_bumper) {
-                robot.dcOpenClose.setPower(1);
-            } else {
-                robot.dcOpenClose.setPower(0);
-            }
 
             telemetry.update();
         }
