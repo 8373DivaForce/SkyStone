@@ -20,6 +20,7 @@ public class AutoFunctions {
     private DataLogger Dl;
     private Odometry odometry;
     private double startingAngle = 0;
+    private final ElapsedTime localTime = new ElapsedTime();
     //this is the constant for error correction in PID.
     //This takes in the robotConstructor object
     public AutoFunctions(RobotConstructor robot) {
@@ -28,8 +29,8 @@ public class AutoFunctions {
         //initialize the gyro
         try {
             // Create Datalogger
-            Dl = new DataLogger("AutoLog.csv");
-            Dl.addHeaderLine("Time", "rotation", "error", "LeftRight Target", "FrontBack Target", "Front Power", "Back Power", "Left Power","Right Power");
+            Dl = new DataLogger(robot.name + " autolog " + System.currentTimeMillis() + ".csv");
+            Dl.addHeaderLine("System Time", "Local Time", "Rotation", "X", "Y","Target Rotation", "TargetX", "TargetY");
 
             // Update the log file
         } catch (IOException e){
@@ -240,8 +241,11 @@ public class AutoFunctions {
     //takes a destination point, max power, and max error and navigates to that point using odometry data
     public int gotoPosition(FunctionLibrary.Point destination,double power, double error) {
         //find the x and y offset using odometry position and destination
-        double xPos = destination.x-robot.getX();
-        double yPos = destination.y-robot.getY();
+
+        double globalX = robot.getX();
+        double globalY = robot.getY();
+        double xPos = destination.x-globalX;
+        double yPos = destination.y-globalY;
         //find the total distance to the point using the pentagram formula
         double distance = Math.sqrt((xPos*xPos) + (yPos*yPos));
         //check if that distance is less than the max error
@@ -252,8 +256,10 @@ public class AutoFunctions {
         }
         //find the local movement Vector angle
         double angle = Math.toDegrees(Math.atan2(yPos,xPos));
+
+        double currentRotation = robot.getWorldRotation();
         //translate that to the global movement vector
-        double robotAngle = angle + robot.getWorldRotation();
+        double robotAngle = angle + currentRotation;
 
         //find the x movement using the distance and cosine of the adjusted angle
         double adjustedX = distance*Math.cos(Math.toRadians(robotAngle));
@@ -262,14 +268,20 @@ public class AutoFunctions {
 
         //feeds those values into the robot move function
         robot.move(adjustedY, adjustedX, 0, power);
-
+        try {
+            Dl.addDataLine(System.currentTimeMillis(), localTime.seconds(), currentRotation, globalX, globalY, 1000, destination.x, destination.y);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         return 0;
     }
     //same function as before, but it tries to stay at the same heading throughout the movement
     public int gotoPosition(FunctionLibrary.Point destination,double power, double error, double targetAngle) {
+        double globalX = robot.getX();
+        double globalY = robot.getY();
         //finds the local x and y offset
-        double xPos = destination.x-robot.getX();
-        double yPos = destination.y-robot.getY();
+        double xPos = destination.x-globalX;
+        double yPos = destination.y-globalY;
         //finds the distance from the points
         double distance = Math.sqrt((xPos*xPos) + (yPos*yPos));
         //checks if that distance is less than the max error
@@ -278,8 +290,10 @@ public class AutoFunctions {
             robot.move(0,0,0,0);
             return -1;
         }
+
+        double currentRotation = robot.getWorldRotation();
         //find the current angle
-        double currentAngle = robot.getWorldRotation();
+        double currentAngle = currentRotation;
         //find the movement vector angle
         double angle = Math.toDegrees(Math.atan2(yPos,xPos));
         //translate the local movement vector to a global vecctor
@@ -307,7 +321,11 @@ public class AutoFunctions {
         }
         //pass the x movement, y movement, rotation, and power to the move function in the constructor class
         robot.move(adjustedY, adjustedX, robotRotation/50, power);
-
+        try {
+            Dl.addDataLine(System.currentTimeMillis(), localTime.seconds(), currentRotation, globalX, globalY, targetAngle, destination.x, destination.y);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         return 0;
     }
     //takes in a run mode like DcMotor.RunMode.STOP_AND_RESET_ENCODERS and applies it to every drive motor

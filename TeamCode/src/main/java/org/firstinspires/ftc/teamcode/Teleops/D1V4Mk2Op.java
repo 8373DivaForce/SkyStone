@@ -75,10 +75,13 @@ public class D1V4Mk2Op extends LinearOpMode {
             telemetry.update();
             if (gamepad1.right_trigger > 0 && !robot.upperLimitSwitch.isPressed()) {
                 robot.dcLift.setPower(gamepad1.right_trigger);
+                robot.dcLift2.setPower(gamepad1.right_trigger);
             } else if (gamepad1.left_trigger > 0 && !robot.lowerLimitSwitch.isPressed()) {
                 robot.dcLift.setPower(-gamepad1.left_trigger);
+                robot.dcLift2.setPower(-gamepad1.left_trigger);
             } else {
                 robot.dcLift.setPower(0);
+                robot.dcLift2.setPower(0);
             }
             if (gamepad1.y) {
                 robot.dcInOut.setPower(0.5);

@@ -64,15 +64,18 @@ public class RobotConstructor {
     private volatile double rotationOffset = 0;
     private volatile double gyroRotation = 0;
 
+    public final String name;
+
     boolean useWebcam = true;
 
     //constructor function, takes the opMode and the robot specific parameters
-    public RobotConstructor(LinearOpMode opMode, double wheelDiameter, double dKp, double minMoveSpeed,
+    public RobotConstructor(LinearOpMode opMode, String name, double wheelDiameter, double dKp, double minMoveSpeed,
                             double rampingDistance, float CameraForwardDisplacement,
                             float CameraLeftDisplacement, float CameraVerticalDisplacement,
                             String webcameName, String VuforiaKey, int odometryUpdateRate) {
         //copy the variables that were passed through to the ones stored in the class
         this.hMap = opMode.hardwareMap;
+        this.name = name;
         this.odometryUpdateRate = odometryUpdateRate;
         this.CameraForwardDisplacement = CameraForwardDisplacement;
         this.CameraLeftDisplacement = CameraLeftDisplacement;
@@ -99,7 +102,7 @@ public class RobotConstructor {
         imu.initialize(BNparameters);
 
         //create new odometry object
-        this.odometry = new Odometry(this,opMode);
+        this.odometry = new Odometry(this,opMode, name);
         //create a new thread off of the odometry object
         this.odometryThread = new Thread(odometry);
         //start the thread
@@ -108,12 +111,13 @@ public class RobotConstructor {
         webcam = hMap.get(WebcamName.class, webcameName);
     }
     //same class as the one above except without a webcam
-    public RobotConstructor(LinearOpMode opMode, double wheelDiameter, double dKp, double minMoveSpeed,
+    public RobotConstructor(LinearOpMode opMode, String name, double wheelDiameter, double dKp, double minMoveSpeed,
                             double rampingDistance, float CameraForwardDisplacement,
                             float CameraLeftDisplacement, float CameraVerticalDisplacement,
                             String VuforiaKey, int odometryUpdateRate) {
         //copy the variables that were passed through to the ones in the class
         this.hMap = opMode.hardwareMap;
+        this.name = name;
         this.odometryUpdateRate = odometryUpdateRate;
         this.CameraForwardDisplacement = CameraForwardDisplacement;
         this.CameraLeftDisplacement = CameraLeftDisplacement;
@@ -140,7 +144,7 @@ public class RobotConstructor {
         imu.initialize(BNparameters);
 
         //create new odometry object from the constructor class
-        this.odometry = new Odometry(this,opMode);
+        this.odometry = new Odometry(this,opMode, name);
         //create new thread from the odometry object
         this.odometryThread = new Thread(odometry);
         //start the odometry thread
@@ -164,7 +168,7 @@ public class RobotConstructor {
     //if left be, it only updates rotation
     //when overriden, you call super.updateOdometry() to update the rotation and then add inverse kinimatics
     //to calculate the position
-    public void updateOdometry() {
+    public double[] updateOdometry() {
         gyroRotation = GetYaw(0,imu);
 
         double rotation = gyroRotation+rotationOffset;
@@ -173,6 +177,13 @@ public class RobotConstructor {
         if (rotation > 180) rotation -= 360;
         if (rotation < -180) rotation += 360;
         worldRotation = rotation;
+        return new double[] {
+                rotation,
+                0,
+                0,
+                0,
+                0,
+        };
     }
     //initializes vuforia for the 2019-2020 skystone challenge
     public void initVuforia(HardwareMap hMap) {

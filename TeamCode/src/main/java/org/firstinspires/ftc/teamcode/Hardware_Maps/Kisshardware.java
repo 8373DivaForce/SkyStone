@@ -30,7 +30,7 @@ public class Kisshardware extends RobotConstructor {
     public static float CameraLeftDisplacement;
     public static float CameraVerticalDisplacement;
     private static float rampingDistance = 12;
-    private static int odometryUpdateRate = 50;
+    private static int odometryUpdateRate = 6;
 
     public final double inchesPerTickX;
     public final double inchesPerTickY;
@@ -41,6 +41,9 @@ public class Kisshardware extends RobotConstructor {
     public final DcMotor dcBackLeft;
     public final DcMotor dcBackRight;
 
+
+    public final Servo sLStoneHook;
+    public final Servo sRStoneHook;
     private static float cameraChoice(String camera) {
         Webcamname = camera;
         if(camera == null) {
@@ -51,10 +54,12 @@ public class Kisshardware extends RobotConstructor {
         CameraLeftDisplacement = 0;
         return CameraForwardDisplacement;
     }
+
+    private final static String name = "Kissbot";
     //setup the constructor function
     public Kisshardware(LinearOpMode opMode, double rotation, String camera) {
         //provide the opMode given on creation as well as the variables defined above
-        super(opMode, wheelDiameter, dKp, minMoveSpeed,rampingDistance, cameraChoice(camera), CameraLeftDisplacement, CameraVerticalDisplacement, Webcamname, VuforiaKey, odometryUpdateRate);
+        super(opMode, name, wheelDiameter, dKp, minMoveSpeed,rampingDistance, cameraChoice(camera), CameraLeftDisplacement, CameraVerticalDisplacement, Webcamname, VuforiaKey, odometryUpdateRate);
         //save the hardware map from the opMode
         HardwareMap hMap = opMode.hardwareMap;
 
@@ -63,15 +68,22 @@ public class Kisshardware extends RobotConstructor {
         dcFrontRight = hMap.dcMotor.get("frontright");
         dcBackLeft = hMap.dcMotor.get("backleft");
         dcBackRight = hMap.dcMotor.get("backright");
+
+        sRStoneHook = hMap.servo.get("rightstone");
+        sLStoneHook = hMap.servo.get("leftstone");
         //setup the directions the devices need to operate in
         dcFrontRight.setDirection(DcMotor.Direction.REVERSE);
         dcBackRight.setDirection(DcMotor.Direction.REVERSE);
+        sRStoneHook.setDirection(Servo.Direction.REVERSE);
 
         //make sure none of the devices are running
         dcFrontLeft.setPower(0);
         dcFrontRight.setPower(0);
         dcBackLeft.setPower(0);
         dcBackRight.setPower(0);
+
+        sLStoneHook.setPosition(0);
+        sRStoneHook.setPosition(0);
 
         //Reset the encoders on every motor
         dcFrontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -88,10 +100,10 @@ public class Kisshardware extends RobotConstructor {
         //initialize a variable useful in the odometry function
         double tempInchPerTick = (1/dcFrontLeft.getMotorType().getTicksPerRev())*getWheelCircumfrance();
         // old inchesPerTickX = tempInchPerTick*-0.92307692307692307692307692307692;
-        inchesPerTickX = tempInchPerTick*-0.90423861852433281004709576138146;
+        inchesPerTickX = tempInchPerTick*-1.11089265;
 
         // old inchesPerTickY = tempInchPerTick*1.1483253588516746411483253588517;
-        inchesPerTickY = tempInchPerTick*1.1041589988958410011041589988959;
+        inchesPerTickY = tempInchPerTick*-1.22675109;
         useOdometry = false;
         setRotation(rotation);
         initOdometry();
@@ -121,7 +133,7 @@ public class Kisshardware extends RobotConstructor {
     boolean useOdometry;
     //overide the odometry function to make it robot specific
     @Override
-    public void updateOdometry() {
+    public double[] updateOdometry() {
         //calls that parent classes version of this function to update rotation
         super.updateOdometry();
 
@@ -159,7 +171,21 @@ public class Kisshardware extends RobotConstructor {
 
             //add the offsets to the global position
             addDeviation(new FunctionLibrary.Point(deltaX, deltaY));
+            return new double[] {
+                    getWorldRotation(),
+                    getX(),
+                    getY(),
+                    deltaX,
+                    deltaY
+            };
         }
+        return new double[] {
+                getWorldRotation(),
+                getX(),
+                getY(),
+                0,
+                0
+        };
     }
 
     //overide the movement class
@@ -210,7 +236,17 @@ public class Kisshardware extends RobotConstructor {
             pBackLeft = pBackLeft * scaler;
             pBackRight = pBackRight * scaler;
         }
-
+        if (power < 0 || (Math.abs(pFrontLeft) == 0 && Math.abs(pFrontRight) == 0 && pBackLeft == 0 && pBackRight == 0)) {
+            dcFrontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            dcFrontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            dcBackLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            dcBackRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        } else {
+            dcFrontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+            dcFrontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+            dcBackLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+            dcBackRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        }
         //set all of the motors to those powers
         dcFrontLeft.setPower(pFrontLeft);
         dcFrontRight.setPower(pFrontRight);

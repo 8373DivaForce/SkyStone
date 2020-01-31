@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
+import org.firstinspires.ftc.teamcode.Functions.FunctionLibrary;
 import org.firstinspires.ftc.teamcode.Hardware_Maps.D1V4hardware;
 import org.firstinspires.ftc.teamcode.Hardware_Maps.Kisshardware;
 
@@ -23,6 +24,8 @@ public class KissOp extends LinearOpMode {
         double dOffset = 0;
         waitForStart();
         while (opModeIsActive()) {
+            FunctionLibrary.Point position = robot.getPosition();
+            telemetry.addData("position", position.x + ", " + position.y);
             telemetry.addData("fieldCentric", fieldCentric);
             if (!leftStickButton && gamepad1.left_stick_button) {
                 if (fieldCentric) {
@@ -65,7 +68,6 @@ public class KissOp extends LinearOpMode {
             telemetry.addData("y: ", robot.getY());
             telemetry.update();
 
-            telemetry.update();
         }
     }
 }

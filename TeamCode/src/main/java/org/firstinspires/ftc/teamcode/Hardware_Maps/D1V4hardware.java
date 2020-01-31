@@ -54,11 +54,11 @@ public class D1V4hardware extends RobotConstructor {
     public final TouchSensor upperLimitSwitch;
     public final TouchSensor lowerLimitSwitch;
 
-
+    private static final String name = "D1V4";
     //setup the constructor function
     public D1V4hardware(LinearOpMode opMode, double rotation) {
         //provide the opMode given on creation as well as the variables defined above
-        super(opMode, wheelDiameter, dKp, minMoveSpeed,rampingDistance, CameraForwardDisplacement, CameraLeftDisplacement, CameraVerticalDisplacement, Webcamname, VuforiaKey, odometryUpdateRate);
+        super(opMode, name, wheelDiameter, dKp, minMoveSpeed,rampingDistance, CameraForwardDisplacement, CameraLeftDisplacement, CameraVerticalDisplacement, Webcamname, VuforiaKey, odometryUpdateRate);
         //save the hardware map from the opMode
         HardwareMap hMap = opMode.hardwareMap;
 
@@ -143,7 +143,7 @@ public class D1V4hardware extends RobotConstructor {
     boolean useOdometry;
     //overide the odometry function to make it robot specific
     @Override
-    public void updateOdometry() {
+    public double[] updateOdometry() {
         //calls that parent classes version of this function to update rotation
         super.updateOdometry();
 
@@ -181,7 +181,21 @@ public class D1V4hardware extends RobotConstructor {
 
             //add the offsets to the global position
             addDeviation(new FunctionLibrary.Point(deltaX, deltaY));
+            return new double[] {
+                    getWorldRotation(),
+                    getX(),
+                    getY(),
+                    deltaX,
+                    deltaY
+            };
         }
+        return new double[] {
+                getWorldRotation(),
+                getX(),
+                getY(),
+                0,
+                0
+        };
     }
 
     //overide the movement class

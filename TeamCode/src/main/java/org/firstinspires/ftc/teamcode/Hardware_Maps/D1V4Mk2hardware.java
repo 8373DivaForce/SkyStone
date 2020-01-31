@@ -3,13 +3,11 @@ package org.firstinspires.ftc.teamcode.Hardware_Maps;
 import android.util.Log;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 
-import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.Functions.FunctionLibrary;
 import org.firstinspires.ftc.teamcode.Functions.RobotConstructor;
 
@@ -42,7 +40,7 @@ public class D1V4Mk2hardware extends RobotConstructor {
     public final DcMotor dcFrontRight;
     public final DcMotor dcBackLeft;
     public final DcMotor dcBackRight;
-    public final DcMotor dcLift;
+    public final DcMotor dcLift, dcLift2;
     public final DcMotor dcInOut;
     public final DcMotor dcOpenClose;
 
@@ -64,10 +62,12 @@ public class D1V4Mk2hardware extends RobotConstructor {
         CameraLeftDisplacement = 0;
         return CameraForwardDisplacement;
     }
+
+    private static final String name = "D1V4Mk2";
     //setup the constructor function
     public D1V4Mk2hardware(LinearOpMode opMode, double rotation, String camera) {
         //provide the opMode given on creation as well as the variables defined above
-        super(opMode, wheelDiameter, dKp, minMoveSpeed,rampingDistance, cameraChoice(camera), CameraLeftDisplacement, CameraVerticalDisplacement, Webcamname, VuforiaKey, odometryUpdateRate);
+        super(opMode, name, wheelDiameter, dKp, minMoveSpeed,rampingDistance, cameraChoice(camera), CameraLeftDisplacement, CameraVerticalDisplacement, Webcamname, VuforiaKey, odometryUpdateRate);
         //save the hardware map from the opMode
         HardwareMap hMap = opMode.hardwareMap;
 
@@ -78,7 +78,8 @@ public class D1V4Mk2hardware extends RobotConstructor {
         dcBackRight = hMap.dcMotor.get("RBM");
         dcInOut = hMap.dcMotor.get("inout");
         dcOpenClose = hMap.dcMotor.get("gripper");
-        dcLift = hMap.dcMotor.get("lift");
+        dcLift = hMap.dcMotor.get("lift1");
+        dcLift2 = hMap.dcMotor.get("lift2");
 
         sLStoneHook = hMap.servo.get("leftstone");
         sRStoneHook = hMap.servo.get("rightstone");
@@ -102,6 +103,7 @@ public class D1V4Mk2hardware extends RobotConstructor {
         dcBackRight.setPower(0);
         dcOpenClose.setPower(0);
         dcLift.setPower(0);
+        dcLift2.setPower(0);
         dcInOut.setPower(0);
 
         sRFoundHook.setPosition(0.9);
@@ -115,6 +117,7 @@ public class D1V4Mk2hardware extends RobotConstructor {
         dcBackRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         dcBackLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         dcLift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        dcLift2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         dcInOut.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         dcOpenClose.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
@@ -124,10 +127,12 @@ public class D1V4Mk2hardware extends RobotConstructor {
         dcBackRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         dcBackLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         dcLift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        dcLift2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         dcInOut.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         dcOpenClose.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         dcLift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        dcLift2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         //initialize a variable useful in the odometry function
         double tempInchPerTick = (1/dcFrontLeft.getMotorType().getTicksPerRev())*getWheelCircumfrance();
         // old inchesPerTickX = tempInchPerTick*-0.92307692307692307692307692307692;
@@ -164,7 +169,7 @@ public class D1V4Mk2hardware extends RobotConstructor {
     boolean useOdometry;
     //overide the odometry function to make it robot specific
     @Override
-    public void updateOdometry() {
+    public double[] updateOdometry() {
         //calls that parent classes version of this function to update rotation
         super.updateOdometry();
 
@@ -202,7 +207,21 @@ public class D1V4Mk2hardware extends RobotConstructor {
 
             //add the offsets to the global position
             addDeviation(new FunctionLibrary.Point(deltaX, deltaY));
+            return new double[] {
+                    getWorldRotation(),
+                    getX(),
+                    getY(),
+                    deltaX,
+                    deltaY
+            };
         }
+        return new double[] {
+                getWorldRotation(),
+                getX(),
+                getY(),
+                0,
+                0
+        };
     }
 
     //overide the movement class
