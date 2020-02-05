@@ -30,7 +30,7 @@ public class Kisshardware extends RobotConstructor {
     public static float CameraLeftDisplacement;
     public static float CameraVerticalDisplacement;
     private static float rampingDistance = 12;
-    private static int odometryUpdateRate = 6;
+    private static int odometryUpdateRate = 24;
 
     public final double inchesPerTickX;
     public final double inchesPerTickY;
@@ -155,7 +155,6 @@ public class Kisshardware extends RobotConstructor {
             double yOffset = ((frontLeftOffset + frontRightOffset + backLeftOffset + backRightOffset)/4)*inchesPerTickY;
             double xOffset = (-(-frontLeftOffset + frontRightOffset + backLeftOffset - backRightOffset)/4)*inchesPerTickX;
 
-            Log.d("Odometry Update", "yOffset: " + yOffset + " xOffset: " + xOffset + "FrontLeft: " + frontLeftOffset + "FrontRight: " + frontRightOffset + "BackLeft" + backLeftOffset + " BackRight: " + backRightOffset);
             //find the hypotenuse to run trigonometry
             double hypot = sqrt(pow(xOffset, 2) + pow(yOffset, 2));
 
@@ -194,48 +193,27 @@ public class Kisshardware extends RobotConstructor {
         //invert the x input as it's flipped\
         //define initial kinimatics based off of mecanum drive
         y=-y;
+
+        //add forwards motion
         double pFrontLeft= x + y;
         double pFrontRight = x - y;
         double pBackLeft= x - y;
         double pBackRight = x + y;
 
-        //find the motor with the highest power level
-        double max = max(max(abs(pFrontRight),abs(pFrontLeft)),max(abs(pBackRight), abs(pBackRight)));
+        //use the scaleDownValues function from the FunctionLibrary and give it the power as the max and all of the motors
+        double[] powers = FunctionLibrary.scaleDownValues(power, pFrontLeft, pFrontRight, pBackLeft, pBackRight);
 
-        //reduce the total power if it's above 0.9 to ensure rotation will occur
-        double drivePower = power;
-        if (rotation > 0.1) drivePower = 0.9;
-
-        //if that maximum power level is higher than the power given,
-        //find the scaler value that will bring it down to that
-        //and scale all of the motors using it
-        if (max > drivePower) {
-            double scaler = drivePower/max;
-            pFrontLeft = pFrontLeft * scaler;
-            pFrontRight = pFrontRight * scaler;
-            pBackLeft = pBackLeft * scaler;
-            pBackRight = pBackRight * scaler;
-        }
-
-        //add the rotation powers to the motors
-
-        pFrontLeft = pFrontLeft - rotation;
-        pFrontRight = pFrontRight + rotation;
-        pBackLeft = pBackLeft - rotation;
-        pBackRight = pBackRight + rotation;
-        //find the motor with maximum power again
-        max = max(max(abs(pFrontRight),abs(pFrontLeft)),max(abs(pBackRight), abs(pBackRight)));
-
-        //if that maximum power level is higher than 1,
-        //find the scaler value that will bring it down to that
-        //and scale all of the motors using it
-        if (max > power) {
-            double scaler = power/max;
-            pFrontLeft = pFrontLeft * scaler;
-            pFrontRight = pFrontRight * scaler;
-            pBackLeft = pBackLeft * scaler;
-            pBackRight = pBackRight * scaler;
-        }
+        //add left/right motion
+        pFrontLeft = powers[0] - rotation;
+        pFrontRight = powers[1] + rotation;
+        pBackLeft = powers[2] - rotation;
+        pBackRight = powers[3] + rotation;
+        //scale down values again
+        powers = FunctionLibrary.scaleDownValues(power, pFrontLeft, pFrontRight, pBackLeft, pBackRight);
+        pFrontLeft = powers[0];
+        pFrontRight = powers[1];
+        pBackLeft = powers[2];
+        pBackRight = powers[3];
         if (power < 0 || (Math.abs(pFrontLeft) == 0 && Math.abs(pFrontRight) == 0 && pBackLeft == 0 && pBackRight == 0)) {
             dcFrontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
             dcFrontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);

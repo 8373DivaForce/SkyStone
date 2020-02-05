@@ -90,6 +90,7 @@ public class D1V4Mk2hardware extends RobotConstructor {
         lowerLimitSwitch = hMap.touchSensor.get("downlimit");
 
         //setup the directions the devices need to operate in
+
         dcFrontRight.setDirection(DcMotor.Direction.REVERSE);
         dcBackRight.setDirection(DcMotor.Direction.REVERSE);
 
@@ -136,10 +137,10 @@ public class D1V4Mk2hardware extends RobotConstructor {
         //initialize a variable useful in the odometry function
         double tempInchPerTick = (1/dcFrontLeft.getMotorType().getTicksPerRev())*getWheelCircumfrance();
         // old inchesPerTickX = tempInchPerTick*-0.92307692307692307692307692307692;
-        inchesPerTickX = tempInchPerTick*-0.90423861852433281004709576138146;
+        inchesPerTickX = tempInchPerTick*-1;
 
         // old inchesPerTickY = tempInchPerTick*1.1483253588516746411483253588517;
-        inchesPerTickY = tempInchPerTick*1.1041589988958410011041589988959;
+        inchesPerTickY = tempInchPerTick*1;
         useOdometry = false;
         setRotation(rotation);
         initOdometry();
@@ -175,23 +176,27 @@ public class D1V4Mk2hardware extends RobotConstructor {
 
         //check if odometry is enabled
         if (useOdometry) {
+
+            double currentFrontLeft = -dcFrontLeft.getCurrentPosition();
+            double currentFrontRight = -dcFrontRight.getCurrentPosition();
+            double currentBackLeft = dcBackLeft.getCurrentPosition();
+            double currentBackRight = dcBackRight.getCurrentPosition();
             //find the offset per wheel
-            double frontLeftOffset = (dcFrontLeft.getCurrentPosition() - lastFrontLeftPos);
-            double frontRightOffset = (dcFrontRight.getCurrentPosition() - lastFrontRightPos);
-            double backLeftOffset = (dcBackLeft.getCurrentPosition() - lastBackLeftPos);
-            double backRightOffset = (dcBackRight.getCurrentPosition() - lastBackRightPos);
+            double frontLeftOffset = (currentFrontLeft - lastFrontLeftPos);
+            double frontRightOffset = (currentFrontRight - lastFrontRightPos);
+            double backLeftOffset = (currentBackLeft - lastBackLeftPos);
+            double backRightOffset = (currentBackRight - lastBackRightPos);
 
             //set the last positions to the current ones for the next iteration
-            lastFrontLeftPos = dcFrontLeft.getCurrentPosition();
-            lastFrontRightPos = dcFrontRight.getCurrentPosition();
-            lastBackLeftPos = dcBackLeft.getCurrentPosition();
-            lastBackRightPos = dcBackRight.getCurrentPosition();
+            lastFrontLeftPos = currentFrontLeft;
+            lastFrontRightPos = currentFrontRight;
+            lastBackLeftPos = currentBackLeft;
+            lastBackRightPos = currentBackRight;
 
             //find the x and y offsets using inverse kinematics
             double yOffset = ((frontLeftOffset + frontRightOffset + backLeftOffset + backRightOffset)/4)*inchesPerTickY;
-            double xOffset = (-(-frontLeftOffset + frontRightOffset + backLeftOffset - backRightOffset)/4)*inchesPerTickX;
-
-            Log.d("Odometry Update", "yOffset: " + yOffset + " xOffset: " + xOffset + "FrontLeft: " + frontLeftOffset + "FrontRight: " + frontRightOffset + "BackLeft" + backLeftOffset + " BackRight: " + backRightOffset);
+            double xOffset = (-(-frontRightOffset - backRightOffset + frontLeftOffset + backLeftOffset)/4)*inchesPerTickX;
+            Log.d("updateOdometry: ", "front left: " + lastFrontLeftPos + " front right: " + lastFrontRightPos + " back right: " + lastBackRightPos + " back left: " + lastBackLeftPos);
             //find the hypotenuse to run trigonometry
             double hypot = sqrt(pow(xOffset, 2) + pow(yOffset, 2));
 

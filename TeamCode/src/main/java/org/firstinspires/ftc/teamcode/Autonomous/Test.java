@@ -115,7 +115,7 @@ public class Test extends LinearOpMode {
             if (EndPosition == 0) {
                 finalPosition = new FunctionLibrary.Point(58, 0);
             } else if (EndPosition == 1) {
-                finalPosition = new FunctionLibrary.Point(40, 0);
+                finalPosition = new FunctionLibrary.Point(36, 0);
             }
             cameraName = hardwareMap.get(WebcamName.class, "right");
         }
@@ -139,7 +139,7 @@ public class Test extends LinearOpMode {
             if (EndPosition == 0) {
                 finalPosition = new FunctionLibrary.Point(-58, 0);
             } else if (EndPosition == 1) {
-                finalPosition = new FunctionLibrary.Point(-40, 0);
+                finalPosition = new FunctionLibrary.Point(-36, 0);
             }
             cameraName = hardwareMap.get(WebcamName.class, "left");
 

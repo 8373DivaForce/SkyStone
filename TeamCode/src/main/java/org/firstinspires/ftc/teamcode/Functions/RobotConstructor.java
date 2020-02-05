@@ -17,6 +17,8 @@ import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import static org.firstinspires.ftc.robotcore.external.navigation.AngleUnit.DEGREES;
 import static org.firstinspires.ftc.robotcore.external.navigation.AxesOrder.XYZ;
@@ -31,8 +33,7 @@ public class RobotConstructor {
     private final String VuforiaKey;
 
     private final Odometry odometry;
-    public Thread odometryThread;
-
+    final ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(1);
     private final float CameraForwardDisplacement;
     private final float CameraLeftDisplacement;
     private final float CameraVerticalDisplacement;
@@ -104,7 +105,6 @@ public class RobotConstructor {
         //create new odometry object
         this.odometry = new Odometry(this,opMode, name);
         //create a new thread off of the odometry object
-        this.odometryThread = new Thread(odometry);
         //start the thread
 
         //define the webcame
@@ -146,7 +146,6 @@ public class RobotConstructor {
         //create new odometry object from the constructor class
         this.odometry = new Odometry(this,opMode, name);
         //create new thread from the odometry object
-        this.odometryThread = new Thread(odometry);
         //start the odometry thread
 
         //set the webcam to null for other functions
@@ -160,8 +159,7 @@ public class RobotConstructor {
     }
 
     public void initOdometry() {
-        if (!odometryThread.isAlive())
-            odometryThread.start();
+        executor.schedule(odometry, odometryUpdateRate, TimeUnit.MILLISECONDS);
     }
 
     //function for the odometry thread to run

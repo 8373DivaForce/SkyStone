@@ -5,13 +5,15 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.Functions.AutoFunctions;
 import org.firstinspires.ftc.teamcode.Functions.FunctionLibrary;
+import org.firstinspires.ftc.teamcode.Hardware_Maps.D1V4Mk2hardware;
+import org.firstinspires.ftc.teamcode.Hardware_Maps.D1V4hardware;
 import org.firstinspires.ftc.teamcode.Hardware_Maps.Kisshardware;
 
 @Autonomous(group = "Calibration")
 public class ForwardCallibration extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
-        Kisshardware robot = new Kisshardware(this, 0,0,0,"right");
+        D1V4Mk2hardware robot = new D1V4Mk2hardware(this, 0,0,0,"Left Webcam");
         AutoFunctions auto = new AutoFunctions(robot);
         String choice = "Forward";
         while (!isStarted() && !isStopRequested()) {

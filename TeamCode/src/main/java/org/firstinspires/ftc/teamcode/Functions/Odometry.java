@@ -1,11 +1,16 @@
 package org.firstinspires.ftc.teamcode.Functions;
 
+import android.util.Log;
+
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.internal.files.DataLogger;
 
 import java.io.IOException;
+
+import static java.lang.Math.max;
+import static java.lang.Math.min;
 
 //class for running the odometry in a separate thread
 public class Odometry implements Runnable {
@@ -21,6 +26,7 @@ public class Odometry implements Runnable {
         this.robot = robot;
         this.opMode = opMode;
         this.robotName = name;
+        /*
         try {
             // Create Datalogger
             Dl = new DataLogger(robotName + " OdometryLog" + System.currentTimeMillis() + ".csv");
@@ -30,25 +36,40 @@ public class Odometry implements Runnable {
         } catch (IOException e){
 
         }
+
+         */
     }
+    ElapsedTime time = new ElapsedTime();
+    double averageTime = 0;
+    boolean runOnce = false;
+    double max = 0;
+    double min = 10000;
     @Override
     public void run() {
         //on start, keep running unless stop is requested
         while (!opMode.isStopRequested()) {
             //call the robot updateOdometry class
             double[] newData = robot.updateOdometry();
+            double milSec = time.milliseconds();
+            if (averageTime == 0 && runOnce) {
+                averageTime = milSec;
+            } else {
+                averageTime = (averageTime+milSec)/2;
+                max = max(max,milSec);
+                min = min(min,milSec);
+            }
+            runOnce = true;
+            time.reset();
+            /*
             try {
                 Dl.addDataLine(System.currentTimeMillis(), localTime.seconds(), newData[0], newData[1], newData[2], newData[3], newData[4]);
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            try {
-                //pause for x amount of ms to prevent CPU overload
-                Thread.sleep(robot.odometryUpdateRate);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+
+             */
         }
-        Dl.close();
+        Log.d("Time: ", "Average Time: " + averageTime + " max: " + max + " min: " + min);
+        //Dl.close();
     }
 }

@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.Functions;
 
+import android.util.Log;
+
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.TouchSensor;
@@ -296,6 +298,34 @@ public class FunctionLibrary {
         }
 
         return dScale;
+    }
+    public static double getMax(double ... values) {
+        double maxVal = 0;
+        for (int i = 0; i < values.length; i++) {
+            if (maxVal < values[i]) maxVal = values[i];
+        }
+        return maxVal;
+    }
+    public static double getMaxAbs(double ... values) {
+        double[] vals = new double[values.length];
+        for (int i = 0; i < vals.length; i++) {
+            vals[i] = abs(values[i]);
+        }
+        return getMax(vals);
+    }
+    public static double[] mergeDoubleArrays(double ... values) {
+        return values;
+    }
+    public static double[] scaleDownValues(double max, double ... values) {
+        max = abs(max);
+        double maxVal = getMaxAbs(values);
+        if (max < maxVal) {
+            double scaler = max/maxVal;
+            for (int i = 0; i < values.length; i++) {
+                values[i] *= scaler;
+            }
+        }
+        return values;
     }
 
 }
