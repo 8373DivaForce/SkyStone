@@ -11,6 +11,7 @@ import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
 import org.firstinspires.ftc.teamcode.Functions.AutoFunctions;
 import org.firstinspires.ftc.teamcode.Functions.FunctionLibrary;
 import org.firstinspires.ftc.teamcode.Functions.SkystoneOpenCVPipe;
+import org.firstinspires.ftc.teamcode.Hardware_Maps.D1V4Mk2hardware;
 import org.firstinspires.ftc.teamcode.Hardware_Maps.Kisshardware;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
@@ -97,7 +98,7 @@ public class Test extends LinearOpMode {
         double startingRotation = 0;
         if (Alliance == 0) {
             offsetX = -1f/8f;
-            grabRotation = -165;
+            grabRotation = 15;
             startPosition = new FunctionLibrary.Point(62,-31.5);
 
             firstStones[2] = new FunctionLibrary.Point(30,-26);
@@ -117,12 +118,12 @@ public class Test extends LinearOpMode {
             } else if (EndPosition == 1) {
                 finalPosition = new FunctionLibrary.Point(36, 0);
             }
-            cameraName = hardwareMap.get(WebcamName.class, "right");
+            cameraName = hardwareMap.get(WebcamName.class, "Left Webcam");
         }
         else if (Alliance == 1) {
             offsetX = 1f/8f;
-            grabRotation = 165;
-            startPosition = new FunctionLibrary.Point(-62,-31.5);
+            grabRotation = -15;
+            startPosition = new FunctionLibrary.Point(-63,-31.5);
 
             firstStones[0] = new FunctionLibrary.Point(-30,-26);
             firstStone = new FunctionLibrary.Point(-30,-24);
@@ -139,9 +140,9 @@ public class Test extends LinearOpMode {
             if (EndPosition == 0) {
                 finalPosition = new FunctionLibrary.Point(-58, 0);
             } else if (EndPosition == 1) {
-                finalPosition = new FunctionLibrary.Point(-36, 0);
+                finalPosition = new FunctionLibrary.Point(-40, 0);
             }
-            cameraName = hardwareMap.get(WebcamName.class, "left");
+            cameraName = hardwareMap.get(WebcamName.class, "Right Webcam");
 
         }
         float[] midPos = {4f/8f+offsetX, 4f/8f+offsetY};//0 = col, 1 = row
@@ -159,10 +160,10 @@ public class Test extends LinearOpMode {
         webcam.startStreaming(rows, cols, OpenCvCameraRotation.UPRIGHT);//display on RC
         //width, height
         //width = height in this case, because camera is in portrait mode.
-        Kisshardware robot = new Kisshardware(this,startPosition,180);
+        D1V4Mk2hardware robot = new D1V4Mk2hardware(this,startPosition,0);
         AutoFunctions auto = new AutoFunctions(robot);
         hook = robot.sRStoneHook;
-        if (Alliance == 1) hook = robot.sLStoneHook;
+        if (Alliance == 0) hook = robot.sLStoneHook;
         while (!isStarted() && !isStopRequested()) {
             int[] values = pipeline.getValues();
             telemetry.addData("Values: ", values[0] + " " + values[1] + " " + values[2]);
@@ -188,7 +189,7 @@ public class Test extends LinearOpMode {
                     }
                     break;
                 case 1:
-                    result = auto.gotoPosition(skystone,1,1,180);
+                    result = auto.gotoPosition(skystone,1,1,0);
                     resetStartTime();
                     if (result < 0) nSwitch++;
                     break;
@@ -196,63 +197,69 @@ public class Test extends LinearOpMode {
                     hook.setPosition(1);
                     if (getRuntime() > 1) nSwitch++;
                     break;
-                case 3:
+                case -3:
                     result = auto.rotPID(grabRotation,0.5,5,5);
                     if (result < 0) nSwitch++;
                     break;
                 case 4:
                     destination = new FunctionLibrary.Point(finalPosition.x, skystone.y);
-                    result = auto.gotoPosition(destination ,1 ,1 ,180);
+                    result = auto.gotoPosition(destination ,1 ,1 ,0);
                     if (result < 0) nSwitch++;
                     break;
                 case 5:
-                    destination = new FunctionLibrary.Point(finalPosition.x, 20);
-                    result = auto.gotoPosition(destination, 1, 1, 180);
+                    destination = new FunctionLibrary.Point(finalPosition.x, -10);
+                    result = auto.gotoPosition(destination, 1, 1, 0);
                     resetStartTime();
                     if (result < 0) nSwitch++;
                     break;
                 case 6:
+                    destination = new FunctionLibrary.Point(finalPosition.x, 20);
+                    result = auto.gotoPosition(destination, 1, 1, 0);
+                    resetStartTime();
+                    if (result < 0) nSwitch++;
+                    break;
+                case 7:
                     hook.setPosition(0);
                     if (getRuntime() > 1) {
                         nSwitch++;
                         skystone = secondStones[stone];
                     }
                     break;
-                case 7:
+                case 8:
                     destination = new FunctionLibrary.Point(finalPosition.x, skystone.y);
-                    result = auto.gotoPosition(destination,1,1,180);
+                    result = auto.gotoPosition(destination,1,1,0);
                     if (result < 1) nSwitch++;
                     break;
-                case 8:
-                    result = auto.gotoPosition(skystone, 1, 1 ,180);
+                case 9:
+                    result = auto.gotoPosition(skystone, 1, 1 ,0);
                     resetStartTime();
                     if (result < 0) nSwitch++;
                     break;
-                case 9:
+                case 10:
                     hook.setPosition(1);
                     if (getRuntime() > 1) nSwitch++;
                     break;
-                case 10:
+                case 11:
                     result = auto.rotPID(grabRotation,0.5,5,5);
                     if (result < 0) nSwitch++;
                     break;
-                case 11:
-                    destination = new FunctionLibrary.Point(finalPosition.x, skystone.y);
-                    result = auto.gotoPosition(destination, 1, 1, 180);
-                    if (result < 0) nSwitch++;
-                    break;
                 case 12:
-                    destination = new FunctionLibrary.Point(finalPosition.x, 20);
-                    result = auto.gotoPosition(destination,1 ,1 ,180);
-                    resetStartTime();
+                    destination = new FunctionLibrary.Point(finalPosition.x, skystone.y);
+                    result = auto.gotoPosition(destination, 1, 1, 0);
                     if (result < 0) nSwitch++;
                     break;
                 case 13:
+                    destination = new FunctionLibrary.Point(finalPosition.x, 20);
+                    result = auto.gotoPosition(destination,1 ,1 ,0);
+                    resetStartTime();
+                    if (result < 0) nSwitch++;
+                    break;
+                case 14:
                     hook.setPosition(0);
                     if (getRuntime() > 1) nSwitch++;
                     break;
-                case 14:
-                    result = auto.gotoPosition(finalPosition, 1, 1, 180);
+                case 15:
+                    result = auto.gotoPosition(finalPosition, 1, 1, 0);
                     if (result < 0) nSwitch++;
                     break;
 

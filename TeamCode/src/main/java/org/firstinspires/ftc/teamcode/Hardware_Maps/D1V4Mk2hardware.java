@@ -107,8 +107,8 @@ public class D1V4Mk2hardware extends RobotConstructor {
         dcLift2.setPower(0);
         dcInOut.setPower(0);
 
-        sRFoundHook.setPosition(0.9);
-        sLFoundHook.setPosition(0.9);
+        sRFoundHook.setPosition(0);
+        sLFoundHook.setPosition(0);
         sRStoneHook.setPosition(0);
         sLStoneHook.setPosition(0);
 
@@ -137,10 +137,10 @@ public class D1V4Mk2hardware extends RobotConstructor {
         //initialize a variable useful in the odometry function
         double tempInchPerTick = (1/dcFrontLeft.getMotorType().getTicksPerRev())*getWheelCircumfrance();
         // old inchesPerTickX = tempInchPerTick*-0.92307692307692307692307692307692;
-        inchesPerTickX = tempInchPerTick*-1;
+        inchesPerTickX = tempInchPerTick*-0.65050552671;
 
         // old inchesPerTickY = tempInchPerTick*1.1483253588516746411483253588517;
-        inchesPerTickY = tempInchPerTick*1;
+        inchesPerTickY = tempInchPerTick*0.84148522141;
         useOdometry = false;
         setRotation(rotation);
         initOdometry();
@@ -172,7 +172,7 @@ public class D1V4Mk2hardware extends RobotConstructor {
     @Override
     public double[] updateOdometry() {
         //calls that parent classes version of this function to update rotation
-        super.updateOdometry();
+        double rotation = super.updateOdometry()[0];
 
         //check if odometry is enabled
         if (useOdometry) {
@@ -204,7 +204,7 @@ public class D1V4Mk2hardware extends RobotConstructor {
             double angle = Math.toDegrees(atan2(yOffset, xOffset));
 
             //adjust that angle by the current rotation to find the global movement
-            double adjustedAngle = angle - getWorldRotation();
+            double adjustedAngle = angle - rotation;
 
             //find the global x and y offsets using the hypot and translated angle
             double deltaX = hypot * cos(Math.toRadians(adjustedAngle));
@@ -213,7 +213,7 @@ public class D1V4Mk2hardware extends RobotConstructor {
             //add the offsets to the global position
             addDeviation(new FunctionLibrary.Point(deltaX, deltaY));
             return new double[] {
-                    getWorldRotation(),
+                    rotation,
                     getX(),
                     getY(),
                     deltaX,
@@ -221,7 +221,7 @@ public class D1V4Mk2hardware extends RobotConstructor {
             };
         }
         return new double[] {
-                getWorldRotation(),
+                rotation,
                 getX(),
                 getY(),
                 0,
@@ -283,6 +283,18 @@ public class D1V4Mk2hardware extends RobotConstructor {
         dcFrontRight.setPower(pFrontRight);
         dcBackLeft.setPower(pBackLeft);
         dcBackRight.setPower(pBackRight);
+
+        if (power < 0 || (Math.abs(pFrontLeft) == 0 && Math.abs(pFrontRight) == 0 && pBackLeft == 0 && pBackRight == 0)) {
+            dcFrontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            dcFrontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            dcBackLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            dcBackRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        } else {
+            dcFrontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+            dcFrontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+            dcBackLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+            dcBackRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        }
 
         //check if the motors are set to run with encoders
         //if so, use kinimatics to find the encoder ticks they need to move
