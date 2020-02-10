@@ -6,13 +6,13 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.ReadWriteFile;
 
+import org.firstinspires.ftc.robotcore.external.Function;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
 import org.firstinspires.ftc.teamcode.Functions.AutoFunctions;
 import org.firstinspires.ftc.teamcode.Functions.FunctionLibrary;
 import org.firstinspires.ftc.teamcode.Functions.SkystoneOpenCVPipe;
 import org.firstinspires.ftc.teamcode.Hardware_Maps.D1V4Mk2hardware;
-import org.firstinspires.ftc.teamcode.Hardware_Maps.Kisshardware;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
@@ -31,8 +31,8 @@ import java.io.File;
  * monitor: 640 x 480
  *YES
  */
-@Autonomous(name= "opencvSkystoneDetector", group="Sky autonomous")
-public class Test extends LinearOpMode {
+@Autonomous(group="Sky autonomous")
+public class WorkingTwoStoneBridgeAuto extends LinearOpMode {
     private ElapsedTime runtime = new ElapsedTime();
 
     //0 means skystone, 1 means yellow stone
@@ -78,12 +78,7 @@ public class Test extends LinearOpMode {
         }
         telemetry.update();
         FunctionLibrary.Point startPosition = null;
-        FunctionLibrary.Point secondPosition = null;
-        FunctionLibrary.Point SkystoneTarget = null;
         FunctionLibrary.Point finalPosition = null;
-        FunctionLibrary.Point firstStone = null;
-        FunctionLibrary.Point thirdStone = null;
-        FunctionLibrary.Point secondStone = null;
         FunctionLibrary.Point[] firstStones = new FunctionLibrary.Point[3];
         FunctionLibrary.Point[] secondStones = new FunctionLibrary.Point[3];
         double grabRotation = 0;
@@ -99,43 +94,37 @@ public class Test extends LinearOpMode {
         if (Alliance == 0) {
             offsetX = -1f/8f;
             grabRotation = 15;
-            startPosition = new FunctionLibrary.Point(62,-31.5);
+            startPosition = new FunctionLibrary.Point(63,-31);
 
-            firstStones[2] = new FunctionLibrary.Point(30,-26);
-            firstStone = new FunctionLibrary.Point(30,-24);
-            secondStones[2] = new FunctionLibrary.Point(30,-52);
+            firstStones[2] = new FunctionLibrary.Point(35,-24);
+            secondStones[2] = new FunctionLibrary.Point(34,-49);
 
-            firstStones[1] = new FunctionLibrary.Point(30,-34);
-            secondStone = new FunctionLibrary.Point(30,-32);
-            secondStones[1] = new FunctionLibrary.Point(30,-60);
+            firstStones[1] = new FunctionLibrary.Point(35,-33);
+            secondStones[1] = new FunctionLibrary.Point(34,-58);
 
-            firstStones[0] = new FunctionLibrary.Point(30,-42);
-            thirdStone = new FunctionLibrary.Point(30,-40);
-            secondStones[0] = new FunctionLibrary.Point(29, -68);
+            firstStones[0] = new FunctionLibrary.Point(35,-41);
+            secondStones[0] = new FunctionLibrary.Point(34, -66);
 
             if (EndPosition == 0) {
                 finalPosition = new FunctionLibrary.Point(58, 0);
             } else if (EndPosition == 1) {
-                finalPosition = new FunctionLibrary.Point(36, 0);
+                finalPosition = new FunctionLibrary.Point(41, 0);
             }
             cameraName = hardwareMap.get(WebcamName.class, "Left Webcam");
         }
         else if (Alliance == 1) {
             offsetX = 1f/8f;
             grabRotation = -15;
-            startPosition = new FunctionLibrary.Point(-63,-31.5);
+            startPosition = new FunctionLibrary.Point(-63,-31);
 
-            firstStones[0] = new FunctionLibrary.Point(-30,-26);
-            firstStone = new FunctionLibrary.Point(-30,-24);
-            secondStones[0] = new FunctionLibrary.Point(-30,-52);
+            firstStones[0] = new FunctionLibrary.Point(-33,-23);
+            secondStones[0] = new FunctionLibrary.Point(-30,-46);
 
-            firstStones[1] = new FunctionLibrary.Point(-30,-34);
-            secondStone = new FunctionLibrary.Point(-30,-32);
-            secondStones[1] = new FunctionLibrary.Point(-30,-60);
+            firstStones[1] = new FunctionLibrary.Point(-33,-31);
+            secondStones[1] = new FunctionLibrary.Point(-30,-56);
 
-            firstStones[2] = new FunctionLibrary.Point(-30,-42);
-            thirdStone = new FunctionLibrary.Point(-30,-40);
-            secondStones[2] = new FunctionLibrary.Point(-29, -68);
+            firstStones[2] = new FunctionLibrary.Point(-33,-39);
+            secondStones[2] = new FunctionLibrary.Point(-30, -64);
 
             if (EndPosition == 0) {
                 finalPosition = new FunctionLibrary.Point(-58, 0);
@@ -162,6 +151,8 @@ public class Test extends LinearOpMode {
         //width = height in this case, because camera is in portrait mode.
         D1V4Mk2hardware robot = new D1V4Mk2hardware(this,startPosition,0);
         AutoFunctions auto = new AutoFunctions(robot);
+        FunctionLibrary.motorMovement lift = new FunctionLibrary.motorMovement(0,robot.dcLift, robot.dcLift2);
+        lift.limits(robot.upperLimitSwitch, robot.lowerLimitSwitch);
         hook = robot.sRStoneHook;
         if (Alliance == 0) hook = robot.sLStoneHook;
         while (!isStarted() && !isStopRequested()) {
@@ -197,8 +188,8 @@ public class Test extends LinearOpMode {
                     hook.setPosition(1);
                     if (getRuntime() > 1) nSwitch++;
                     break;
-                case -3:
-                    result = auto.rotPID(grabRotation,0.5,5,5);
+                case 3:
+                    result = auto.rotPID(grabRotation,1,5,1);
                     if (result < 0) nSwitch++;
                     break;
                 case 4:
@@ -207,59 +198,53 @@ public class Test extends LinearOpMode {
                     if (result < 0) nSwitch++;
                     break;
                 case 5:
-                    destination = new FunctionLibrary.Point(finalPosition.x, -10);
-                    result = auto.gotoPosition(destination, 1, 1, 0);
-                    resetStartTime();
-                    if (result < 0) nSwitch++;
-                    break;
-                case 6:
                     destination = new FunctionLibrary.Point(finalPosition.x, 20);
                     result = auto.gotoPosition(destination, 1, 1, 0);
                     resetStartTime();
                     if (result < 0) nSwitch++;
                     break;
-                case 7:
+                case 6:
                     hook.setPosition(0);
                     if (getRuntime() > 1) {
                         nSwitch++;
                         skystone = secondStones[stone];
                     }
                     break;
-                case 8:
+                case 7:
                     destination = new FunctionLibrary.Point(finalPosition.x, skystone.y);
                     result = auto.gotoPosition(destination,1,1,0);
                     if (result < 1) nSwitch++;
                     break;
-                case 9:
+                case 8:
                     result = auto.gotoPosition(skystone, 1, 1 ,0);
                     resetStartTime();
                     if (result < 0) nSwitch++;
                     break;
-                case 10:
+                case 9:
                     hook.setPosition(1);
                     if (getRuntime() > 1) nSwitch++;
                     break;
-                case 11:
-                    result = auto.rotPID(grabRotation,0.5,5,5);
+                case 10:
+                    result = auto.rotPID(grabRotation,1,5,1);
                     if (result < 0) nSwitch++;
                     break;
-                case 12:
+                case 11:
                     destination = new FunctionLibrary.Point(finalPosition.x, skystone.y);
                     result = auto.gotoPosition(destination, 1, 1, 0);
                     if (result < 0) nSwitch++;
                     break;
-                case 13:
+                case 12:
                     destination = new FunctionLibrary.Point(finalPosition.x, 20);
                     result = auto.gotoPosition(destination,1 ,1 ,0);
                     resetStartTime();
                     if (result < 0) nSwitch++;
                     break;
-                case 14:
+                case 13:
                     hook.setPosition(0);
                     if (getRuntime() > 1) nSwitch++;
                     break;
-                case 15:
-                    result = auto.gotoPosition(finalPosition, 1, 1, 0);
+                case 14:
+                    result = auto.gotoPosition(finalPosition, 0.5, 1, 0);
                     if (result < 0) nSwitch++;
                     break;
 

@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.Autonomous;
+package org.firstinspires.ftc.teamcode.OldAutonomous;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
@@ -10,9 +10,8 @@ import org.firstinspires.ftc.teamcode.Hardware_Maps.D1V4hardware;
 
 @Autonomous
 @Disabled
-public class BridgeBlueAuto extends LinearOpMode {
+public class BridgeRedAuto extends LinearOpMode {
     @Override
-
     public void runOpMode() throws InterruptedException {
         //initialize our hardware and backend stuff
         D1V4hardware robot = new D1V4hardware(this,0);
@@ -26,16 +25,14 @@ public class BridgeBlueAuto extends LinearOpMode {
         //set the offsets from the side and front to the center
         double leftRightCenterOffset = 8.5;
         double backFrontCenterOffset = 7;
-
-        //tell the user that vuforia is done initializing
-        telemetry.addData("Startup:", "Ready to go!");
+        telemetry.addData("Startup", "Ready for start!");
         telemetry.update();
         //wait for start
         waitForStart();
         //set the current position
-        robot.setPosition(-(72-backFrontCenterOffset),-(24-leftRightCenterOffset));
+        robot.setPosition((72-backFrontCenterOffset),-(24-leftRightCenterOffset));
         //set the current rotation
-        robot.setRotation(90);
+        robot.setRotation(-90);
         //create an object for when we find the skystone
         FunctionLibrary.Point SkystoneTarget = null;
         //setup the initial switch state
@@ -62,8 +59,8 @@ public class BridgeBlueAuto extends LinearOpMode {
                     break;
                 case 3:
                     //head to the point in between the first two skystones
-                    destination = new FunctionLibrary.Point(-(72-backFrontCenterOffset)+20, 0);
-                    result = auto.gotoPosition(destination, 1, 1, 90);
+                    destination = new FunctionLibrary.Point((72-backFrontCenterOffset)-20, 0);
+                    result = auto.gotoPosition(destination, 1, 1, -90);
                     if (result < 0) {
                         resetStartTime();
                         nSwitch++;

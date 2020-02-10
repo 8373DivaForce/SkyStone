@@ -134,8 +134,8 @@ public class FunctionLibrary {
                         }
                     }
                     if ((forwardLimit != null && backwardLimit != null) &&
-                        ((forwardLimit.isPressed() && (ticks + startingPosition[0]) > 0) ||
-                        (backwardLimit.isPressed() && (ticks + startingPosition[0]) < 0))) {
+                        ((forwardLimit.isPressed() && (ticks) > 0) ||
+                        (backwardLimit.isPressed() && (ticks) < 0))) {
                         nReturn = -3;
                         done = true;
                     }

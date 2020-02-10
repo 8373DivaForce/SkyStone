@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.Autonomous;
+package org.firstinspires.ftc.teamcode.OldAutonomous;
 
 import android.util.Log;
 
@@ -13,7 +13,7 @@ import org.firstinspires.ftc.teamcode.Hardware_Maps.D1V4hardware;
 
 @Autonomous
 @Disabled
-public class BlueNoFoundation extends LinearOpMode {
+public class BlueAllianceAuto extends LinearOpMode {
     private final double mmPerInch = 25.4;
     @Override
     public void runOpMode() throws InterruptedException {
@@ -125,24 +125,46 @@ public class BlueNoFoundation extends LinearOpMode {
                     break;
                 case 10:
                     //rotate to 0 degrees and drive underneath the bridge
-                    destination = new FunctionLibrary.Point(-54,0);
+                    destination = new FunctionLibrary.Point(-54,5);
                     result = auto.gotoPosition(destination,1,1,0);
                     if (result < 0) nSwitch++;
                     break;
                 case 11:
+                    //move the lift up
+                    result = upDownControl.move_using_encoder(8000,1,5,10,false);
+                    if (result < 0) nSwitch++;
+                    break;
+                case 12:
+                    //move towards the foundation
+                    destination = new FunctionLibrary.Point(-20,10);
+                    result = auto.gotoPosition(destination,1,1,0);
+                    if (result < 0) nSwitch++;
+                    break;
+                case 13:
+                    //line up with the foundation
+                    destination = new FunctionLibrary.Point(-25,20);
+                    result = auto.gotoPosition(destination,1,10,0);
+                    if (result < 0) nSwitch++;
+                    break;
+                case 14:
                     //drop the block
                     result = openCloseControl.move_using_encoder(-1000, 1, 6,10,false);
                     if (result < 0) nSwitch++;
                     break;
-                case 12:
+                case 15:
                     //move in front of the bridge
                     destination = new FunctionLibrary.Point(-54,5);
                     result = auto.gotoPosition(destination,1,1,0);
                     if (result < 0) nSwitch++;
                     break;
-                case 13:
+                case 16:
+                    //retract the lift to make the robot fit undearneath the robot
+                    result = upDownControl.move_encoder_to_position(100,1,5,10,false);
+                    if (result < 0) nSwitch++;
+                    break;
+                case 17:
                     //park under the bridge
-                    destination = new FunctionLibrary.Point(-54,-10);
+                    destination = new FunctionLibrary.Point(-54,-5);
                     result = auto.gotoPosition(destination,1,1,0);
                     if (result < 0) nSwitch++;
                     break;

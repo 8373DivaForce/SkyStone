@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.Autonomous;
+package org.firstinspires.ftc.teamcode.OldAutonomous;
 
 import android.util.Log;
 
@@ -13,12 +13,12 @@ import org.firstinspires.ftc.teamcode.Hardware_Maps.D1V4hardware;
 
 @Autonomous
 @Disabled
-public class RedNoFoundation extends LinearOpMode {
+public class RedAllianceAuto extends LinearOpMode {
     private final double mmPerInch = 25.4;
     @Override
     public void runOpMode() throws InterruptedException {
         //initialize the robot hardware and odometry
-        D1V4hardware robot = new D1V4hardware(this, -90);
+        D1V4hardware robot = new D1V4hardware(this,0);
         //initialize the auto functions class
         AutoFunctions auto = new AutoFunctions(robot);
 
@@ -85,7 +85,7 @@ public class RedNoFoundation extends LinearOpMode {
                     if(robot.VuMarkPositions.containsKey("Stone Target")) {
                         resetStartTime();
                         VectorF stonePos = robot.VuMarkPositions.get("Stone Target");
-                        SkystoneTarget = new FunctionLibrary.Point(((stonePos.get(0)/mmPerInch))+robot.getX(),(stonePos.get(1)/mmPerInch)+robot.getY());
+                        SkystoneTarget = new FunctionLibrary.Point((-(stonePos.get(0)/mmPerInch))+robot.getX(),(stonePos.get(1)/mmPerInch)+robot.getY());
                         Log.d("BothAutoVuforia", "x: " + SkystoneTarget.x + "y: " + SkystoneTarget.y);
                         nSwitch++;
                     } else if (getRuntime() > 2) {
@@ -129,18 +129,41 @@ public class RedNoFoundation extends LinearOpMode {
                     if (result < 0) nSwitch++;
                     break;
                 case 11:
-                    result = openCloseControl.move_using_encoder(-1000, 1, 6,10,false);
+                    //move the updown up to drop the block on the foundation
+                    result = upDownControl.move_using_encoder(8000,1,5,10,false);
                     if (result < 0) nSwitch++;
                     break;
                 case 12:
+                    //move towards the foundation
+                    destination = new FunctionLibrary.Point(20,10);
+                    result = auto.gotoPosition(destination,1,1,0);
+                    if (result < 0) nSwitch++;
+                    break;
+                case 13:
+                    //line up with the foundation
+                    destination = new FunctionLibrary.Point(25,20);
+                    result = auto.gotoPosition(destination,1,10,0);
+                    if (result < 0) nSwitch++;
+                    break;
+                case 14:
+                    //drop the block on the foundation
+                    result = openCloseControl.move_using_encoder(-1000, 1, 6,10,false);
+                    if (result < 0) nSwitch++;
+                    break;
+                case 15:
                     //move in front of the skybridge
                     destination = new FunctionLibrary.Point(54,5);
                     result = auto.gotoPosition(destination,1,1,0);
                     if (result < 0) nSwitch++;
                     break;
-                case 13:
+                case 16:
+                    //bring the updown down to allow us to go under the bridge
+                    result = upDownControl.move_encoder_to_position(100,1,5,10,false);
+                    if (result < 0) nSwitch++;
+                    break;
+                case 17:
                     //park underneath the bridge
-                    destination = new FunctionLibrary.Point(54,-5);
+                    destination = new FunctionLibrary.Point(54,-10);
                     result = auto.gotoPosition(destination,1,1,0);
                     if (result < 0) nSwitch++;
                     break;

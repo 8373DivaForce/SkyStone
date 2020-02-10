@@ -14,6 +14,7 @@ import org.firstinspires.ftc.teamcode.Hardware_Maps.D1V4hardware;
 import java.security.acl.Group;
 
 import static org.firstinspires.ftc.teamcode.Functions.FunctionLibrary.GetYaw;
+import static org.firstinspires.ftc.teamcode.Functions.FunctionLibrary.scaleInput;
 
 @TeleOp(group = "A")
 public class D1V4Mk2Op extends LinearOpMode {
@@ -46,11 +47,14 @@ public class D1V4Mk2Op extends LinearOpMode {
                 rightStickButton = true;
             }
             else if(!gamepad1.right_stick_button && rightStickButton) rightStickButton = false;
-            double x = FunctionLibrary.scaleInput(gamepad1.left_stick_x);
-            double y = FunctionLibrary.scaleInput(gamepad1.left_stick_y);
+            double x = gamepad1.left_stick_x;
+            double y = gamepad1.left_stick_y;
+            x = Math.abs(x) < 0.05 ? 0 : scaleInput(x);
+            y = Math.abs(y) < 0.05 ? 0 : scaleInput(y);
+            double rotation = gamepad1.right_stick_x;
+            rotation = Math.abs(rotation) < 0.05 ? 0 : scaleInput(rotation);
             double dX;
             double dY;
-            double rotation;
             if (fieldCentric) {
                 double angle = Math.toDegrees(Math.atan2(y,x))+90;
                 telemetry.addData("angle:", angle);
@@ -59,14 +63,11 @@ public class D1V4Mk2Op extends LinearOpMode {
                 double hyp = Math.sqrt((x*x) + (y*y));
                 telemetry.addData("Rotation", robot.getWorldRotation());
                 telemetry.addData("hyp", hyp);
-
-                rotation = gamepad1.right_stick_x;
                 dX = Math.cos(Math.toRadians(angle))*hyp * -1;
                 dY = Math.sin(Math.toRadians(angle))*hyp;
             } else {
-                dY = gamepad1.left_stick_x;
-                dX = gamepad1.left_stick_y;
-                rotation = gamepad1.right_stick_x;
+                dY = x;
+                dX = y;
             }
 
             robot.move(dX,dY,rotation,1);
