@@ -32,6 +32,7 @@ public class D1V4Mk2hardware extends RobotConstructor {
     private static float rampingDistance = 12;
     private static int odometryUpdateRate = 50;
 
+    //initialize the calibration for x and y on the odometry
     public final double inchesPerTickX;
     public final double inchesPerTickY;
 
@@ -46,12 +47,11 @@ public class D1V4Mk2hardware extends RobotConstructor {
 
     public final Servo sLStoneHook;
     public final Servo sRStoneHook;
-    public final Servo sLFoundHook;
-    public final Servo sRFoundHook;
 
     public final TouchSensor upperLimitSwitch;
     public final TouchSensor lowerLimitSwitch;
 
+    //function to tell the super class which camera we are using and wha displacements
     private static float cameraChoice(String camera) {
         Webcamname = camera;
         if(camera == null) {
@@ -83,8 +83,6 @@ public class D1V4Mk2hardware extends RobotConstructor {
 
         sLStoneHook = hMap.servo.get("leftstone");
         sRStoneHook = hMap.servo.get("rightstone");
-        sLFoundHook = hMap.servo.get("leftfound");
-        sRFoundHook = hMap.servo.get("rightfound");
 
         upperLimitSwitch = hMap.touchSensor.get("upperlimit");
         lowerLimitSwitch = hMap.touchSensor.get("downlimit");
@@ -95,7 +93,6 @@ public class D1V4Mk2hardware extends RobotConstructor {
         dcBackRight.setDirection(DcMotor.Direction.REVERSE);
 
         sLStoneHook.setDirection(Servo.Direction.REVERSE);
-        sLFoundHook.setDirection(Servo.Direction.REVERSE);
 
         //make sure none of the devices are running
         dcFrontLeft.setPower(0);
@@ -107,8 +104,6 @@ public class D1V4Mk2hardware extends RobotConstructor {
         dcLift2.setPower(0);
         dcInOut.setPower(0);
 
-        sRFoundHook.setPosition(0);
-        sLFoundHook.setPosition(0);
         sRStoneHook.setPosition(0);
         sLStoneHook.setPosition(0);
 
@@ -136,23 +131,30 @@ public class D1V4Mk2hardware extends RobotConstructor {
         dcLift2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         //initialize a variable useful in the odometry function
         double tempInchPerTick = (1/dcFrontLeft.getMotorType().getTicksPerRev())*getWheelCircumfrance();
-        // old inchesPerTickX = tempInchPerTick*-0.92307692307692307692307692307692;
-        inchesPerTickX = tempInchPerTick*-0.65050552671;
 
-        // old inchesPerTickY = tempInchPerTick*1.1483253588516746411483253588517;
+        //set x calibration factor
+        inchesPerTickX = tempInchPerTick*-0.65050552671;
+        //set y calibration factor
         inchesPerTickY = tempInchPerTick*0.84148522141;
+        //tell it to not run odometry
         useOdometry = false;
+        //set the initial rotation
         setRotation(rotation);
+        //initialize odometry
         initOdometry();
     }
     public D1V4Mk2hardware(LinearOpMode opMode, double x, double y, double rotation) {
         this(opMode, rotation, null);
+        //set the odometry position
         setPosition(x,y);
+        //tell the odometry loop to run
         useOdometry = true;
     }
     public D1V4Mk2hardware(LinearOpMode opMode, double x, double y, double rotation, String camera) {
         this(opMode, rotation, camera);
+        //set the odometry position
         setPosition(x,y);
+        //tell the odometry loop to run
         useOdometry = true;
     }
     public D1V4Mk2hardware(LinearOpMode opMode, FunctionLibrary.Point startingPos, double rotation) {
@@ -176,7 +178,7 @@ public class D1V4Mk2hardware extends RobotConstructor {
 
         //check if odometry is enabled
         if (useOdometry) {
-
+            //find the current encoder positions
             double currentFrontLeft = -dcFrontLeft.getCurrentPosition();
             double currentFrontRight = -dcFrontRight.getCurrentPosition();
             double currentBackLeft = dcBackLeft.getCurrentPosition();
@@ -284,7 +286,7 @@ public class D1V4Mk2hardware extends RobotConstructor {
         dcBackLeft.setPower(pBackLeft);
         dcBackRight.setPower(pBackRight);
 
-        if (power < 0 || (Math.abs(pFrontLeft) == 0 && Math.abs(pFrontRight) == 0 && pBackLeft == 0 && pBackRight == 0)) {
+        if (power == 0 || (Math.abs(pFrontLeft) == 0 && Math.abs(pFrontRight) == 0 && pBackLeft == 0 && pBackRight == 0)) {
             dcFrontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
             dcFrontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
             dcBackLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);

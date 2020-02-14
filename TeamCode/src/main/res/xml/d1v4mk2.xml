@@ -10,8 +10,6 @@
             <RevRobotics40HDHexMotor name="lift2" port="3" />
             <RevTouchSensor name="downlimit" port="1" />
             <RevTouchSensor name="upperlimit" port="3" />
-            <Servo name="rightfound" port="2" />
-            <Servo name="leftfound" port="3" />
             <Servo name="rightstone" port="4" />
             <Servo name="leftstone" port="5" />
             <LynxEmbeddedIMU name="imu" port="0" bus="0" />

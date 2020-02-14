@@ -11,6 +11,9 @@ import org.openftc.easyopencv.OpenCvPipeline;
 import java.util.ArrayList;
 import java.util.List;
 
+
+//skystone pipe made by team 3939 Bolts of Steel and adapted to fit in a seperate class
+//used to identify the skystone
 public class SkystoneOpenCVPipe extends OpenCvPipeline
 {
     int valMid = -1;

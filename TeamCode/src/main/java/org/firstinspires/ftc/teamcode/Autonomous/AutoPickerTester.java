@@ -13,6 +13,7 @@ public class AutoPickerTester extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
+        //read the file we read from for autos and print them out for debugging/checking purposes
         File file = AppUtil.getInstance().getSettingsFile("AutoSelection");
         waitForStart();
         String writeFile = ReadWriteFile.readFile(file);

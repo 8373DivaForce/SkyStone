@@ -14,6 +14,7 @@ import java.util.Map;
 public class AutoPicker extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
+        //set up arrays to make it easier to convert int values to readable data
         String[] alliances = {
             "red",
             "blue"
@@ -56,6 +57,7 @@ public class AutoPicker extends LinearOpMode {
 
         int selectedControl = 0;
 
+        //setup the things we can control and a hashmap for our values
         HashMap<String, Integer> autoValues = new HashMap<>();
         String[] thingsToControl = {
                 "Alliance",
@@ -63,15 +65,18 @@ public class AutoPicker extends LinearOpMode {
                 "Position",
                 "EndPosition"
         };
+        //default all values to 0
         for (String s : thingsToControl) {
             autoValues.put(s,0);
         }
 
+        //setup variables for press once checks
         boolean aPressed = false;
         boolean yPressed = false;
         boolean dUpPressed = false;
         boolean dDownPressed = false;
         while (opModeIsActive()) {
+            //iterate through values based off of what buttons are being pressed
             if (gamepad1.a && !aPressed) {
 
                 selectedControl = (selectedControl+1)%(thingsToControl.length);
@@ -89,6 +94,7 @@ public class AutoPicker extends LinearOpMode {
             String valueSelected = thingsToControl[selectedControl];
             telemetry.addData("Selected Value: ", valueSelected);
             int maxIteration = 0;
+            //set the max value we can iterate to based off of what we are controlling
             if (valueSelected == "Alliance") {
                 maxIteration = alliances.length;
             } else if (valueSelected == "Auto") {
@@ -99,6 +105,7 @@ public class AutoPicker extends LinearOpMode {
                 maxIteration = endPositions.get(Autos[autoValues.get("Auto")]);
             }
             telemetry.addData("maxIteration", maxIteration);
+            //allow iterating position, endposition, auto, and alliance
             if (gamepad1.dpad_up && !dUpPressed) {
                 autoValues.put(valueSelected, (autoValues.get(valueSelected)+1)%(maxIteration));
             } else if (!gamepad1.dpad_up && dUpPressed) dUpPressed = false;
@@ -110,12 +117,14 @@ public class AutoPicker extends LinearOpMode {
                 dDownPressed = true;
             } else if (!gamepad1.dpad_down && dDownPressed) dDownPressed = false;
 
+            //print out the current values for everything
             telemetry.addData("Alliance", alliances[autoValues.get("Alliance")]);
             telemetry.addData("Auto", autoValues.get("Auto"));
             telemetry.addData("Starting Position", startingPositions[autoValues.get("Auto")][autoValues.get("Position")]);
             telemetry.addData("End Position", FinalPositions[autoValues.get("EndPosition")]);
             telemetry.update();
         }
+        //save them to a file when finished
         File file = AppUtil.getInstance().getSettingsFile("AutoSelection");
         String writefile = "";
         for (int i = 0; i < thingsToControl.length; i++) {
