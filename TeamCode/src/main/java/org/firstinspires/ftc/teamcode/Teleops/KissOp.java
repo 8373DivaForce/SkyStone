@@ -17,7 +17,7 @@ public class KissOp extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
         Kisshardware robot = new Kisshardware(this,0,0,0);
-        boolean fieldCentric = true;
+        boolean fieldCentric = false;
         boolean leftStickButton = false;
         boolean rightStickButton = false;
         boolean xIsPressed = false;
@@ -39,12 +39,15 @@ public class KissOp extends LinearOpMode {
                 dOffset = -GetYaw(0,robot.imu);
                 rightStickButton = true;
             }
+            if (gamepad1.left_bumper) robot.sRStoneHook.setPosition(0);
+            else if (gamepad1.right_bumper) robot.sRStoneHook.setPosition(1);
+
             else if(!gamepad1.right_stick_button && rightStickButton) rightStickButton = false;
-            double x = gamepad1.left_stick_x;
-            double y = gamepad1.left_stick_y;
+            double x = FunctionLibrary.scaleInput(gamepad1.left_stick_x);
+            double y = FunctionLibrary.scaleInput(gamepad1.left_stick_y);
             double dX;
             double dY;
-            double rotation;
+            double rotation = FunctionLibrary.scaleInput(gamepad1.right_stick_x);
             if (fieldCentric) {
                 double angle = Math.toDegrees(Math.atan2(y,x))+90;
                 telemetry.addData("angle:", angle);
@@ -54,13 +57,11 @@ public class KissOp extends LinearOpMode {
                 telemetry.addData("Rotation", robot.getWorldRotation());
                 telemetry.addData("hyp", hyp);
 
-                rotation = gamepad1.right_stick_x;
                 dX = Math.cos(Math.toRadians(angle))*hyp * -1;
                 dY = Math.sin(Math.toRadians(angle))*hyp;
             } else {
-                dY = gamepad1.left_stick_x;
-                dX = gamepad1.left_stick_y;
-                rotation = gamepad1.right_stick_x;
+                dY = x;
+                dX = y;
             }
 
             robot.move(dX,dY,rotation,1);

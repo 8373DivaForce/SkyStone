@@ -25,7 +25,7 @@ public class D1V4Mk2Op extends LinearOpMode {
         D1V4Mk2hardware robot = new D1V4Mk2hardware(this,0,0,0,"Right Webcam");
         robot.dcOpenClose.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         //setup initial variables for operation
-        boolean fieldCentric = true;
+        boolean fieldCentric = false;
         boolean leftStickButton = false;
         boolean rightStickButton = false;
         boolean leftDPadPressed = false;

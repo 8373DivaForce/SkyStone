@@ -6,13 +6,13 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.ReadWriteFile;
 
+import org.firstinspires.ftc.robotcore.external.Func;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
 import org.firstinspires.ftc.teamcode.Functions.AutoFunctions;
 import org.firstinspires.ftc.teamcode.Functions.FunctionLibrary;
 import org.firstinspires.ftc.teamcode.Functions.SkystoneOpenCVPipe;
 import org.firstinspires.ftc.teamcode.Hardware_Maps.D1V4Mk2hardware;
-import org.firstinspires.ftc.teamcode.Hardware_Maps.Kisshardware;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
@@ -32,7 +32,7 @@ import java.io.File;
  *YES
  */
 @Autonomous(group="Sky autonomous")
-public class WorkingTwoStoneAuto extends LinearOpMode {
+public class BridgeTwoStoneAuto extends LinearOpMode {
     private ElapsedTime runtime = new ElapsedTime();
 
     //0 means skystone, 1 means yellow stone
@@ -95,6 +95,11 @@ public class WorkingTwoStoneAuto extends LinearOpMode {
 
         //define a variable for which hook we are using
         Servo hook;
+
+        FunctionLibrary.Point foundationPos = new FunctionLibrary.Point(0,0);
+        FunctionLibrary.Point foundationAproachPos = new FunctionLibrary.Point(0,0);
+        FunctionLibrary.Point foundationLeavePos = new FunctionLibrary.Point(0,0);
+        double foundAngle = 0;
         //define a variable for our start rotation for later use
         double startingRotation = 0;
         if (Alliance == 0) {
@@ -114,6 +119,10 @@ public class WorkingTwoStoneAuto extends LinearOpMode {
             firstStones[0] = new FunctionLibrary.Point(35,-41);
             secondStones[0] = new FunctionLibrary.Point(34, -65);
 
+            foundationPos = new FunctionLibrary.Point(30,-48);
+            foundationAproachPos = new FunctionLibrary.Point(36, -48);
+            foundationLeavePos = new FunctionLibrary.Point(56, -48);
+            foundAngle = -90;
             //define the two parking positions
             if (EndPosition == 0) {
                 finalPosition = new FunctionLibrary.Point(58, 0);
@@ -132,15 +141,19 @@ public class WorkingTwoStoneAuto extends LinearOpMode {
             startPosition = new FunctionLibrary.Point(-63,-33);
 
             //set the position of all 6 stones
-            firstStones[0] = new FunctionLibrary.Point(-35,-23);
-            secondStones[0] = new FunctionLibrary.Point(-32,-44);
+            firstStones[0] = new FunctionLibrary.Point(-34,-23);
+            secondStones[0] = new FunctionLibrary.Point(-33,-44);
 
-            firstStones[1] = new FunctionLibrary.Point(-35,-31);
-            secondStones[1] = new FunctionLibrary.Point(-32,-54);
+            firstStones[1] = new FunctionLibrary.Point(-34,-31);
+            secondStones[1] = new FunctionLibrary.Point(-33,-54);
 
             firstStones[2] = new FunctionLibrary.Point(-34,-41);
-            secondStones[2] = new FunctionLibrary.Point(-32, -64);
+            secondStones[2] = new FunctionLibrary.Point(-33, -64);
 
+            foundationPos = new FunctionLibrary.Point(-24,48);
+            foundationAproachPos = new FunctionLibrary.Point(-30, 48);
+            foundationLeavePos = new FunctionLibrary.Point(-36, 48);
+            foundAngle = 90;
             //set the two parking positions
             if (EndPosition == 0) {
                 finalPosition = new FunctionLibrary.Point(-58, 0);
@@ -171,6 +184,9 @@ public class WorkingTwoStoneAuto extends LinearOpMode {
         D1V4Mk2hardware robot = new D1V4Mk2hardware(this,startPosition,0);
         //intialize autofunctions class
         AutoFunctions auto = new AutoFunctions(robot);
+        FunctionLibrary.motorMovement lift = new FunctionLibrary.motorMovement(1000, robot.dcLift, robot.dcLift2);
+        lift.limits(robot.upperLimitSwitch, robot.lowerLimitSwitch);
+        FunctionLibrary.motorMovement inout = new FunctionLibrary.motorMovement(1000, robot.dcInOut);
         //set the hook to the hook it needs to use for the alliance it's on
         hook = robot.sRStoneHook;
         if (Alliance == 0) hook = robot.sLStoneHook;
@@ -281,6 +297,31 @@ public class WorkingTwoStoneAuto extends LinearOpMode {
                     if (getRuntime() > 1) nSwitch++;
                     break;
                 case 14:
+                    result = lift.move_using_encoder(3000, 1, 5, 50, false);
+                    if (result < 0) nSwitch++;
+                    break;
+                case 15:
+                    result = auto.gotoPosition(foundationAproachPos, 1, 1, foundAngle);
+                    if (result < 0) nSwitch++;
+                    break;
+                case 16:
+                    result = inout.move_using_encoder(750, 1, 4, 5, false);
+                    if (result < 0) nSwitch++;
+                    break;
+                case 17:
+                    result = lift.move_using_encoder(-2800, 1, 5, 50, false);
+                    if (result < 0) nSwitch++;
+                    break;
+                case 18:
+                    destination = new FunctionLibrary.Point(foundationLeavePos.x, foundationPos.y);
+                    result = auto.gotoPosition(destination, 0.5, 1, foundAngle);
+                    if (result < 0) nSwitch++;
+                    break;
+                case -19:
+                    result = auto.gotoPosition(foundationLeavePos, 1, 1, foundAngle);
+                    if (result < 0) nSwitch++;
+                    break;
+                case 20:
                     //park under the bridge
                     result = auto.gotoPosition(finalPosition, 0.5, 1, 0);
                     if (result < 0) nSwitch++;
