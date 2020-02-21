@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.util.ReadWriteFile;
 
 import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
 import org.firstinspires.ftc.teamcode.Functions.AutoFunctions;
+import org.firstinspires.ftc.teamcode.Functions.AutoValues;
 import org.firstinspires.ftc.teamcode.Functions.FunctionLibrary;
 import org.firstinspires.ftc.teamcode.Hardware_Maps.D1V4Mk2hardware;
 import org.firstinspires.ftc.teamcode.Hardware_Maps.D1V4hardware;
@@ -16,12 +17,6 @@ import java.io.File;
 public class AllBridgeAutos extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
-        String[] thingsToControl = {
-                "Alliance",
-                "Auto",
-                "Position",
-                "EndPosition"
-        };
         int Alliance = 0;
         int Auto = 0;
         int Position = 0;
@@ -30,16 +25,14 @@ public class AllBridgeAutos extends LinearOpMode {
         if (file.exists()) {
             String[] fileContents = ReadWriteFile.readFile(file).split(",");
             Alliance = Integer.parseInt(fileContents[0]);
-            telemetry.addData("Alliance", Alliance);
             Auto = Integer.parseInt(fileContents[1]);
-            telemetry.addData("Auto", Auto);
             Position = Integer.parseInt(fileContents[2]);
-            telemetry.addData("Position", Position);
             EndPosition = Integer.parseInt(fileContents[3]);
-            telemetry.addData("EndPosition", EndPosition);
         } else {
             stop();
         }
+        AutoValues autoValues = new AutoValues(telemetry);
+        autoValues.translateValues(Alliance, Auto, Position, EndPosition);
         telemetry.update();
         FunctionLibrary.Point startPosition = null;
         FunctionLibrary.Point finalPosition = null;

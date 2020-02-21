@@ -10,6 +10,7 @@ import org.firstinspires.ftc.robotcore.external.Func;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
 import org.firstinspires.ftc.teamcode.Functions.AutoFunctions;
+import org.firstinspires.ftc.teamcode.Functions.AutoValues;
 import org.firstinspires.ftc.teamcode.Functions.FunctionLibrary;
 import org.firstinspires.ftc.teamcode.Functions.SkystoneOpenCVPipe;
 import org.firstinspires.ftc.teamcode.Hardware_Maps.D1V4Mk2hardware;
@@ -58,21 +59,17 @@ public class BridgeTwoStoneAuto extends LinearOpMode {
         int Position = 0;
         int EndPosition = 0;
         File file = AppUtil.getInstance().getSettingsFile("AutoSelection");
-        telemetry.addData("Startup", "Vuforia is starting up! Do not stop the robot!");
         if (file.exists()) {
             String[] fileContents = ReadWriteFile.readFile(file).split(",");
             Alliance = Integer.parseInt(fileContents[0]);
-            telemetry.addData("Alliance", Alliance);
             Auto = Integer.parseInt(fileContents[1]);
-            telemetry.addData("Auto", Auto);
             Position = Integer.parseInt(fileContents[2]);
-            telemetry.addData("Position", Position);
             EndPosition = Integer.parseInt(fileContents[3]);
-            telemetry.addData("EndPosition", EndPosition);
         } else {
-            //stop the program if there isn't a file
             stop();
         }
+        AutoValues autoValues = new AutoValues(telemetry);
+        autoValues.translateValues(Alliance, Auto, Position, EndPosition);
         telemetry.update();
         //setup initial variables that are defined based on alliance
         FunctionLibrary.Point startPosition = null;
@@ -141,14 +138,14 @@ public class BridgeTwoStoneAuto extends LinearOpMode {
             startPosition = new FunctionLibrary.Point(-63,-33);
 
             //set the position of all 6 stones
-            firstStones[0] = new FunctionLibrary.Point(-34,-23);
-            secondStones[0] = new FunctionLibrary.Point(-33,-44);
+            firstStones[0] = new FunctionLibrary.Point(-35,-23);
+            secondStones[0] = new FunctionLibrary.Point(-32,-44);
 
-            firstStones[1] = new FunctionLibrary.Point(-34,-31);
-            secondStones[1] = new FunctionLibrary.Point(-33,-54);
+            firstStones[1] = new FunctionLibrary.Point(-35,-31);
+            secondStones[1] = new FunctionLibrary.Point(-32,-54);
 
             firstStones[2] = new FunctionLibrary.Point(-34,-41);
-            secondStones[2] = new FunctionLibrary.Point(-33, -64);
+            secondStones[2] = new FunctionLibrary.Point(-32, -64);
 
             foundationPos = new FunctionLibrary.Point(-24,48);
             foundationAproachPos = new FunctionLibrary.Point(-30, 48);
@@ -297,7 +294,7 @@ public class BridgeTwoStoneAuto extends LinearOpMode {
                     if (getRuntime() > 1) nSwitch++;
                     break;
                 case 14:
-                    result = lift.move_using_encoder(3000, 1, 5, 50, false);
+                    result = lift.move_using_encoder(4000, 1, 5, 50, false);
                     if (result < 0) nSwitch++;
                     break;
                 case 15:
@@ -305,23 +302,28 @@ public class BridgeTwoStoneAuto extends LinearOpMode {
                     if (result < 0) nSwitch++;
                     break;
                 case 16:
-                    result = inout.move_using_encoder(750, 1, 4, 5, false);
+                    result = inout.move_using_encoder(1500, 1, 4, 5, false);
                     if (result < 0) nSwitch++;
                     break;
                 case 17:
-                    result = lift.move_using_encoder(-2800, 1, 5, 50, false);
+                    result = lift.move_using_encoder(-3800, 1, 5, 50, false);
                     if (result < 0) nSwitch++;
                     break;
                 case 18:
-                    destination = new FunctionLibrary.Point(foundationLeavePos.x, foundationPos.y);
-                    result = auto.gotoPosition(destination, 0.5, 1, foundAngle);
+                    destination = new FunctionLibrary.Point(foundationAproachPos.x, foundationAproachPos.y+4);
+                    result = auto.gotoPosition(destination, 0.5, 0.5, foundAngle);
                     if (result < 0) nSwitch++;
                     break;
                 case -19:
+                    destination = new FunctionLibrary.Point(foundationLeavePos.x, foundationAproachPos.y);
+                    result = auto.gotoPosition(destination, 0.5, 1, foundAngle);
+                    if (result < 0) nSwitch++;
+                    break;
+                case -20:
                     result = auto.gotoPosition(foundationLeavePos, 1, 1, foundAngle);
                     if (result < 0) nSwitch++;
                     break;
-                case 20:
+                case -21:
                     //park under the bridge
                     result = auto.gotoPosition(finalPosition, 0.5, 1, 0);
                     if (result < 0) nSwitch++;

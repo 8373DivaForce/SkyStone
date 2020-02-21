@@ -30,12 +30,27 @@ public class D1V4Mk2Op extends LinearOpMode {
         boolean rightStickButton = false;
         boolean leftDPadPressed = false;
         boolean rightDPadPressed = false;
+        boolean xPressed = false;
         double dOffset = 0;
+
+        double powerMultiplier = 1;
+        double slowSpeed = 0.5;
         //wait for the opmode to start
         waitForStart();
         //main program loop
         while (opModeIsActive()) {
+
+            if (gamepad1.x && !xPressed) {
+                if (powerMultiplier == 1) {
+                    powerMultiplier = slowSpeed;
+                } else {
+                    powerMultiplier = 1;
+                }
+            } else if (!gamepad1.x && xPressed) xPressed = false;
+
             telemetry.addData("fieldCentric", fieldCentric);
+            if (powerMultiplier == 1) telemetry.addData("Slow", "No");
+            else telemetry.addData("Slow", "Yes");
             //allow the disabiling/renenabling of field centric
             if (!leftStickButton && gamepad1.left_stick_button) {
                 if (fieldCentric) {
@@ -55,12 +70,12 @@ public class D1V4Mk2Op extends LinearOpMode {
             double x = gamepad1.left_stick_x;
             double y = gamepad1.left_stick_y;
             //make sure the values aren't too small
-            x = Math.abs(x) < 0.05 ? 0 : scaleInput(x);
-            y = Math.abs(y) < 0.05 ? 0 : scaleInput(y);
+            x = Math.abs(x) < 0.05 ? 0 : scaleInput(x)*powerMultiplier;
+            y = Math.abs(y) < 0.05 ? 0 : scaleInput(y)*powerMultiplier;
             //set the rotation to what is being read from the gamepad
             double rotation = gamepad1.right_stick_x;
             //make sure it isn't too low
-            rotation = Math.abs(rotation) < 0.05 ? 0 : scaleInput(rotation);
+            rotation = Math.abs(rotation) < 0.05 ? 0 : scaleInput(rotation)*powerMultiplier;
             //initialize translated x and y based off of field centric
             double dX;
             double dY;

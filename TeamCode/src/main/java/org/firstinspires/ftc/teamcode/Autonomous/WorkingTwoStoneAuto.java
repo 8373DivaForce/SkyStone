@@ -9,6 +9,7 @@ import com.qualcomm.robotcore.util.ReadWriteFile;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
 import org.firstinspires.ftc.teamcode.Functions.AutoFunctions;
+import org.firstinspires.ftc.teamcode.Functions.AutoValues;
 import org.firstinspires.ftc.teamcode.Functions.FunctionLibrary;
 import org.firstinspires.ftc.teamcode.Functions.SkystoneOpenCVPipe;
 import org.firstinspires.ftc.teamcode.Hardware_Maps.D1V4Mk2hardware;
@@ -58,21 +59,17 @@ public class WorkingTwoStoneAuto extends LinearOpMode {
         int Position = 0;
         int EndPosition = 0;
         File file = AppUtil.getInstance().getSettingsFile("AutoSelection");
-        telemetry.addData("Startup", "Vuforia is starting up! Do not stop the robot!");
         if (file.exists()) {
             String[] fileContents = ReadWriteFile.readFile(file).split(",");
             Alliance = Integer.parseInt(fileContents[0]);
-            telemetry.addData("Alliance", Alliance);
             Auto = Integer.parseInt(fileContents[1]);
-            telemetry.addData("Auto", Auto);
             Position = Integer.parseInt(fileContents[2]);
-            telemetry.addData("Position", Position);
             EndPosition = Integer.parseInt(fileContents[3]);
-            telemetry.addData("EndPosition", EndPosition);
         } else {
-            //stop the program if there isn't a file
             stop();
         }
+        AutoValues autoValues = new AutoValues(telemetry);
+        autoValues.translateValues(Alliance, Auto, Position, EndPosition);
         telemetry.update();
         //setup initial variables that are defined based on alliance
         FunctionLibrary.Point startPosition = null;
@@ -136,10 +133,10 @@ public class WorkingTwoStoneAuto extends LinearOpMode {
             secondStones[0] = new FunctionLibrary.Point(-32,-44);
 
             firstStones[1] = new FunctionLibrary.Point(-35,-31);
-            secondStones[1] = new FunctionLibrary.Point(-32,-54);
+            secondStones[1] = new FunctionLibrary.Point(-32,-52);
 
             firstStones[2] = new FunctionLibrary.Point(-34,-41);
-            secondStones[2] = new FunctionLibrary.Point(-32, -64);
+            secondStones[2] = new FunctionLibrary.Point(-32, -60);
 
             //set the two parking positions
             if (EndPosition == 0) {
