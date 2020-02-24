@@ -4,9 +4,11 @@ import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.internal.files.DataLogger;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 //class dedicated for functions used in autonomous
 public class AutoFunctions {
@@ -327,6 +329,154 @@ public class AutoFunctions {
             e.printStackTrace();
         }
         return 0;
+    }public int gotoPosition(FunctionLibrary.Point destination,double power, double error, boolean follow, double degToPow) {
+        double globalX = robot.getX();
+        double globalY = robot.getY();
+        //finds the local x and y offset
+        double xPos = destination.x-globalX;
+        double yPos = destination.y-globalY;
+        //finds the distance from the points
+        double distance = Math.sqrt((xPos*xPos) + (yPos*yPos));
+        //checks if that distance is less than the max error
+        //if so, stop the drive motors and return -1
+        if (distance < error) {
+            robot.move(0,0,0,0);
+            return -1;
+        }
+
+        double currentRotation = robot.getWorldRotation();
+        //find the current angle
+        double currentAngle = currentRotation;
+        //find the movement vector angle
+        double angle = Math.toDegrees(Math.atan2(yPos,xPos));
+        //translate the local movement vector to a global vecctor
+        double robotAngle = angle + currentAngle;
+
+        //find the x movement using distance times the cosine of the angle calculated
+        double adjustedX = distance*Math.cos(Math.toRadians(robotAngle));
+        //find the y movement using distance time the sin of the angle calculated
+        double adjustedY = -distance*Math.sin(Math.toRadians(robotAngle));
+        double targetAngle = (angle-90)*-1;
+        //find the current angle on a 0 to 360 degree span
+        double currentAngle360 = currentAngle;
+        if (currentAngle < 0) currentAngle360 = currentAngle+360;
+
+        double targetAngle360 = targetAngle;
+        if (targetAngle < 0) targetAngle360 = targetAngle+360;
+
+        double robotRotation = 0;
+
+        //check to see which way is faster, moving left or right and tell it to move accordingly
+        if (Math.abs(targetAngle-currentAngle) < Math.abs(targetAngle360-currentAngle360)) {
+            robotRotation = targetAngle-currentAngle;
+        } else {
+            robotRotation = targetAngle360-currentAngle360;
+        }
+        //pass the x movement, y movement, rotation, and power to the move function in the constructor class
+        robot.move(adjustedY, adjustedX, robotRotation/degToPow, power);
+        try {
+            Dl.addDataLine(System.currentTimeMillis(), localTime.seconds(), currentRotation, globalX, globalY, targetAngle, destination.x, destination.y);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    public int gotoPosition(FunctionLibrary.Point destination,double power, double error, double targetAngle, double rampDistance) {
+        double globalX = robot.getX();
+        double globalY = robot.getY();
+        //finds the local x and y offset
+        double xPos = destination.x-globalX;
+        double yPos = destination.y-globalY;
+        //finds the distance from the points
+        double distance = Math.sqrt((xPos*xPos) + (yPos*yPos));
+        //checks if that distance is less than the max error
+        //if so, stop the drive motors and return -1
+        if (distance < error) {
+            robot.move(0,0,0,0);
+            return -1;
+        }
+
+        double currentRotation = robot.getWorldRotation();
+        //find the current angle
+        double currentAngle = currentRotation;
+        //find the movement vector angle
+        double angle = Math.toDegrees(Math.atan2(yPos,xPos));
+        //translate the local movement vector to a global vecctor
+        double robotAngle = angle + currentAngle;
+
+        distance = distance/rampDistance;
+        if (distance < 0.2) distance = 0.2;
+        //find the x movement using distance times the cosine of the angle calculated
+        double adjustedX = distance*Math.cos(Math.toRadians(robotAngle));
+        //find the y movement using distance time the sin of the angle calculated
+        double adjustedY = -distance*Math.sin(Math.toRadians(robotAngle));
+
+        //find the current angle on a 0 to 360 degree span
+        double currentAngle360 = currentAngle;
+        if (currentAngle < 0) currentAngle360 = currentAngle+360;
+
+        double targetAngle360 = targetAngle;
+        if (targetAngle < 0) targetAngle360 = targetAngle+360;
+
+        double robotRotation = 0;
+
+        //check to see which way is faster, moving left or right and tell it to move accordingly
+        if (Math.abs(targetAngle-currentAngle) < Math.abs(targetAngle360-currentAngle360)) {
+            robotRotation = targetAngle-currentAngle;
+        } else {
+            robotRotation = targetAngle360-currentAngle360;
+        }
+
+        //pass the x movement, y movement, rotation, and power to the move function in the constructor class
+        robot.move(adjustedY, adjustedX, robotRotation/50, power);
+        try {
+            Dl.addDataLine(System.currentTimeMillis(), localTime.seconds(), currentRotation, globalX, globalY, targetAngle, destination.x, destination.y);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    public int purePursuit(FunctionLibrary.Point[] points, double radius, double maxPower, double maxError, double optimalAngle, Telemetry telemetry) {
+        ArrayList<FunctionLibrary.Point> trackPoints = new ArrayList<>();
+        FunctionLibrary.Point robotPos = robot.getPosition();
+        FunctionLibrary.Point followingPoint = robotPos;
+        int currentLine = 0;
+        for (int i = 1; i < points.length; i++) {
+            trackPoints = FunctionLibrary.lineCircleIntersection(robot.getPosition(), radius, points[i-1], points[i]);
+            telemetry.addData("Line " + i, trackPoints.size());
+            if (trackPoints.size() == 2) {
+                double distance1 = Math.sqrt(Math.pow(trackPoints.get(0).x - points[i].x,2)+Math.pow(trackPoints.get(0).y - points[i].y,2));
+                double distance2 = Math.sqrt(Math.pow(trackPoints.get(1).x - points[i].x,2)+Math.pow(trackPoints.get(1).y - points[i].y,2));
+
+                if (distance1 < distance2) {
+                    followingPoint = trackPoints.get(0);
+                    currentLine = i;
+                } else {
+                    currentLine = i;
+                    followingPoint = trackPoints.get(1);
+                }
+            } else if (trackPoints.size() == 1) {
+                followingPoint = trackPoints.get(0);
+                currentLine = i;
+            }
+        }
+        int pointLen = points.length-1;
+        double distance1 = Math.sqrt(Math.pow(robotPos.x - points[pointLen].x,2)+Math.pow(robotPos.y - points[pointLen].y,2));
+        double distance2 = Math.sqrt(Math.pow(robotPos.x - followingPoint.x,2)+Math.pow(followingPoint.y - points[pointLen].y,2));
+        telemetry.addData("Following point", followingPoint.x + ", " + followingPoint.y);
+        telemetry.addData("curentLine: ", currentLine);
+        if (distance1 < maxError) {
+            robot.move(0, 0, 0, 0);
+            nState = 0;
+            return -1;
+        } else if (distance1 < distance2 && currentLine == pointLen) {
+            gotoPosition(points[pointLen],maxPower,1,true, 100);
+        } else {
+            gotoPosition(followingPoint,maxPower,1,true, 100);
+        }
+        return currentLine;
     }
     //takes in a run mode like DcMotor.RunMode.STOP_AND_RESET_ENCODERS and applies it to every drive motor
     private void set_drive_encoders(DcMotor.RunMode runmode) {
@@ -354,5 +504,6 @@ public class AutoFunctions {
         }
         return bReturn;
     }
+
 
 }

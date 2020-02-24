@@ -14,10 +14,12 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import java.util.ArrayList;
 
 import static java.lang.Math.abs;
+import static java.lang.Math.log;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 import static java.lang.Math.pow;
 import static java.lang.Math.sqrt;
+import static java.lang.Math.toRadians;
 
 //a class dedicated to various class or functions needed for programming
 public class FunctionLibrary {
@@ -223,20 +225,21 @@ public class FunctionLibrary {
     //lineCircleintersection function for PurePursuit which I haven't implemented yet
     public static ArrayList<Point> lineCircleIntersection(Point center, double Radius, Point linePoint1, Point linePoint2) {
 
+        //make sure that the distance slope between points isn't too small so we can calculate slope
+        linePoint2.x = abs(linePoint1.x-linePoint2.x) < 0.005 ? linePoint2.x+0.006 : linePoint2.x;
+        linePoint2.y = abs(linePoint1.y-linePoint2.y) < 0.005 ? linePoint2.y+0.006 : linePoint2.y;
+
         //sets the line points to be relative to the center point
         Point localPoint1 = new Point(linePoint1.x-center.x, linePoint1.y-center.y);
         Point localPoint2 = new Point(linePoint2.x-center.x, linePoint2.y-center.y);
 
-        //make sure that the distance slope between points isn't too small so we can calculate slope
-        localPoint2.x = abs(localPoint1.x-localPoint2.x) < 0.005 ? localPoint2.x+0.003 : localPoint2.x;
-        localPoint2.y = abs(localPoint1.y-localPoint2.y) < 0.005 ? localPoint2.y+0.003 : localPoint2.y;
-
+        Log.d("Points", "point1: " + localPoint1.x + ", " + localPoint1.y + "; Point2: " + localPoint2.x + ", " + localPoint2.y);
         //define m in y=mx+b  for a linear line
-        double m = (localPoint2.y-localPoint1.y)/(localPoint2.x-localPoint2.x);
-
+        double m = (localPoint2.y-localPoint1.y)/(localPoint2.x-localPoint1.x);
         //define b in y=mx+B for a linear line
         double b = localPoint2.y-m*localPoint2.x;
 
+        Log.d("Points", "m: " + m + ", b: " + b + ", r: " + Radius);
         //set Radius equal to r
         double r = Radius;
 
@@ -245,22 +248,33 @@ public class FunctionLibrary {
         try {
             //define parts A, B, and C of an equation similar to the quadratic formula
             double partA = m*b;
-            double partB = sqrt(pow(Radius,2) + pow(m,2) * pow(Radius,2) - pow(b,2));
+            double partB = sqrt(pow(Radius,2) + (pow(m,2) * pow(Radius,2)) - pow(b,2));
             double partC = pow(m,2) + 1;
+
+            Log.d("Points", "A: " + partA + ", B: " + partB + ", C: " + partC);
             //get the x of one point
             double x1 = (-partA + partB)/partC;
             //get the x of the other point
             double x2 = (partA + partB)/partC * -1;
 
+            Log.d("Points", "X1: " + x1 + ", X2: " + x2);
+
             //transition local x coordinates back to global and calculate y using y = mx+b
             Point globalPoint1 = new Point(x1+center.x, (x1*m + b) + center.y);
             Point globalPoint2 = new Point(x2+center.x,(x2*m+b) + center.y);
+            Log.d("Points", "Point1: " + globalPoint1.x + ", " + globalPoint1.y + "; Point2: " + globalPoint2.x + ", " + globalPoint2.y);
 
-            //find the line point with the minimum x
-            double minX = min(linePoint1.x,linePoint2.x);
-            //find the line point with the maximum x
-            double maxX = max(linePoint1.x, linePoint2.x);
+            double minX;
+            double maxX;
+            if (linePoint1.x < linePoint2.x) {
+                minX = linePoint1.x;
+                maxX = linePoint2.x;
+            } else {
+                minX = linePoint2.x;
+                maxX = linePoint1.x;
+            }
 
+            Log.d("Points", "Min: " + minX + ", Max: " + maxX);
             //check if the point we found is on the line
             //if so, add it to the list of points found
             if (globalPoint1.x > minX && globalPoint1.x < maxX) {
