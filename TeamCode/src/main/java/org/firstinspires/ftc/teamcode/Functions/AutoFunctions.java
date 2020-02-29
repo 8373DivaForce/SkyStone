@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.Functions;
 
+import android.util.Log;
+
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -99,7 +101,7 @@ public class AutoFunctions {
                 }
                 //get the total rotational error
                 double dError = FunctionLibrary.WrapAngleDegrees(dHeading - targetAngle);
-                //multiply the error by dKP value to get rotational correction
+                //multiply the error by getWheelCircumfrance()dKP value to get rotational correction
                 dError = dError * robot.getdKp();
                 //feed the move function in the robotConstructor the x, y, and z movement
                 robot.move(-nFrontBackMov,nLeftRightMov, dError,power);
@@ -138,11 +140,11 @@ public class AutoFunctions {
     //1: in progress
     public int rotPID(double dAngle, double dPower, double nMaxError, int nTimeout) {
         int nReturn = 0;
+        Log.d("ROTPID", nState + "");
         int direction = (int)(Math.abs(dAngle)/dAngle);
         switch(nState) {
             case 0:
                 timer.reset();
-                set_drive_encoders(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
                 nState = 1;
                 break;
             case 1:
@@ -184,9 +186,7 @@ public class AutoFunctions {
                     //reset the state
                     nState = 0;
                     //turn of the drive motors
-                    for (DcMotor motor : robot.getDriveMotors()) {
-                        motor.setPower(0);
-                    }
+                    robot.move(0,0,0,0);
                     //return -1 to signify the program finished successfully.
                     nReturn = -1;
                 }
@@ -194,9 +194,7 @@ public class AutoFunctions {
                 //if it is, stop all motors, reset state, and return -2 to signify a timeout.
                 if (timer.milliseconds() > nTimeout*1000) {
                     nState = 0;
-                    for (DcMotor motor : robot.getDriveMotors()) {
-                        motor.setPower(0);
-                    }
+                    robot.move(0,0,0,0);
                     nReturn = -2;
                 }
         }
@@ -381,15 +379,21 @@ public class AutoFunctions {
         }
         return 0;
     }
-
+    FunctionLibrary.Point startingPos = new FunctionLibrary.Point(0,0);
+    FunctionLibrary.Point initDestination = new FunctionLibrary.Point(0,0);
     public int gotoPosition(FunctionLibrary.Point destination,double power, double error, double targetAngle, double rampDistance) {
         double globalX = robot.getX();
         double globalY = robot.getY();
+        if (initDestination.x != destination.x && initDestination.y != destination.y) {
+            initDestination = destination;
+            startingPos = new FunctionLibrary.Point(globalX, globalY);
+        }
         //finds the local x and y offset
         double xPos = destination.x-globalX;
         double yPos = destination.y-globalY;
         //finds the distance from the points
         double distance = Math.sqrt((xPos*xPos) + (yPos*yPos));
+        double distanceFromStart = Math.sqrt(Math.pow(globalX-startingPos.x,2)+Math.pow(globalY-startingPos.y,2));
         //checks if that distance is less than the max error
         //if so, stop the drive motors and return -1
         if (distance < error) {
@@ -405,7 +409,9 @@ public class AutoFunctions {
         //translate the local movement vector to a global vecctor
         double robotAngle = angle + currentAngle;
 
+        distanceFromStart = distanceFromStart/rampDistance;
         distance = distance/rampDistance;
+        if (distanceFromStart < distance) distance = distanceFromStart;
         if (distance < 0.2) distance = 0.2;
         //find the x movement using distance times the cosine of the angle calculated
         double adjustedX = distance*Math.cos(Math.toRadians(robotAngle));
@@ -438,6 +444,8 @@ public class AutoFunctions {
         return 0;
     }
 
+    FunctionLibrary.Point lastPoint = new FunctionLibrary.Point(0,0);
+    int lastLine = 0;
     public int purePursuit(FunctionLibrary.Point[] points, double radius, double maxPower, double maxError, double optimalAngle, Telemetry telemetry) {
         ArrayList<FunctionLibrary.Point> trackPoints = new ArrayList<>();
         FunctionLibrary.Point robotPos = robot.getPosition();
@@ -463,18 +471,28 @@ public class AutoFunctions {
             }
         }
         int pointLen = points.length-1;
+        if (lastLine > currentLine) {
+            followingPoint = lastPoint;
+        } else {
+            lastLine = currentLine;
+            lastPoint = followingPoint;
+        }
         double distance1 = Math.sqrt(Math.pow(robotPos.x - points[pointLen].x,2)+Math.pow(robotPos.y - points[pointLen].y,2));
         double distance2 = Math.sqrt(Math.pow(robotPos.x - followingPoint.x,2)+Math.pow(followingPoint.y - points[pointLen].y,2));
         telemetry.addData("Following point", followingPoint.x + ", " + followingPoint.y);
         telemetry.addData("curentLine: ", currentLine);
+
+
         if (distance1 < maxError) {
             robot.move(0, 0, 0, 0);
             nState = 0;
+            lastLine = 0;
+            lastPoint = new FunctionLibrary.Point(0,0);
             return -1;
-        } else if (distance1 < distance2 && currentLine == pointLen) {
-            gotoPosition(points[pointLen],maxPower,1,true, 100);
+        } else if (distance1+1 < distance2 && currentLine == pointLen) {
+            gotoPosition(points[pointLen],maxPower,1, optimalAngle, 12);
         } else {
-            gotoPosition(followingPoint,maxPower,1,true, 100);
+            gotoPosition(followingPoint,maxPower,1, optimalAngle);
         }
         return currentLine;
     }

@@ -1,0 +1,18 @@
+<?xml version='1.0' encoding='UTF-8' standalone='yes' ?>
+<Robot type="FirstInspires-FTC">
+    <LynxUsbDevice name="Back Hub" serialNumber="DQ3DIPRO" parentModuleAddress="2">
+        <LynxModule name="Expansion Hub 2" port="2">
+            <RevRobotics20HDHexMotor name="frontLeft" port="0" />
+            <RevRobotics20HDHexMotor name="frontRight" port="1" />
+            <RevRobotics20HDHexMotor name="backLeft" port="2" />
+            <RevRobotics20HDHexMotor name="backRight" port="3" />
+            <LynxEmbeddedIMU name="imu" port="0" bus="0" />
+        </LynxModule>
+    </LynxUsbDevice>
+    <LynxUsbDevice name="Front Hub" serialNumber="DQ1472Z4" parentModuleAddress="5">
+        <LynxModule name="Expansion Hub 5" port="5">
+            <LynxEmbeddedIMU name="imu 1" port="0" bus="0" />
+        </LynxModule>
+    </LynxUsbDevice>
+    <Webcam name="Front Webcam" serialNumber="D126551F" />
+</Robot>

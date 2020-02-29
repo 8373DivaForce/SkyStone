@@ -130,13 +130,13 @@ public class WorkingTwoStoneAuto extends LinearOpMode {
 
             //set the position of all 6 stones
             firstStones[0] = new FunctionLibrary.Point(-35,-23);
-            secondStones[0] = new FunctionLibrary.Point(-32,-44);
+            secondStones[0] = new FunctionLibrary.Point(-30,-44);
 
             firstStones[1] = new FunctionLibrary.Point(-35,-31);
-            secondStones[1] = new FunctionLibrary.Point(-32,-52);
+            secondStones[1] = new FunctionLibrary.Point(-30,-52);
 
             firstStones[2] = new FunctionLibrary.Point(-34,-41);
-            secondStones[2] = new FunctionLibrary.Point(-32, -60);
+            secondStones[2] = new FunctionLibrary.Point(-30, -60);
 
             //set the two parking positions
             if (EndPosition == 0) {

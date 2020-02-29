@@ -6,12 +6,14 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import org.firstinspires.ftc.teamcode.Functions.AutoFunctions;
 import org.firstinspires.ftc.teamcode.Functions.FunctionLibrary.Point;
 import org.firstinspires.ftc.teamcode.Hardware_Maps.D1V4Mk2hardware;
+import org.firstinspires.ftc.teamcode.Hardware_Maps.Kisshardware;
+import org.firstinspires.ftc.teamcode.Hardware_Maps.NewKissHardware;
 
 @Autonomous
 public class purePursuitComparison extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
-        D1V4Mk2hardware robot = new D1V4Mk2hardware(this,new Point(0,0),0);
+        NewKissHardware robot = new NewKissHardware(this,0,new Point(0,0));
         AutoFunctions auto = new AutoFunctions(robot);
         waitForStart();
         Point[] points = new Point[6];
@@ -26,12 +28,18 @@ public class purePursuitComparison extends LinearOpMode {
         while (opModeIsActive()) {
             switch (nSwitch) {
                 default:
-                    result = auto.gotoPosition(points[nSwitch],1,1,0);
+                    result = auto.gotoPosition(points[nSwitch],0.5,0.5,0,12);
                     if (result <0) nSwitch++;
                     break;
                 case 6:
+                    result = auto.rotPID(0,0.5,5,5);
+                    if (result < 0) nSwitch++;
+                    break;
+                case 7:
                     break;
             }
+            telemetry.addData("Position", robot.getX() + ", " + robot.getY());
+            telemetry.update();
         }
 
     }
