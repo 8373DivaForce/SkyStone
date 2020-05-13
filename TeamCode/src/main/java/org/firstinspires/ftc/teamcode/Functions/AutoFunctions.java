@@ -410,7 +410,9 @@ public class AutoFunctions {
         double robotAngle = angle + currentAngle;
 
         distanceFromStart = distanceFromStart/rampDistance;
-        distance = distance/rampDistance;
+        if (distance < rampDistance) {
+            distance = distance/(rampDistance*2);
+        }
         if (distanceFromStart < distance) distance = distanceFromStart;
         if (distance < 0.2) distance = 0.2;
         //find the x movement using distance times the cosine of the angle calculated
@@ -470,10 +472,16 @@ public class AutoFunctions {
                 currentLine = i;
             }
         }
+        double lastDistanceFromPoint = Math.sqrt(Math.pow(points[lastLine].x-lastPoint.x,2)+Math.pow(points[lastLine].y-lastPoint.y,2));
+        double currentDistanceFromPoint = Math.sqrt(Math.pow(points[currentLine].x-followingPoint.x,2)+Math.pow(points[currentLine].y-followingPoint.y,2));;
         int pointLen = points.length-1;
-        if (lastLine > currentLine) {
+        if (currentLine == 0 && lastLine == 0) {
+            followingPoint = points[0];
+        }else if (lastLine > currentLine) {
             followingPoint = lastPoint;
-        } else {
+        } else if(lastLine == currentLine && lastDistanceFromPoint < currentDistanceFromPoint) {
+            followingPoint = lastPoint;
+        }else {
             lastLine = currentLine;
             lastPoint = followingPoint;
         }
@@ -490,7 +498,7 @@ public class AutoFunctions {
             lastPoint = new FunctionLibrary.Point(0,0);
             return -1;
         } else if (distance1+1 < distance2 && currentLine == pointLen) {
-            gotoPosition(points[pointLen],maxPower,1, optimalAngle, 12);
+            gotoPosition(points[pointLen],maxPower,1, optimalAngle, 24);
         } else {
             gotoPosition(followingPoint,maxPower,1, optimalAngle);
         }

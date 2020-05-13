@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.Autonomous;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ReadWriteFile;
 
@@ -13,6 +14,7 @@ import org.firstinspires.ftc.teamcode.Hardware_Maps.D1V4Mk2hardware;
 import java.io.File;
 
 @Autonomous
+@Disabled
 public class AllFoundationAutos extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {

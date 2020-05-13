@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.Autonomous;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -33,6 +34,7 @@ import java.io.File;
  *YES
  */
 @Autonomous(group="Sky autonomous")
+@Disabled
 public class BridgeTwoStoneAuto extends LinearOpMode {
     private ElapsedTime runtime = new ElapsedTime();
 

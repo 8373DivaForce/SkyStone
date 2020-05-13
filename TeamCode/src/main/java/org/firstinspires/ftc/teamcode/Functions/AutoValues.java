@@ -5,6 +5,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import java.util.HashMap;
 
 public class AutoValues {
+    //setup initial variables
     public String[] alliances = {
             "red",
             "blue"
@@ -68,6 +69,7 @@ public class AutoValues {
         positions.put("Skystone", 2);
         endPositions.put("Skystone",2);
     }
+    //take in the values that were fed in and output them in text form through telemetry
     public void translateValues(int alliance, int auto, int position, int endposition) {
         telemetry.addData("Alliance", alliances[alliance]);
         telemetry.addData("Auto", Autos[auto]);

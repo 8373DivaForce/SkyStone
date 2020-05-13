@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.Teleops;
 
 import android.util.Log;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -17,6 +18,7 @@ import static org.firstinspires.ftc.teamcode.Functions.FunctionLibrary.GetYaw;
 import static org.firstinspires.ftc.teamcode.Functions.FunctionLibrary.scaleInput;
 
 @TeleOp(group = "A")
+@Disabled
 public class D1V4Mk2Op extends LinearOpMode {
 
     @Override

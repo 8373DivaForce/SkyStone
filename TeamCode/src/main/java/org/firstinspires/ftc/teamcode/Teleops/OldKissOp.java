@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.Teleops;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -10,6 +11,7 @@ import org.firstinspires.ftc.teamcode.Hardware_Maps.OldKissBotHArdware;
 import static org.firstinspires.ftc.teamcode.Functions.FunctionLibrary.GetYaw;
 
 @TeleOp
+@Disabled
 public class OldKissOp extends LinearOpMode {
 
     @Override

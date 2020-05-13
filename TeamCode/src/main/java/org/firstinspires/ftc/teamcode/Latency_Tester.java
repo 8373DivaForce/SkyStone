@@ -5,6 +5,7 @@ import com.qualcomm.hardware.lynx.LynxEmbeddedIMU;
 import com.qualcomm.hardware.lynx.LynxI2cDeviceSynchV2;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynchImplOnSimple;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynchSimple;
@@ -21,6 +22,7 @@ import java.lang.reflect.Array;
 import static org.firstinspires.ftc.teamcode.Functions.FunctionLibrary.GetYaw;
 
 @Autonomous
+@Disabled
 public class Latency_Tester extends LinearOpMode {
     private static class BetterI2cDeviceSynchImplOnSimple extends I2cDeviceSynchImplOnSimple {
         private BetterI2cDeviceSynchImplOnSimple(I2cDeviceSynchSimple simple, boolean isSimpleOwned) {

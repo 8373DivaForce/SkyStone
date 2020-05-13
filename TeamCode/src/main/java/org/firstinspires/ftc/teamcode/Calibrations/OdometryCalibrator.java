@@ -5,16 +5,17 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.Functions.AutoFunctions;
 import org.firstinspires.ftc.teamcode.Functions.FunctionLibrary;
+import org.firstinspires.ftc.teamcode.Hardware_Maps.BeastBoyHardware;
 import org.firstinspires.ftc.teamcode.Hardware_Maps.D1V4Mk2hardware;
 import org.firstinspires.ftc.teamcode.Hardware_Maps.D1V4hardware;
 import org.firstinspires.ftc.teamcode.Hardware_Maps.Kisshardware;
 import org.firstinspires.ftc.teamcode.Hardware_Maps.NewKissHardware;
 
 @Autonomous(group = "Calibration")
-public class ForwardCallibration extends LinearOpMode {
+public class OdometryCalibrator extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
-        NewKissHardware robot = new NewKissHardware(this, 0,new FunctionLibrary.Point(0,0));
+        BeastBoyHardware robot = new BeastBoyHardware(this, 0,new FunctionLibrary.Point(0,0));
         AutoFunctions auto = new AutoFunctions(robot);
         String choice = "";
         boolean deciding = true;
@@ -31,7 +32,7 @@ public class ForwardCallibration extends LinearOpMode {
         waitForStart();
         FunctionLibrary.Point destination = null;
         //based off of the choice, tell it to move 2 feet forwards, backwards, left, or right
-        double distance = 120;
+        double distance = 100;
         if (choice == "Forward") destination = new FunctionLibrary.Point(0, distance);
         else if (choice == "Backwards") destination = new FunctionLibrary.Point(0, -distance);
         else if (choice == "Left") destination = new FunctionLibrary.Point(-distance,0);
@@ -43,7 +44,7 @@ public class ForwardCallibration extends LinearOpMode {
             switch (nSwitch) {
                 case 0:
                     //tell the robot to move in the pecified direction
-                    result = auto.gotoPosition(destination, 0.25, 0.5, 0);
+                    result = auto.gotoPosition(destination, 0.5, 0.5, 0);
                     if (result < 0) nSwitch++;
                     break;
                 case 1:

@@ -8,6 +8,7 @@ import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
 import org.firstinspires.ftc.teamcode.Functions.AutoFunctions;
 import org.firstinspires.ftc.teamcode.Functions.AutoValues;
 import org.firstinspires.ftc.teamcode.Functions.FunctionLibrary;
+import org.firstinspires.ftc.teamcode.Hardware_Maps.BeastBoyHardware;
 import org.firstinspires.ftc.teamcode.Hardware_Maps.D1V4Mk2hardware;
 import org.firstinspires.ftc.teamcode.Hardware_Maps.D1V4hardware;
 
@@ -21,6 +22,7 @@ public class AllBridgeAutos extends LinearOpMode {
         int Auto = 0;
         int Position = 0;
         int EndPosition = 0;
+        //read the file we store the information on which autonomous we are running
         File file = AppUtil.getInstance().getSettingsFile("AutoSelection");
         if (file.exists()) {
             String[] fileContents = ReadWriteFile.readFile(file).split(",");
@@ -29,11 +31,14 @@ public class AllBridgeAutos extends LinearOpMode {
             Position = Integer.parseInt(fileContents[2]);
             EndPosition = Integer.parseInt(fileContents[3]);
         } else {
+            //if the file isn't there, stop the program
             stop();
         }
         AutoValues autoValues = new AutoValues(telemetry);
+        //print out the values read in text form
         autoValues.translateValues(Alliance, Auto, Position, EndPosition);
         telemetry.update();
+        //use the information read from the file to choose the start position, final position, and starting rotation
         FunctionLibrary.Point startPosition = null;
         FunctionLibrary.Point finalPosition = null;
         double startingRotation = 0;
@@ -71,9 +76,10 @@ public class AllBridgeAutos extends LinearOpMode {
             }
             startingRotation = 90;
         }
-        D1V4Mk2hardware robot = new D1V4Mk2hardware(this,startPosition,startingRotation);
+        //initialize robot
+        BeastBoyHardware robot = new BeastBoyHardware(this,startingRotation,startPosition,true);
+        //initialize autonomous functions
         AutoFunctions auto = new AutoFunctions(robot);
-        FunctionLibrary.motorMovement inoutControl = new FunctionLibrary.motorMovement(100,robot.dcInOut);
         waitForStart();
         int nSwitch = 1;
         int result = 0;
@@ -83,15 +89,15 @@ public class AllBridgeAutos extends LinearOpMode {
         while (opModeIsActive()) {
 
             switch (nSwitch) {
+                //if we are lining up against the neutral bridge, drive forwards and stop
                 case 1:
                     destination = new FunctionLibrary.Point(finalPosition.x,startPosition.y);
-                    result = auto.gotoPosition(destination,1,1,startingRotation);
-                    x = robot.getX()-destination.x;
-                    y = robot.getY()-destination.y;
+                    result = auto.gotoPosition(destination,0.5,1,startingRotation,12);
                     if (result < 0) nSwitch++;
                     break;
+                //drive over and under the bridge
                 case 2:
-                    result = auto.gotoPosition(finalPosition, 1, 1, startingRotation);
+                    result = auto.gotoPosition(finalPosition, 0.5, 1, startingRotation,12);
                     x = robot.getX()-finalPosition.x;
                     y = robot.getY()-finalPosition.y;
                     if (result < 0) nSwitch++;

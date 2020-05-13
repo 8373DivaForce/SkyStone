@@ -12,6 +12,7 @@ import org.firstinspires.ftc.teamcode.Hardware_Maps.Kisshardware;
 import static org.firstinspires.ftc.teamcode.Functions.FunctionLibrary.GetYaw;
 
 @TeleOp
+@Disabled
 public class KissOp extends LinearOpMode {
 
     @Override
