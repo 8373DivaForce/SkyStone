@@ -10,12 +10,13 @@ import org.firstinspires.ftc.teamcode.Hardware_Maps.D1V4Mk2hardware;
 import org.firstinspires.ftc.teamcode.Hardware_Maps.D1V4hardware;
 import org.firstinspires.ftc.teamcode.Hardware_Maps.Kisshardware;
 import org.firstinspires.ftc.teamcode.Hardware_Maps.NewKissHardware;
+import org.firstinspires.ftc.teamcode.Hardware_Maps.OldKissBotHArdware;
 
 @Autonomous(group = "Calibration")
 public class OdometryCalibrator extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
-        BeastBoyHardware robot = new BeastBoyHardware(this, 0,new FunctionLibrary.Point(0,0));
+        OldKissBotHArdware robot = new OldKissBotHArdware(this, 0,0,0);
         AutoFunctions auto = new AutoFunctions(robot);
         String choice = "";
         boolean deciding = true;
@@ -44,7 +45,7 @@ public class OdometryCalibrator extends LinearOpMode {
             switch (nSwitch) {
                 case 0:
                     //tell the robot to move in the pecified direction
-                    result = auto.gotoPosition(destination, 0.5, 0.5, 0);
+                    result = auto.gotoPosition(destination, 1, 1, 0);
                     if (result < 0) nSwitch++;
                     break;
                 case 1:

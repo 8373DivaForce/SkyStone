@@ -4,9 +4,14 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.util.ReadWriteFile;
 
+import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
 import org.firstinspires.ftc.teamcode.Functions.FunctionLibrary;
 import org.firstinspires.ftc.teamcode.Functions.RobotConstructor;
+import org.opencv.core.Scalar;
+
+import java.io.File;
 
 import static java.lang.Math.atan2;
 import static java.lang.Math.cos;
@@ -16,7 +21,8 @@ import static java.lang.Math.sqrt;
 
 public class OldKissBotHArdware extends RobotConstructor {
     //setup initial parameters that are provided to the parent robotconstructor class
-    private static final String VuforiaKey = "AUJrAPb/////AAAAGV6Dp0zFW0tbif2eZk4u4LsrIQNxlQdiTbA2UJgYbEh7rb+s+Gg9soHReFwRRQz9xAiUcZi6d4jtD9+keLWR9xwcT+zJFSfdajjl89kWcf99HIxpWIMuNfAKhW83arD48Jnz/MTYxuBajilzcUxcPYQx24G/MeA6ZlyBhEauLXCKVrsdddL9kaEatPQx1MblEiH5wbdsMsXHz7w0B9CyEhQyZRLXb0zSbijn+JhHaHblBEk40x7gxkQYM1F+f+GfTrx5xR7ibvldNjRJ0obz1NJfuZugfW4R4vpV3C8Qebk7Jmy4YdL62Kb8W2Xk/S55jDhsdNW8rCPvVGJqjM5useObvRhomu0UT5EDH6hwOYxU";
+    public static final String VuforiaKey =
+            "AW7ToAj/////AAABmcZ9RLZ3tUhClKOp3feoyDVjA4MD06H8ulSOPwGXzZJr7gNfTHtYBvWN9wxei4kahK3/60QQk6t+SpYL44+w/RKvX0Yk8bl4wwhljb1cT8509LQsZnaCu+UH6NeGNgDh7fcPcKlEdXlw5eB62IF/1xzfeQ//vH9pD4Ihu7XhaZzv8wD827zQWT+yrdxxfFEvTR7xWLIj23JqgI+t4glIuAmQPKBHXGTHDSXyr5uQbjqxCNJlkAhceGETf1RDBURZ2v3KGIqC3SVVV1ixlUMSGL9QqAzEGPHT2nF0nK4zt+WdsetLdTniZLkwr1hdn4vvzbH8tAbdfV/eeNWF+GtJmHtHjOk3exEvMrH+ZflXUIoY";
     private static String Webcamname;
     private static double wheelDiameter = 4.8;
     private static double dKp = 0.05;
@@ -48,10 +54,10 @@ public class OldKissBotHArdware extends RobotConstructor {
         HardwareMap hMap = opMode.hardwareMap;
 
         //set the variables to their corresponding hardware device
-        dcFrontLeft = hMap.dcMotor.get("frontleft");
-        dcFrontRight = hMap.dcMotor.get("frontright");
-        dcBackLeft = hMap.dcMotor.get("backleft");
-        dcBackRight = hMap.dcMotor.get("backright");
+        dcFrontLeft = hMap.dcMotor.get("frontLeft");
+        dcFrontRight = hMap.dcMotor.get("frontRight");
+        dcBackLeft = hMap.dcMotor.get("backLeft");
+        dcBackRight = hMap.dcMotor.get("backRight");
 
         //setup the directions the devices need to operate in
         dcFrontRight.setDirection(DcMotor.Direction.REVERSE);
@@ -79,10 +85,10 @@ public class OldKissBotHArdware extends RobotConstructor {
         //initialize a variable useful in the odometry function
         double tempInchPerTick = (1/dcFrontLeft.getMotorType().getTicksPerRev())*getWheelCircumfrance();
         // old inchesPerTickX = tempInchPerTick*-0.92307692307692307692307692307692;
-        inchesPerTickX = tempInchPerTick*-1.11089265;
+        inchesPerTickX = tempInchPerTick*-1.07847062356;
 
         // old inchesPerTickY = tempInchPerTick*1.1483253588516746411483253588517;
-        inchesPerTickY = tempInchPerTick*-1.22675109;
+        inchesPerTickY = tempInchPerTick*-1.18206251244;
         useOdometry = false;
         setRotation(rotation);
         initOdometry();
@@ -232,7 +238,38 @@ public class OldKissBotHArdware extends RobotConstructor {
         motors[3] = dcBackRight;
         return motors;
     }
-
+    File colorLimits = AppUtil.getInstance().getSettingsFile("openCVColorLimits");
+    public void toCSV(Scalar mins, Scalar maxes) {
+        toCSV(mins.val,maxes.val);
+    }
+    public void toCSV(double[] mins, double[] maxes) {
+        String output = "";
+        output += mins[0] + ",";
+        output += mins[1] + ",";
+        output += mins[2] + ",";
+        output += maxes[0] + ",";
+        output += maxes[1] + ",";
+        output += maxes[2];
+        ReadWriteFile.writeFile(colorLimits,output);
+    }
+    public Scalar[] fromCSV() {
+        if (!colorLimits.exists()) {
+            Scalar[] scalars = new Scalar[]{new Scalar(0,0,0),new Scalar(255,255,255)};
+            toCSV(scalars[0],scalars[1]);
+            colorLimits = AppUtil.getInstance().getSettingsFile("openCVColorLimits");
+            return scalars;
+        }
+        String input = ReadWriteFile.readFile(colorLimits);
+        String[] vals = input.split(",");
+        Scalar[] scalars = new Scalar[2];
+        double[] pVals = new double[6];
+        for (int i = 0; i < 6; i++) {
+            pVals[i] = Double.parseDouble(vals[i]);
+        }
+        scalars[0] = new Scalar(pVals[0],pVals[1],pVals[2]);
+        scalars[1] = new Scalar(pVals[3],pVals[4],pVals[5]);
+        return scalars;
+    }
     public void disableOdometry() {
         useOdometry = false;
     }
