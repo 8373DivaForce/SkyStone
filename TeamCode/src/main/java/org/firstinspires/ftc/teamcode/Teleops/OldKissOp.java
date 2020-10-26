@@ -11,7 +11,6 @@ import org.firstinspires.ftc.teamcode.Hardware_Maps.OldKissBotHArdware;
 import static org.firstinspires.ftc.teamcode.Functions.FunctionLibrary.GetYaw;
 
 @TeleOp
-@Disabled
 public class OldKissOp extends LinearOpMode {
 
     @Override
@@ -62,7 +61,7 @@ public class OldKissOp extends LinearOpMode {
                 dX = y;
             }
 
-            robot.move(dY,dX,rotation,1);
+            robot.move(dX,dY,rotation,1);
             telemetry.addData("x: ", robot.getX());
             telemetry.addData("y: ", robot.getY());
             telemetry.update();

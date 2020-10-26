@@ -9,11 +9,14 @@ import org.firstinspires.ftc.teamcode.Functions.autoBase;
 
 import java.io.File;
 
+
+//"Parent" autonomous program for GameChangerSeason
 @Autonomous
 public class AllAutos extends LinearOpMode {
     private autoBase auto = null;
     @Override
     public void runOpMode() throws InterruptedException {
+        //initializing configured values
         int Alliance = 0;
         int Auto = 0;
         int Position = 0;
@@ -30,22 +33,29 @@ public class AllAutos extends LinearOpMode {
             //if the file isn't there, stop the program
             stop();
         }
-        if (Auto == 0) { //park
+        //Initialize one of autoBase's child classes that has an actual autonomous program
+        if (Auto == 0) { //park autonomous
             auto = new ParkAutos(this);
-        } else if (Auto == 1) { //wobble goal and park
+        } else if (Auto == 1) { //wobble goal and park autonomous
             auto = new WobbleAndPark(this);
         } else {
             stop();
         }
+
         if (auto != null) {
+            //run the autonomous programs init phase
             auto.init(Alliance, Auto, Position, EndPosition);
+            //while the program has been initialized but not started, run the auto's init loop
             while (!opModeIsActive() && !isStopRequested()) {
                 auto.init_loop();
             }
+            //run the initialization to the auto's main loop
             auto.loop_init();
+            //keep running the auto's main loop until program is terminated
             while (opModeIsActive()) {
                 auto.loop();
             }
+            //Run the auto's ending functions before exiting out of program
             auto.end();
         }
     }
