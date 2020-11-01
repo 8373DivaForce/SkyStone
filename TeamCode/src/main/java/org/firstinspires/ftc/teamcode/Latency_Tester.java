@@ -2,26 +2,15 @@ package org.firstinspires.ftc.teamcode;
 
 import android.util.Log;
 
-import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.lynx.LynxEmbeddedIMU;
 import com.qualcomm.hardware.lynx.LynxI2cDeviceSynchV2;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynchImplOnSimple;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynchSimple;
 
-import org.firstinspires.ftc.robotcore.external.Func;
-import org.firstinspires.ftc.teamcode.Functions.FunctionLibrary;
-import org.firstinspires.ftc.teamcode.Hardware_Maps.Kisshardware;
-import org.firstinspires.ftc.teamcode.Hardware_Maps.NewKissHardware;
-import org.openftc.revextensions2.ExpansionHubEx;
 import org.openftc.revextensions2.RevBulkData;
-
-import java.lang.reflect.Array;
-
-import static org.firstinspires.ftc.teamcode.Functions.FunctionLibrary.GetYaw;
 
 @Autonomous
 public class Latency_Tester extends LinearOpMode {

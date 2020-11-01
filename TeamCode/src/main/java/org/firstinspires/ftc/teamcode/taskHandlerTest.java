@@ -2,17 +2,11 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.Servo;
 
-import org.firstinspires.ftc.teamcode.Functions.baseTasks;
-import org.firstinspires.ftc.teamcode.Functions.task;
-import org.firstinspires.ftc.teamcode.Functions.FunctionLibrary.Point;
-import org.firstinspires.ftc.teamcode.Functions.RobotConstructor;
-import org.firstinspires.ftc.teamcode.Functions.taskHandler;
-import org.firstinspires.ftc.teamcode.Hardware_Maps.BeastBoyHardware;
+import org.firstinspires.ftc.teamcode.Libraries.functions.baseTasks;
+import org.firstinspires.ftc.teamcode.Libraries.functions.FunctionLibrary.Point;
+import org.firstinspires.ftc.teamcode.Libraries.functions.taskHandler;
 import org.firstinspires.ftc.teamcode.Hardware_Maps.OldKissBotHArdware;
 
 @Autonomous

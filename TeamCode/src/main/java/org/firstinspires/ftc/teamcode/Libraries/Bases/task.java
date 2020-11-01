@@ -1,6 +1,4 @@
-package org.firstinspires.ftc.teamcode.Functions;
-
-import org.firstinspires.ftc.teamcode.Functions.RobotConstructor;
+package org.firstinspires.ftc.teamcode.Libraries.Bases;
 
 //base interface used to make tasks that the robot can do in autonomous
 public interface task {

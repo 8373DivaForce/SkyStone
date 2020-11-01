@@ -8,10 +8,10 @@ import com.qualcomm.robotcore.util.ReadWriteFile;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
-import org.firstinspires.ftc.teamcode.Functions.AutoFunctions;
-import org.firstinspires.ftc.teamcode.Functions.Old.AutoValues;
-import org.firstinspires.ftc.teamcode.Functions.FunctionLibrary;
-import org.firstinspires.ftc.teamcode.Functions.Old.SkystoneOpenCVPipe;
+import org.firstinspires.ftc.teamcode.Libraries.functions.AutoFunctions;
+import org.firstinspires.ftc.teamcode.Libraries.Old.AutoValues;
+import org.firstinspires.ftc.teamcode.Libraries.functions.FunctionLibrary;
+import org.firstinspires.ftc.teamcode.Libraries.Old.SkystoneOpenCVPipe;
 import org.firstinspires.ftc.teamcode.Hardware_Maps.NewKissHardware;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;

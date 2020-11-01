@@ -1,7 +1,7 @@
-package org.firstinspires.ftc.teamcode.Functions;
+package org.firstinspires.ftc.teamcode.Libraries.functions;
 
-import org.firstinspires.ftc.teamcode.Functions.RobotConstructor;
-import org.firstinspires.ftc.teamcode.Functions.task;
+import org.firstinspires.ftc.teamcode.Libraries.Bases.RobotConstructor;
+import org.firstinspires.ftc.teamcode.Libraries.Bases.task;
 
 import java.util.ArrayList;
 

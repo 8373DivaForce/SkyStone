@@ -2,12 +2,11 @@ package org.firstinspires.ftc.teamcode.Autonomous.GameChanger;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-import org.firstinspires.ftc.teamcode.Functions.FunctionLibrary;
-import org.firstinspires.ftc.teamcode.Functions.FunctionLibrary.Point;
-import org.firstinspires.ftc.teamcode.Functions.GamechangerAutoValues;
-import org.firstinspires.ftc.teamcode.Functions.autoBase;
-import org.firstinspires.ftc.teamcode.Functions.baseTasks;
-import org.firstinspires.ftc.teamcode.Functions.taskHandler;
+import org.firstinspires.ftc.teamcode.Libraries.functions.FunctionLibrary.Point;
+import org.firstinspires.ftc.teamcode.Libraries.GameChanger.GamechangerAutoValues;
+import org.firstinspires.ftc.teamcode.Libraries.Bases.autoBase;
+import org.firstinspires.ftc.teamcode.Libraries.functions.baseTasks;
+import org.firstinspires.ftc.teamcode.Libraries.functions.taskHandler;
 import org.firstinspires.ftc.teamcode.Hardware_Maps.OldKissBotHArdware;
 
 

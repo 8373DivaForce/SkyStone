@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.Functions;
+package org.firstinspires.ftc.teamcode.Libraries.Bases;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
@@ -14,7 +14,8 @@ import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackable;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackableDefaultListener;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
-import org.firstinspires.ftc.teamcode.Functions.Old.InitSkystoneVuforia;
+import org.firstinspires.ftc.teamcode.Libraries.functions.FunctionLibrary;
+import org.firstinspires.ftc.teamcode.Libraries.Old.InitSkystoneVuforia;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -24,8 +25,8 @@ import java.util.concurrent.TimeUnit;
 import static org.firstinspires.ftc.robotcore.external.navigation.AngleUnit.DEGREES;
 import static org.firstinspires.ftc.robotcore.external.navigation.AxesOrder.XYZ;
 import static org.firstinspires.ftc.robotcore.external.navigation.AxesReference.EXTRINSIC;
-import static org.firstinspires.ftc.teamcode.Functions.FunctionLibrary.GetYaw;
-import static org.firstinspires.ftc.teamcode.Functions.FunctionLibrary.WrapAngleDegrees;
+import static org.firstinspires.ftc.teamcode.Libraries.functions.FunctionLibrary.GetYaw;
+import static org.firstinspires.ftc.teamcode.Libraries.functions.FunctionLibrary.WrapAngleDegrees;
 
 //my class for constructing all the parameters that are robot specific
 public class RobotConstructor {

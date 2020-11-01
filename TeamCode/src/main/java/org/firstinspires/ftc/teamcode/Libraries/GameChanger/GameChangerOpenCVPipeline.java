@@ -1,11 +1,8 @@
-package org.firstinspires.ftc.teamcode.Functions;
-
-import android.util.Log;
+package org.firstinspires.ftc.teamcode.Libraries.GameChanger;
 
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
-import org.opencv.core.Point;
 import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;

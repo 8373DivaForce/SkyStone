@@ -1,8 +1,6 @@
-package org.firstinspires.ftc.teamcode.Functions;
+package org.firstinspires.ftc.teamcode.Libraries.GameChanger;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-
-import java.util.HashMap;
 
 public class GamechangerAutoValues {
     //setup initial variables

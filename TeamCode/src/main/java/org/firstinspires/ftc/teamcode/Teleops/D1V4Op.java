@@ -7,7 +7,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.teamcode.Hardware_Maps.D1V4hardware;
 
-import static org.firstinspires.ftc.teamcode.Functions.FunctionLibrary.GetYaw;
+import static org.firstinspires.ftc.teamcode.Libraries.functions.FunctionLibrary.GetYaw;
 
 @TeleOp
 @Disabled

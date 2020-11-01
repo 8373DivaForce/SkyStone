@@ -1,11 +1,13 @@
-package org.firstinspires.ftc.teamcode.Functions;
+package org.firstinspires.ftc.teamcode.Libraries.functions;
 
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 
-import java.math.BigInteger;
+import org.firstinspires.ftc.teamcode.Libraries.Bases.RobotConstructor;
+import org.firstinspires.ftc.teamcode.Libraries.Bases.task;
+import org.firstinspires.ftc.teamcode.Libraries.functions.FunctionLibrary;
 
 //holder of some basic autonomous tasks
 public class baseTasks {

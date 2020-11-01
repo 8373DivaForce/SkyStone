@@ -4,11 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
-import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
-import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
-import org.firstinspires.ftc.teamcode.Functions.FunctionLibrary;
+import org.firstinspires.ftc.teamcode.Libraries.functions.FunctionLibrary;
 import org.firstinspires.ftc.teamcode.Hardware_Maps.NewKissHardware;
 import org.openftc.revextensions2.RevBulkData;
 

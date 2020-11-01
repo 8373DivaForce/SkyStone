@@ -3,13 +3,8 @@ package org.firstinspires.ftc.teamcode.Calibrations;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-import org.firstinspires.ftc.teamcode.Functions.AutoFunctions;
-import org.firstinspires.ftc.teamcode.Functions.FunctionLibrary;
-import org.firstinspires.ftc.teamcode.Hardware_Maps.BeastBoyHardware;
-import org.firstinspires.ftc.teamcode.Hardware_Maps.D1V4Mk2hardware;
-import org.firstinspires.ftc.teamcode.Hardware_Maps.D1V4hardware;
-import org.firstinspires.ftc.teamcode.Hardware_Maps.Kisshardware;
-import org.firstinspires.ftc.teamcode.Hardware_Maps.NewKissHardware;
+import org.firstinspires.ftc.teamcode.Libraries.functions.AutoFunctions;
+import org.firstinspires.ftc.teamcode.Libraries.functions.FunctionLibrary;
 import org.firstinspires.ftc.teamcode.Hardware_Maps.OldKissBotHArdware;
 
 @Autonomous(group = "Calibration")

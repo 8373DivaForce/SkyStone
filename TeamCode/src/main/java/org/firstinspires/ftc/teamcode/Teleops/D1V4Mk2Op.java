@@ -1,21 +1,14 @@
 package org.firstinspires.ftc.teamcode.Teleops;
 
-import android.util.Log;
-
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
-import org.firstinspires.ftc.robotcore.external.matrices.VectorF;
-import org.firstinspires.ftc.teamcode.Functions.FunctionLibrary;
 import org.firstinspires.ftc.teamcode.Hardware_Maps.D1V4Mk2hardware;
-import org.firstinspires.ftc.teamcode.Hardware_Maps.D1V4hardware;
 
-import java.security.acl.Group;
-
-import static org.firstinspires.ftc.teamcode.Functions.FunctionLibrary.GetYaw;
-import static org.firstinspires.ftc.teamcode.Functions.FunctionLibrary.scaleInput;
+import static org.firstinspires.ftc.teamcode.Libraries.functions.FunctionLibrary.GetYaw;
+import static org.firstinspires.ftc.teamcode.Libraries.functions.FunctionLibrary.scaleInput;
 
 @TeleOp(group = "A")
 @Disabled

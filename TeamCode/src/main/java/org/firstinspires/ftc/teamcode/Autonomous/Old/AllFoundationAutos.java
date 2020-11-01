@@ -6,9 +6,9 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ReadWriteFile;
 
 import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
-import org.firstinspires.ftc.teamcode.Functions.AutoFunctions;
-import org.firstinspires.ftc.teamcode.Functions.Old.AutoValues;
-import org.firstinspires.ftc.teamcode.Functions.FunctionLibrary;
+import org.firstinspires.ftc.teamcode.Libraries.functions.AutoFunctions;
+import org.firstinspires.ftc.teamcode.Libraries.Old.AutoValues;
+import org.firstinspires.ftc.teamcode.Libraries.functions.FunctionLibrary;
 import org.firstinspires.ftc.teamcode.Hardware_Maps.D1V4Mk2hardware;
 
 import java.io.File;

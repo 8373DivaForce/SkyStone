@@ -6,25 +6,18 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.Servo;
 
-import org.firstinspires.ftc.robotcore.external.Func;
-import org.firstinspires.ftc.robotcore.external.Function;
-import org.firstinspires.ftc.robotcore.external.navigation.Position;
-import org.firstinspires.ftc.teamcode.Functions.FunctionLibrary;
-import org.firstinspires.ftc.teamcode.Functions.RobotConstructor;
+import org.firstinspires.ftc.teamcode.Libraries.functions.FunctionLibrary;
+import org.firstinspires.ftc.teamcode.Libraries.Bases.RobotConstructor;
 import org.openftc.revextensions2.ExpansionHubEx;
 import org.openftc.revextensions2.RevBulkData;
 
 import static java.lang.Math.atan2;
 import static java.lang.Math.cos;
-import static java.lang.Math.exp;
 import static java.lang.Math.pow;
 import static java.lang.Math.sin;
 import static java.lang.Math.sqrt;
-import static org.firstinspires.ftc.teamcode.Functions.FunctionLibrary.GetYaw;
-import static org.firstinspires.ftc.teamcode.Functions.FunctionLibrary.getMax;
-import static org.firstinspires.ftc.teamcode.Functions.FunctionLibrary.getMaxAbs;
+import static org.firstinspires.ftc.teamcode.Libraries.functions.FunctionLibrary.getMaxAbs;
 
 public class NewKissHardware extends RobotConstructor {
     private static final String VuforiaKey = "AUJrAPb/////AAAAGV6Dp0zFW0tbif2eZk4u4LsrIQNxlQdiTbA2UJgYbEh7rb+s+Gg9soHReFwRRQz9xAiUcZi6d4jtD9+keLWR9xwcT+zJFSfdajjl89kWcf99HIxpWIMuNfAKhW83arD48Jnz/MTYxuBajilzcUxcPYQx24G/MeA6ZlyBhEauLXCKVrsdddL9kaEatPQx1MblEiH5wbdsMsXHz7w0B9CyEhQyZRLXb0zSbijn+JhHaHblBEk40x7gxkQYM1F+f+GfTrx5xR7ibvldNjRJ0obz1NJfuZugfW4R4vpV3C8Qebk7Jmy4YdL62Kb8W2Xk/S55jDhsdNW8rCPvVGJqjM5useObvRhomu0UT5EDH6hwOYxU";

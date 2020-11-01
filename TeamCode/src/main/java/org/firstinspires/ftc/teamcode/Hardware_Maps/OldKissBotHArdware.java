@@ -3,12 +3,11 @@ package org.firstinspires.ftc.teamcode.Hardware_Maps;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ReadWriteFile;
 
 import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
-import org.firstinspires.ftc.teamcode.Functions.FunctionLibrary;
-import org.firstinspires.ftc.teamcode.Functions.RobotConstructor;
+import org.firstinspires.ftc.teamcode.Libraries.functions.FunctionLibrary;
+import org.firstinspires.ftc.teamcode.Libraries.Bases.RobotConstructor;
 import org.opencv.core.Scalar;
 
 import java.io.File;

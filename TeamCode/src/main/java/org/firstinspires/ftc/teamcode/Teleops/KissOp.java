@@ -3,13 +3,11 @@ package org.firstinspires.ftc.teamcode.Teleops;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotor;
 
-import org.firstinspires.ftc.teamcode.Functions.FunctionLibrary;
-import org.firstinspires.ftc.teamcode.Hardware_Maps.D1V4hardware;
+import org.firstinspires.ftc.teamcode.Libraries.functions.FunctionLibrary;
 import org.firstinspires.ftc.teamcode.Hardware_Maps.Kisshardware;
 
-import static org.firstinspires.ftc.teamcode.Functions.FunctionLibrary.GetYaw;
+import static org.firstinspires.ftc.teamcode.Libraries.functions.FunctionLibrary.GetYaw;
 
 @TeleOp
 @Disabled

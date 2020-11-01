@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.Functions;
+package org.firstinspires.ftc.teamcode.Libraries.functions;
 
 import android.util.Log;
 
@@ -14,12 +14,10 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import java.util.ArrayList;
 
 import static java.lang.Math.abs;
-import static java.lang.Math.log;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 import static java.lang.Math.pow;
 import static java.lang.Math.sqrt;
-import static java.lang.Math.toRadians;
 
 //a class dedicated to various class or functions needed for programming
 public class FunctionLibrary {

@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.Functions;
+package org.firstinspires.ftc.teamcode.Libraries.functions;
 
 //program for finding launch angle given x displacement, y displacement, and an initial velocity
 public class ProjectileMotion {

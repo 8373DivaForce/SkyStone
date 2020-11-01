@@ -9,8 +9,8 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 
-import org.firstinspires.ftc.teamcode.Functions.FunctionLibrary;
-import org.firstinspires.ftc.teamcode.Functions.RobotConstructor;
+import org.firstinspires.ftc.teamcode.Libraries.functions.FunctionLibrary;
+import org.firstinspires.ftc.teamcode.Libraries.Bases.RobotConstructor;
 
 import static java.lang.Math.abs;
 import static java.lang.Math.atan2;

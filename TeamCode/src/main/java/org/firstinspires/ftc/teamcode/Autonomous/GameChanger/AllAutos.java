@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ReadWriteFile;
 
 import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
-import org.firstinspires.ftc.teamcode.Functions.autoBase;
+import org.firstinspires.ftc.teamcode.Libraries.Bases.autoBase;
 
 import java.io.File;
 

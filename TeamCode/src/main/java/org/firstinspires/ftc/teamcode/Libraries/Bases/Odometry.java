@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.Functions;
+package org.firstinspires.ftc.teamcode.Libraries.Bases;
 
 import android.util.Log;
 
@@ -6,8 +6,6 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.internal.files.DataLogger;
-
-import java.io.IOException;
 
 import static java.lang.Math.max;
 import static java.lang.Math.min;
