@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 
@@ -143,19 +144,25 @@ public class CheckAllHardwareDevices extends LinearOpMode {
                     motors.get(selectedMotor2).getValue().setPower(gamepad1.left_stick_y *slavePowerMultiplier);
                 } else {
                     telemetry.addData("Motor 1", motors.get(selectedMotor).getKey());
-                    motors.get(selectedMotor).getValue().setPower(gamepad1.left_stick_y);
                     telemetry.addData("Motor 2", motors.get(selectedMotor2).getKey());
-                    motors.get(selectedMotor2).getValue().setPower(gamepad1.right_stick_y);
+                    if (selectedMotor != selectedMotor2) {
+                        motors.get(selectedMotor).getValue().setPower(gamepad1.left_stick_y);
+                        motors.get(selectedMotor2).getValue().setPower(gamepad1.right_stick_y);
+                    } else {
+                        double combined = gamepad1.left_stick_y + gamepad1.right_stick_y;
+                        double dPow = combined > 0 ? Math.min(combined,2) : Math.max(combined,-2);
+                        motors.get(selectedMotor).getValue().setPower(dPow);
+                    }
                 }
 
             }
             if (deviceType == "Servos" && servos.size() > 0) {
                 telemetry.addData("Servo 1", servos.get(selectedServo).getKey());
                 Servo servo = servos.get(selectedServo).getValue();
-                servo.setPosition(servo.getPosition()+(gamepad1.left_stick_y));
+                servo.setPosition(gamepad1.left_stick_y);
                 telemetry.addData("Servo 2", servos.get(selectedServo2).getKey());
                 Servo servo2 = servos.get(selectedServo2).getValue();
-                servo2.setPosition(servo2.getPosition()+(gamepad1.right_stick_y));
+                servo2.setPosition(gamepad1.right_stick_y);
             }
             if (deviceType == "CRServos" && crServos.size() > 0) {
                 telemetry.addData("CRServo 1", crServos.get(selectedCRServo).getKey());
@@ -168,6 +175,7 @@ public class CheckAllHardwareDevices extends LinearOpMode {
             //selected
             for (Map.Entry<String, DcMotor> entry : motors) {
                 telemetry.addData(entry.getKey(), entry.getValue().getCurrentPosition());
+                telemetry.addData(entry.getKey(), ((DcMotorEx)entry.getValue()).getVelocity());
                 entry.getValue().setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
                 if ((entry != motors.get(selectedMotor) && entry != motors.get(selectedMotor2)) || deviceType != "Motors") entry.getValue().setPower(0);
             }

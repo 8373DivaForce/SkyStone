@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.Teleops;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Libraries.functions.FunctionLibrary;
 import org.firstinspires.ftc.teamcode.Hardware_Maps.OldKissBotHArdware;
 
@@ -62,6 +63,8 @@ public class OldKissOp extends LinearOpMode {
             robot.move(dX,dY,rotation,1);
             telemetry.addData("x: ", robot.getX());
             telemetry.addData("y: ", robot.getY());
+            telemetry.addData("Encoder Y: ", robot.dcBackRight.getCurrentPosition());
+            telemetry.addData("Encoder X: ", robot.dcBackLeft.getCurrentPosition());
             telemetry.update();
 
         }

@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.Autonomous.GameChanger;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
@@ -36,6 +37,7 @@ public class WobbleAndPark implements autoBase {
     private int Auto = 0;
     private int Position = 0;
     private int EndPosition = 0;
+
 
     //initialization, take in values needed for doing the right movements
     //initializes openCV pipeline

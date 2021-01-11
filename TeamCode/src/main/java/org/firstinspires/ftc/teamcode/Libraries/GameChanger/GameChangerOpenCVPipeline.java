@@ -51,8 +51,8 @@ public class GameChangerOpenCVPipeline extends OpenCvPipeline
         contoursList.clear();
         largestRect = null;
         /*
-         * This pipeline finds the contours of yellow blobs such as the Gold Mineral
-         * from the Rover Ruckus game.
+         * This pipeline finds the contours of orange rings
+         * Meant for the Game Changer Season
          */
 
         //Convert RGB image to yCbCrChan (contrast based image)

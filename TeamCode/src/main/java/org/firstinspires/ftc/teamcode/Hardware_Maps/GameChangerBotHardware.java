@@ -6,8 +6,8 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ReadWriteFile;
 
 import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
-import org.firstinspires.ftc.teamcode.Libraries.functions.FunctionLibrary;
 import org.firstinspires.ftc.teamcode.Libraries.Bases.RobotConstructor;
+import org.firstinspires.ftc.teamcode.Libraries.functions.FunctionLibrary;
 import org.opencv.core.Scalar;
 
 import java.io.File;
@@ -18,7 +18,7 @@ import static java.lang.Math.pow;
 import static java.lang.Math.sin;
 import static java.lang.Math.sqrt;
 
-public class OldKissBotHArdware extends RobotConstructor {
+public class GameChangerBotHardware extends RobotConstructor {
     //setup initial parameters that are provided to the parent robotconstructor class
     public static final String VuforiaKey =
             "AW7ToAj/////AAABmcZ9RLZ3tUhClKOp3feoyDVjA4MD06H8ulSOPwGXzZJr7gNfTHtYBvWN9wxei4kahK3/60QQk6t+SpYL44+w/RKvX0Yk8bl4wwhljb1cT8509LQsZnaCu+UH6NeGNgDh7fcPcKlEdXlw5eB62IF/1xzfeQ//vH9pD4Ihu7XhaZzv8wD827zQWT+yrdxxfFEvTR7xWLIj23JqgI+t4glIuAmQPKBHXGTHDSXyr5uQbjqxCNJlkAhceGETf1RDBURZ2v3KGIqC3SVVV1ixlUMSGL9QqAzEGPHT2nF0nK4zt+WdsetLdTniZLkwr1hdn4vvzbH8tAbdfV/eeNWF+GtJmHtHjOk3exEvMrH+ZflXUIoY";
@@ -41,12 +41,17 @@ public class OldKissBotHArdware extends RobotConstructor {
     public final DcMotor dcBackLeft;
     public final DcMotor dcBackRight;
 
+    public final DcMotor intakeRD;
+    public final DcMotor magazine;
+    public final DcMotor shooter;
+    public final DcMotor CAM;
+
 
 
 
     private final static String name = "Kissbot";
     //setup the constructor function
-    public OldKissBotHArdware(LinearOpMode opMode, double rotation, String camera) {
+    public GameChangerBotHardware(LinearOpMode opMode, double rotation, String camera) {
         //provide the opMode given on creation as well as the variables defined above
         super(opMode, name, wheelDiameter, dKp, minMoveSpeed,rampingDistance, 0, CameraLeftDisplacement, CameraVerticalDisplacement, VuforiaKey, odometryUpdateRate);
         //save the hardware map from the opMode
@@ -58,6 +63,11 @@ public class OldKissBotHArdware extends RobotConstructor {
         dcBackLeft = hMap.dcMotor.get("backLeft");
         dcBackRight = hMap.dcMotor.get("backRight");
 
+        intakeRD = hMap.dcMotor.get("intakeRD");
+        magazine = hMap.dcMotor.get("magazine");
+        shooter = hMap.dcMotor.get("shooter");
+        CAM = hMap.dcMotor.get("CAM");
+
         //setup the directions the devices need to operate in
         dcFrontRight.setDirection(DcMotor.Direction.REVERSE);
         dcBackRight.setDirection(DcMotor.Direction.REVERSE);
@@ -68,6 +78,10 @@ public class OldKissBotHArdware extends RobotConstructor {
         dcBackLeft.setPower(0);
         dcBackRight.setPower(0);
 
+        intakeRD.setPower(0);
+        magazine.setPower(0);
+        shooter.setPower(0);
+        CAM.setPower(0);
 
         //Reset the encoders on every motor
         dcFrontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -75,11 +89,21 @@ public class OldKissBotHArdware extends RobotConstructor {
         dcBackRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         dcBackLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
+        intakeRD.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        magazine.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        shooter.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        CAM.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
         //set them to run without the encoders by default
         dcFrontRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         dcFrontLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         dcBackRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         dcBackLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        intakeRD.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        magazine.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        shooter.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        CAM.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         //initialize a variable useful in the odometry function
         double tempInchPerTick = (1/dcFrontLeft.getMotorType().getTicksPerRev())*getWheelCircumfrance();
@@ -92,20 +116,20 @@ public class OldKissBotHArdware extends RobotConstructor {
         setRotation(rotation);
         initOdometry();
     }
-    public OldKissBotHArdware(LinearOpMode opMode, double x, double y, double rotation) {
+    public GameChangerBotHardware(LinearOpMode opMode, double x, double y, double rotation) {
         this(opMode, rotation, null);
         setPosition(x,y);
         useOdometry = true;
     }
-    public OldKissBotHArdware(LinearOpMode opMode, double x, double y, double rotation, String camera) {
+    public GameChangerBotHardware(LinearOpMode opMode, double x, double y, double rotation, String camera) {
         this(opMode, rotation, camera);
         setPosition(x,y);
         useOdometry = true;
     }
-    public OldKissBotHArdware(LinearOpMode opMode, FunctionLibrary.Point startingPos, double rotation) {
+    public GameChangerBotHardware(LinearOpMode opMode, FunctionLibrary.Point startingPos, double rotation) {
         this(opMode, startingPos.x, startingPos.y, rotation);
     }
-    public OldKissBotHArdware(LinearOpMode opMode, FunctionLibrary.Point startingPos, double rotation, String camera) {
+    public GameChangerBotHardware(LinearOpMode opMode, FunctionLibrary.Point startingPos, double rotation, String camera) {
         this(opMode, startingPos.x, startingPos.y, rotation,camera);
     }
     //intialize the last encoder positions of the drive motors

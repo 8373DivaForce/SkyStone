@@ -15,7 +15,6 @@ import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackable;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackableDefaultListener;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
 import org.firstinspires.ftc.teamcode.Libraries.functions.FunctionLibrary;
-import org.firstinspires.ftc.teamcode.Libraries.Old.InitSkystoneVuforia;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -184,15 +183,6 @@ public class RobotConstructor {
                 0,
                 0,
         };
-    }
-    //initializes vuforia for the 2019-2020 skystone challenge
-    public void initVuforia(HardwareMap hMap) {
-        InitSkystoneVuforia initVuforia = new InitSkystoneVuforia(hMap,webcam,VuforiaKey,CameraForwardDisplacement,CameraLeftDisplacement,CameraVerticalDisplacement);
-        InitSkystoneVuforia.vuforiaData data = initVuforia.getVuforia();
-
-        vuforia = data.vuforia;
-        SkystoneVuMarks = data.vuMarks;
-        SkystoneTrackables = data.trackables;
     }
     //iterates through all of the trackables and saves them to the HashMaps
     //VuMarkOrientations and vuMarkPositions which can be accessed by the main program

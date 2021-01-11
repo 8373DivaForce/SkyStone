@@ -235,10 +235,16 @@ public class baseTasks {
                 //tell the motors to run to that position
                 motors[i].setMode(DcMotor.RunMode.RUN_TO_POSITION);
             }
-            //average out the error
+            //average out the error or distance from the motor's target
             error /= motors.length;
             //if the average error is within exceptable bounds, terminate the program
-            if (error <= maxError) return -1;
+            if (error <= maxError) {
+                //stop the motors
+                for (DcMotor motor : motors) {
+                    motor.setPower(0);
+                }
+                return -1;
+            }
             //return that the program is still running if it has gotten to this point
             return 1;
         }

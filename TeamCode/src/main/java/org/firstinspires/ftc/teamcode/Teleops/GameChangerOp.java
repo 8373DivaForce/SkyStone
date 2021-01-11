@@ -1,24 +1,30 @@
 package org.firstinspires.ftc.teamcode.Teleops;
 
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import org.firstinspires.ftc.teamcode.Hardware_Maps.GameChangerBotHardware;
+import org.firstinspires.ftc.teamcode.Hardware_Maps.NewKissBotHArdware;
 import org.firstinspires.ftc.teamcode.Libraries.functions.FunctionLibrary;
-import org.firstinspires.ftc.teamcode.Hardware_Maps.Kisshardware;
 
 import static org.firstinspires.ftc.teamcode.Libraries.functions.FunctionLibrary.GetYaw;
 
 @TeleOp
-@Disabled
-public class KissOp extends LinearOpMode {
+public class GameChangerOp extends LinearOpMode {
+
+    boolean intake = false;
+    boolean isYPressed = false;
+    boolean isAPressed = false;
     @Override
     public void runOpMode() throws InterruptedException {
-        Kisshardware robot = new Kisshardware(this,0,0,0);
+        GameChangerBotHardware robot = new GameChangerBotHardware(this,0,0,0);
         boolean fieldCentric = false;
         boolean leftStickButton = false;
         boolean rightStickButton = false;
         boolean xIsPressed = false;
+        boolean bIsPressed = false;
+        boolean leftBumperIsPressed = false;
+        boolean rightBumperIsPressed = false;
         double dOffset = 0;
         waitForStart();
         while (opModeIsActive()) {
@@ -37,8 +43,6 @@ public class KissOp extends LinearOpMode {
                 dOffset = -GetYaw(0,robot.imu);
                 rightStickButton = true;
             }
-            if (gamepad1.left_bumper) robot.sRStoneHook.setPosition(0);
-            else if (gamepad1.right_bumper) robot.sRStoneHook.setPosition(1);
 
             else if(!gamepad1.right_stick_button && rightStickButton) rightStickButton = false;
             double x = FunctionLibrary.scaleInput(gamepad1.left_stick_x);
@@ -62,10 +66,47 @@ public class KissOp extends LinearOpMode {
                 dX = y;
             }
 
+            if (!isYPressed && gamepad1.y) {
+                robot.intakeRD.setPower((robot.intakeRD.getPower()+1)%2);
+                isYPressed = true;
+            } else if(isYPressed && !gamepad1.y) {
+                isYPressed = false;
+            }
+            if (!isAPressed && gamepad1.a) {
+                robot.intakeRD.setPower((robot.intakeRD.getPower()-1)%-2);
+                isAPressed = true;
+            } else if (isYPressed && !gamepad1.a) {
+                isAPressed = false;
+            }
+
+            if (!xIsPressed && gamepad1.x) {
+                robot.magazine.setPower((robot.magazine.getPower()+1)%2);
+                xIsPressed = true;
+            } else if(xIsPressed && !gamepad1.x) {
+                xIsPressed = false;
+            }
+            if (!bIsPressed && gamepad1.b) {
+                robot.magazine.setPower((robot.magazine.getPower()-1)%-2);
+                bIsPressed = true;
+            } else if (bIsPressed && !gamepad1.b) {
+                bIsPressed = false;
+            }
+
+            if (!leftBumperIsPressed && gamepad1.left_bumper) {
+                robot.shooter.setPower((robot.shooter.getPower()+1)%2);
+                leftBumperIsPressed = true;
+            } else if(leftBumperIsPressed && !gamepad1.left_bumper) {
+                leftBumperIsPressed = false;
+            }
+            if (!rightBumperIsPressed && gamepad1.right_bumper) {
+                robot.shooter.setPower((robot.shooter.getPower()-1)%-2);
+                rightBumperIsPressed = true;
+            } else if (rightBumperIsPressed && !gamepad1.right_bumper) {
+                rightBumperIsPressed = false;
+            }
             robot.move(dX,dY,rotation,1);
             telemetry.addData("x: ", robot.getX());
             telemetry.addData("y: ", robot.getY());
-            telemetry.addData("Encoder: ", robot.dcBackRight.getCurrentPosition());
             telemetry.update();
 
         }

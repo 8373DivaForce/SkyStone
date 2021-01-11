@@ -1,37 +1,36 @@
 package org.firstinspires.ftc.teamcode.Hardware_Maps;
 
-import android.util.Log;
-
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.hardware.TouchSensor;
+import com.qualcomm.robotcore.util.ReadWriteFile;
 
-import org.firstinspires.ftc.teamcode.Libraries.functions.FunctionLibrary;
+import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
 import org.firstinspires.ftc.teamcode.Libraries.Bases.RobotConstructor;
+import org.firstinspires.ftc.teamcode.Libraries.functions.FunctionLibrary;
+import org.opencv.core.Scalar;
 
-import static java.lang.Math.abs;
+import java.io.File;
+
 import static java.lang.Math.atan2;
 import static java.lang.Math.cos;
-import static java.lang.Math.max;
 import static java.lang.Math.pow;
 import static java.lang.Math.sin;
 import static java.lang.Math.sqrt;
 
-public class D1V4hardware extends RobotConstructor {
+public class NewKissBotHArdware extends RobotConstructor {
     //setup initial parameters that are provided to the parent robotconstructor class
-    private static final String VuforiaKey = "AUJrAPb/////AAAAGV6Dp0zFW0tbif2eZk4u4LsrIQNxlQdiTbA2UJgYbEh7rb+s+Gg9soHReFwRRQz9xAiUcZi6d4jtD9+keLWR9xwcT+zJFSfdajjl89kWcf99HIxpWIMuNfAKhW83arD48Jnz/MTYxuBajilzcUxcPYQx24G/MeA6ZlyBhEauLXCKVrsdddL9kaEatPQx1MblEiH5wbdsMsXHz7w0B9CyEhQyZRLXb0zSbijn+JhHaHblBEk40x7gxkQYM1F+f+GfTrx5xR7ibvldNjRJ0obz1NJfuZugfW4R4vpV3C8Qebk7Jmy4YdL62Kb8W2Xk/S55jDhsdNW8rCPvVGJqjM5useObvRhomu0UT5EDH6hwOYxU";
-    private static final String Webcamname = "Webcam 1";
-    private static double wheelDiameter = 4.8;
+    public static final String VuforiaKey =
+            "AW7ToAj/////AAABmcZ9RLZ3tUhClKOp3feoyDVjA4MD06H8ulSOPwGXzZJr7gNfTHtYBvWN9wxei4kahK3/60QQk6t+SpYL44+w/RKvX0Yk8bl4wwhljb1cT8509LQsZnaCu+UH6NeGNgDh7fcPcKlEdXlw5eB62IF/1xzfeQ//vH9pD4Ihu7XhaZzv8wD827zQWT+yrdxxfFEvTR7xWLIj23JqgI+t4glIuAmQPKBHXGTHDSXyr5uQbjqxCNJlkAhceGETf1RDBURZ2v3KGIqC3SVVV1ixlUMSGL9QqAzEGPHT2nF0nK4zt+WdsetLdTniZLkwr1hdn4vvzbH8tAbdfV/eeNWF+GtJmHtHjOk3exEvMrH+ZflXUIoY";
+    private static String Webcamname;
+    private static double wheelDiameter = 3.93701;
     private static double dKp = 0.05;
     private static double minMoveSpeed = 0.1;
-    public final static float CameraForwardDisplacement = (float)6.75;
-    public final static float CameraLeftDisplacement = (float)1.5;
-    public final static float CameraVerticalDisplacement = (float)5.25;
+    public static float CameraForwardDisplacement;
+    public static float CameraLeftDisplacement;
+    public static float CameraVerticalDisplacement;
     private static float rampingDistance = 12;
-    private static int odometryUpdateRate = 50;
+    private static int odometryUpdateRate = 24;
 
     public final double inchesPerTickX;
     public final double inchesPerTickY;
@@ -41,98 +40,78 @@ public class D1V4hardware extends RobotConstructor {
     public final DcMotor dcFrontRight;
     public final DcMotor dcBackLeft;
     public final DcMotor dcBackRight;
-    public final DcMotor dcUpDown1;
-    public final DcMotor dcUpDown2;
-    public final DcMotor dcInOut;
-    public final DcMotor dcOpenClose;
 
-    public final CRServo csRight;
-    public final CRServo csLeft;
+    public final DcMotor intake;
 
-    public final Servo sHook;
 
-    public final TouchSensor upperLimitSwitch;
-    public final TouchSensor lowerLimitSwitch;
 
-    private static final String name = "D1V4";
+
+    private final static String name = "Kissbot";
     //setup the constructor function
-    public D1V4hardware(LinearOpMode opMode, double rotation) {
+    public NewKissBotHArdware(LinearOpMode opMode, double rotation, String camera) {
         //provide the opMode given on creation as well as the variables defined above
-        super(opMode, name, wheelDiameter, dKp, minMoveSpeed,rampingDistance, CameraForwardDisplacement, CameraLeftDisplacement, CameraVerticalDisplacement, Webcamname, VuforiaKey, odometryUpdateRate);
+        super(opMode, name, wheelDiameter, dKp, minMoveSpeed,rampingDistance, 0, CameraLeftDisplacement, CameraVerticalDisplacement, VuforiaKey, odometryUpdateRate);
         //save the hardware map from the opMode
         HardwareMap hMap = opMode.hardwareMap;
 
         //set the variables to their corresponding hardware device
-        dcFrontLeft = hMap.dcMotor.get("frontleft");
-        dcFrontRight = hMap.dcMotor.get("frontright");
-        dcBackLeft = hMap.dcMotor.get("backleft");
-        dcBackRight = hMap.dcMotor.get("backright");
-        dcInOut = hMap.dcMotor.get("inout");
-        dcOpenClose = hMap.dcMotor.get("openclose");
-        dcUpDown1 = hMap.dcMotor.get("updown1");
-        dcUpDown2 = hMap.dcMotor.get("updown2");
-        csRight = hMap.crservo.get("sright");
-        csLeft = hMap.crservo.get("sleft");
-        sHook = hMap.servo.get("shook");
+        dcFrontLeft = hMap.dcMotor.get("frontLeft");
+        dcFrontRight = hMap.dcMotor.get("frontRight");
+        dcBackLeft = hMap.dcMotor.get("backLeft");
+        dcBackRight = hMap.dcMotor.get("backRight");
 
-        upperLimitSwitch = hMap.touchSensor.get("upperlimit");
-        lowerLimitSwitch = hMap.touchSensor.get("downlimit");
-
+        intake = hMap.dcMotor.get("intake");
         //setup the directions the devices need to operate in
-        dcFrontLeft.setDirection(DcMotor.Direction.REVERSE);
-        dcBackLeft.setDirection(DcMotor.Direction.REVERSE);
-        dcUpDown1.setDirection(DcMotor.Direction.REVERSE);
-        dcUpDown2.setDirection(DcMotor.Direction.REVERSE);
+        dcFrontRight.setDirection(DcMotor.Direction.REVERSE);
+        dcBackRight.setDirection(DcMotor.Direction.REVERSE);
 
         //make sure none of the devices are running
         dcFrontLeft.setPower(0);
         dcFrontRight.setPower(0);
         dcBackLeft.setPower(0);
         dcBackRight.setPower(0);
-        dcOpenClose.setPower(0);
-        dcUpDown1.setPower(0);
-        dcUpDown2.setPower(0);
-        dcInOut.setPower(0);
-
-        csRight.setPower(0);
-        csLeft.setPower(0);
-
-        sHook.setPosition(0);
+        intake.setPower(0);
 
         //Reset the encoders on every motor
         dcFrontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         dcFrontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         dcBackRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         dcBackLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        dcUpDown1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        dcUpDown2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        dcInOut.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        dcOpenClose.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        intake.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         //set them to run without the encoders by default
         dcFrontRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         dcFrontLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         dcBackRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         dcBackLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        dcUpDown1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        dcUpDown2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        dcInOut.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        dcOpenClose.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        intake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
         //initialize a variable useful in the odometry function
         double tempInchPerTick = (1/dcFrontLeft.getMotorType().getTicksPerRev())*getWheelCircumfrance();
-        inchesPerTickX = tempInchPerTick*0.9015321375186846038863976083707;
-        inchesPerTickY = tempInchPerTick*1.0515021459227467811158798283262;
+        // old inchesPerTickX = tempInchPerTick*-0.92307692307692307692307692307692;
+        inchesPerTickX = tempInchPerTick*-1.36893203883;
+
+        // old inchesPerTickY = tempInchPerTick*1.1483253588516746411483253588517;
+        inchesPerTickY = tempInchPerTick*1.5;
         useOdometry = false;
         setRotation(rotation);
         initOdometry();
     }
-    public D1V4hardware(LinearOpMode opMode, double x, double y, double rotation) {
-        this(opMode, rotation);
+    public NewKissBotHArdware(LinearOpMode opMode, double x, double y, double rotation) {
+        this(opMode, rotation, null);
         setPosition(x,y);
         useOdometry = true;
     }
-    public D1V4hardware(LinearOpMode opMode, FunctionLibrary.Point startingPos, double rotation) {
+    public NewKissBotHArdware(LinearOpMode opMode, double x, double y, double rotation, String camera) {
+        this(opMode, rotation, camera);
+        setPosition(x,y);
+        useOdometry = true;
+    }
+    public NewKissBotHArdware(LinearOpMode opMode, FunctionLibrary.Point startingPos, double rotation) {
         this(opMode, startingPos.x, startingPos.y, rotation);
+    }
+    public NewKissBotHArdware(LinearOpMode opMode, FunctionLibrary.Point startingPos, double rotation, String camera) {
+        this(opMode, startingPos.x, startingPos.y, rotation,camera);
     }
     //intialize the last encoder positions of the drive motors
     private double lastFrontLeftPos = 0;
@@ -165,7 +144,6 @@ public class D1V4hardware extends RobotConstructor {
             double yOffset = ((frontLeftOffset + frontRightOffset + backLeftOffset + backRightOffset)/4)*inchesPerTickY;
             double xOffset = (-(-frontLeftOffset + frontRightOffset + backLeftOffset - backRightOffset)/4)*inchesPerTickX;
 
-            Log.d("Odometry Update", "yOffset: " + yOffset + " xOffset: " + xOffset + "FrontLeft: " + frontLeftOffset + "FrontRight: " + frontRightOffset + "BackLeft" + backLeftOffset + " BackRight: " + backRightOffset);
             //find the hypotenuse to run trigonometry
             double hypot = sqrt(pow(xOffset, 2) + pow(yOffset, 2));
 
@@ -201,63 +179,41 @@ public class D1V4hardware extends RobotConstructor {
     //overide the movement class
     @Override
     public void move(double x, double y, double rotation, double power) {
-        //if power is zero, set the motors to brake
-        if (power == 0) {
-            for(DcMotor motors : getDriveMotors()) {
-                motors.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-            }
-        } else {
-            for (DcMotor motors : getDriveMotors()) {
-                if (motors.getZeroPowerBehavior() == DcMotor.ZeroPowerBehavior.BRAKE)
-                    motors.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-            }
-        }
-        //invert the x input as it's flipped
-        x = -x;
+        //invert the x input as it's flipped\
         //define initial kinimatics based off of mecanum drive
+        y=-y;
+
+        //add forwards motion
         double pFrontLeft= x + y;
         double pFrontRight = x - y;
         double pBackLeft= x - y;
         double pBackRight = x + y;
 
-        //find the motor with the highest power level
-        double max = max(max(abs(pFrontRight),abs(pFrontLeft)),max(abs(pBackRight), abs(pBackRight)));
+        //use the scaleDownValues function from the FunctionLibrary and give it the power as the max and all of the motors
+        double[] powers = FunctionLibrary.scaleDownValues(power, pFrontLeft, pFrontRight, pBackLeft, pBackRight);
 
-        //reduce the total power if it's above 0.9 to ensure rotation will occur
-        double drivePower = power;
-        if (rotation > 0.1) drivePower = 0.9;
-
-        //if that maximum power level is higher than the power given,
-        //find the scaler value that will bring it down to that
-        //and scale all of the motors using it
-        if (max > drivePower) {
-            double scaler = drivePower/max;
-            pFrontLeft = pFrontLeft * scaler;
-            pFrontRight = pFrontRight * scaler;
-            pBackLeft = pBackLeft * scaler;
-            pBackRight = pBackRight * scaler;
+        //add left/right motion
+        pFrontLeft = powers[0] - rotation;
+        pFrontRight = powers[1] + rotation;
+        pBackLeft = powers[2] - rotation;
+        pBackRight = powers[3] + rotation;
+        //scale down values again
+        powers = FunctionLibrary.scaleDownValues(power, pFrontLeft, pFrontRight, pBackLeft, pBackRight);
+        pFrontLeft = powers[0];
+        pFrontRight = powers[1];
+        pBackLeft = powers[2];
+        pBackRight = powers[3];
+        if (power < 0 || (Math.abs(pFrontLeft) == 0 && Math.abs(pFrontRight) == 0 && pBackLeft == 0 && pBackRight == 0)) {
+            dcFrontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            dcFrontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            dcBackLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            dcBackRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        } else {
+            dcFrontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+            dcFrontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+            dcBackLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+            dcBackRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         }
-
-        //add the rotation powers to the motors
-
-        pFrontLeft = pFrontLeft + rotation;
-        pFrontRight = pFrontRight - rotation;
-        pBackLeft = pBackLeft + rotation;
-        pBackRight = pBackRight - rotation;
-        //find the motor with maximum power again
-        max = max(max(abs(pFrontRight),abs(pFrontLeft)),max(abs(pBackRight), abs(pBackRight)));
-
-        //if that maximum power level is higher than 1,
-        //find the scaler value that will bring it down to that
-        //and scale all of the motors using it
-        if (max > power) {
-            double scaler = power/max;
-            pFrontLeft = pFrontLeft * scaler;
-            pFrontRight = pFrontRight * scaler;
-            pBackLeft = pBackLeft * scaler;
-            pBackRight = pBackRight * scaler;
-        }
-
         //set all of the motors to those powers
         dcFrontLeft.setPower(pFrontLeft);
         dcFrontRight.setPower(pFrontRight);
@@ -286,7 +242,38 @@ public class D1V4hardware extends RobotConstructor {
         motors[3] = dcBackRight;
         return motors;
     }
-
+    File colorLimits = AppUtil.getInstance().getSettingsFile("openCVColorLimits");
+    public void toCSV(Scalar mins, Scalar maxes) {
+        toCSV(mins.val,maxes.val);
+    }
+    public void toCSV(double[] mins, double[] maxes) {
+        String output = "";
+        output += mins[0] + ",";
+        output += mins[1] + ",";
+        output += mins[2] + ",";
+        output += maxes[0] + ",";
+        output += maxes[1] + ",";
+        output += maxes[2];
+        ReadWriteFile.writeFile(colorLimits,output);
+    }
+    public Scalar[] fromCSV() {
+        if (!colorLimits.exists()) {
+            Scalar[] scalars = new Scalar[]{new Scalar(0,0,0),new Scalar(255,255,255)};
+            toCSV(scalars[0],scalars[1]);
+            colorLimits = AppUtil.getInstance().getSettingsFile("openCVColorLimits");
+            return scalars;
+        }
+        String input = ReadWriteFile.readFile(colorLimits);
+        String[] vals = input.split(",");
+        Scalar[] scalars = new Scalar[2];
+        double[] pVals = new double[6];
+        for (int i = 0; i < 6; i++) {
+            pVals[i] = Double.parseDouble(vals[i]);
+        }
+        scalars[0] = new Scalar(pVals[0],pVals[1],pVals[2]);
+        scalars[1] = new Scalar(pVals[3],pVals[4],pVals[5]);
+        return scalars;
+    }
     public void disableOdometry() {
         useOdometry = false;
     }
