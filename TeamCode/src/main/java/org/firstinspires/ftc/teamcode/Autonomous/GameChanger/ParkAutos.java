@@ -2,12 +2,12 @@ package org.firstinspires.ftc.teamcode.Autonomous.GameChanger;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-import org.firstinspires.ftc.teamcode.Libraries.functions.FunctionLibrary.Point;
-import org.firstinspires.ftc.teamcode.Libraries.GameChanger.GamechangerAutoValues;
+import org.firstinspires.ftc.teamcode.Hardware_Maps.GameChangerBotHardware;
 import org.firstinspires.ftc.teamcode.Libraries.Bases.autoBase;
+import org.firstinspires.ftc.teamcode.Libraries.GameChanger.GamechangerAutoValues;
+import org.firstinspires.ftc.teamcode.Libraries.functions.FunctionLibrary.Point;
 import org.firstinspires.ftc.teamcode.Libraries.functions.baseTasks;
 import org.firstinspires.ftc.teamcode.Libraries.functions.taskHandler;
-import org.firstinspires.ftc.teamcode.Hardware_Maps.OldKissBotHArdware;
 
 
 //Class inherits from autoBase and extends it to do the actual autonomous work
@@ -19,7 +19,7 @@ public class ParkAutos implements autoBase {
         this.opMode = opMode;
     }
     //Setup robot hardwaremap class
-    private OldKissBotHArdware robot;
+    private GameChangerBotHardware robot;
     //Make a new task handler for autonomous movement
     private taskHandler handler = new taskHandler();
 
@@ -34,25 +34,25 @@ public class ParkAutos implements autoBase {
         if (Alliance == 0) { //blue
             if (Position == 1) { //left
                 //initialize the hardware map with the robots current position
-                robot = new OldKissBotHArdware(opMode,-48,-71,0);
+                robot = new GameChangerBotHardware(opMode,-48,-71,0);
                 //move forward and to the side of the rings
                 handler.addTask(new baseTasks.move(new Point(-54,-34),0,1,1,5000));
                 //park on the line, same thing with the rest of the functions
-                handler.addTask(new baseTasks.move(new Point(-54,0),0,1,1,5000));
+                handler.addTask(new baseTasks.move(new Point(-54,-9),0,1,1,5000));
             } else { //right
-                robot = new OldKissBotHArdware(opMode,-24,-71,0);
+                robot = new GameChangerBotHardware(opMode,-24,-71,0);
                 handler.addTask(new baseTasks.move(new Point(-18,-34),0,1,1,5000));
-                handler.addTask(new baseTasks.move(new Point(-18,0),0,1,1,5000));
+                handler.addTask(new baseTasks.move(new Point(-18,-9),0,1,1,5000));
             }
         } else { //red
             if (Position == 0) { //right
-                robot = new OldKissBotHArdware(opMode,48,-71,0);
+                robot = new GameChangerBotHardware(opMode,48,-71,0);
                 handler.addTask(new baseTasks.move(new Point(54,-34),0,1,1,5000));
-                handler.addTask(new baseTasks.move(new Point(54,0),0,1,1,5000));
+                handler.addTask(new baseTasks.move(new Point(54,-9),0,1,1,5000));
             } else { //left
-                robot = new OldKissBotHArdware(opMode,24,-71,0);
+                robot = new GameChangerBotHardware(opMode,24,-71,0);
                 handler.addTask(new baseTasks.move(new Point(18,-34),0,1,1,5000));
-                handler.addTask(new baseTasks.move(new Point(18,0),0,1,1,5000));
+                handler.addTask(new baseTasks.move(new Point(18,-9),0,1,1,5000));
             }
         }
     }

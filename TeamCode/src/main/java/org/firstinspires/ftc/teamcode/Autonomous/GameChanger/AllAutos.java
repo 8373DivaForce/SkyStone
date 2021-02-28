@@ -2,9 +2,6 @@ package org.firstinspires.ftc.teamcode.Autonomous.GameChanger;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorControllerEx;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.util.ReadWriteFile;
 import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
 import org.firstinspires.ftc.teamcode.Libraries.Bases.autoBase;
@@ -17,7 +14,7 @@ import java.io.File;
 public class AllAutos extends LinearOpMode {
     private autoBase auto = null;
     @Override
-    public void runOpMode() throws InterruptedException {
+    public void runOpMode() {
         //initializing configured values
         int Alliance = 0;
         int Auto = 0;
@@ -26,7 +23,10 @@ public class AllAutos extends LinearOpMode {
         //read the file we store the information on which autonomous we are running
         File file = AppUtil.getInstance().getSettingsFile("AutoSelection");
         if (file.exists()) {
-            String[] fileContents = ReadWriteFile.readFile(file).split(",");
+            String unParsedFile = ReadWriteFile.readFile(file);
+            if (!unParsedFile.contains(",")) stop();
+            String[] fileContents = unParsedFile.split(",");
+            if (fileContents.length != 4) stop();
             Alliance = Integer.parseInt(fileContents[0]);
             Auto = Integer.parseInt(fileContents[1]);
             Position = Integer.parseInt(fileContents[2]);
@@ -36,12 +36,21 @@ public class AllAutos extends LinearOpMode {
             stop();
         }
         //Initialize one of autoBase's child classes that has an actual autonomous program
-        if (Auto == 0) { //park autonomous
-            auto = new ParkAutos(this);
-        } else if (Auto == 1) { //wobble goal and park autonomous
-            auto = new WobbleAndPark(this);
-        } else {
-            stop();
+        switch(Auto) {
+            case 0:
+                auto = new ParkAutos(this);
+                break;
+            case 1:
+                auto = new WobbleAndPark(this);
+                break;
+            case 2:
+                auto = new PowerShot(this);
+                break;
+            case 3:
+                auto = new PowerWobble(this);
+                break;
+            default:
+                stop();
         }
 
         if (auto != null) {

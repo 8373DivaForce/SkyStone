@@ -11,7 +11,8 @@ public class GamechangerAutoValues {
     public String[] Autos = {
             "Park",
             "Wobble goal",
-            "Wobble and Rings"
+            "Power Shot",
+            "Power and Wobble"
     };
     public String[] FinalPositions = {
             "Right",

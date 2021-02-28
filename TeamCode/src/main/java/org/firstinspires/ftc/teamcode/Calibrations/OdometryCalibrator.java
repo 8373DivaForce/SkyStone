@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.Calibrations;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
+import org.firstinspires.ftc.teamcode.Hardware_Maps.GameChangerBotHardware;
 import org.firstinspires.ftc.teamcode.Libraries.functions.AutoFunctions;
 import org.firstinspires.ftc.teamcode.Libraries.functions.FunctionLibrary;
 import org.firstinspires.ftc.teamcode.Hardware_Maps.OldKissBotHArdware;
@@ -11,7 +12,7 @@ import org.firstinspires.ftc.teamcode.Hardware_Maps.OldKissBotHArdware;
 public class OdometryCalibrator extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
-        OldKissBotHArdware robot = new OldKissBotHArdware(this, 0,0,0);
+        GameChangerBotHardware robot = new GameChangerBotHardware(this, 0,0,0);
         AutoFunctions auto = new AutoFunctions(robot);
         String choice = "";
         boolean deciding = true;

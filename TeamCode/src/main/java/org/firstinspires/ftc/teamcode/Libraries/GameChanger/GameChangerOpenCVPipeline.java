@@ -71,10 +71,11 @@ public class GameChangerOpenCVPipeline extends OpenCvPipeline
 
         //iterate through the contours or "shapes"
         for (MatOfPoint contour : contoursList) {
+            rect = null;
             //Take the outline and make a rectangle that the contours fit inside of
             rect = Imgproc.boundingRect(contour);
             //if the rectangle is larger than the previous ones, run this
-            if (!runOnce || (rect.width > largestRect.width && rect.height > largestRect.height)) {
+            if ((!runOnce && rect.width > 20 && rect.height > 3) || (largestRect != null && rect.width > largestRect.width && rect.height > largestRect.height)) {
                 //tell the program that we have actually gotten a rectangle this run
                 runOnce = true;
                 largestRect = rect;

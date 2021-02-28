@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.Libraries.functions;
 
+import android.util.Log;
+
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -227,6 +229,7 @@ public class baseTasks {
             //iterate through each motor
             for (int i = 0; i < motors.length; i++) {
                 //add the motors error to the total
+                Log.d("RUNNING", "loop: ");
                 error += Math.abs(motors[i].getCurrentPosition()-positions[i]);
                 //set motor to the power level
                 motors[i].setPower(maxPower);
@@ -283,11 +286,121 @@ public class baseTasks {
                 servos[i].setPosition(positions[i]);
             }
             //if the set number of seconds has passed, terminate the program
-            if (System.currentTimeMillis()-startTime <= time) {
+            if (System.currentTimeMillis()-startTime >= time) {
                 return -1;
             }
             //return that the program is still running
             return 1;
+        }
+    }
+    public static class wait implements task {
+        //setup initial variables
+        private final double time;
+        //initialization function to get the servos, there positions, and the amount of time to run for
+        public wait(double time) {
+            this.time = time;
+        }
+        private double startTime = 0;
+        //set the initial start time so we can stop after x seconds
+        @Override
+        public void init() {
+            startTime = System.currentTimeMillis();
+        }
+
+        @Override
+        public int loop(RobotConstructor robot) {
+            //if the set number of seconds has passed, terminate the program
+            if (System.currentTimeMillis()-startTime >= time) {
+                return -1;
+            }
+            //return that the program is still running
+            return 1;
+        }
+    }
+    public static class rotate implements task {
+        //initial variables needed for program
+        double startTime = 0;
+        final double targetAngle;
+        final double power;
+        final double maxError;
+        final double timeOut;
+        //initialization function for getting where it needs to go, it's angle, it's power, maxError, and how long it should take
+        public rotate(double angle, double power, double maxError, double timeOut) {
+            this.targetAngle = angle;
+            this.power = power;
+            this.maxError = maxError;
+            this.timeOut = timeOut;
+        }
+        //set the robot's start time on init so we can have the program terminate after a set period of time
+        @Override
+        public void init() {
+            startTime = System.currentTimeMillis();
+        }
+        double timeStarted = 0;
+        @Override
+        public int loop(RobotConstructor robot) {
+            //get the robots current position
+            double currentRotation = robot.getWorldRotation();
+            //if this task has taken to long, stop the robot and terminate the program
+            if (System.currentTimeMillis()-startTime >= timeOut) {
+                robot.move(0,0,0,0);
+                return -2;
+                //if the robot has reached it's target destination, stop the robots movement and terminate the program
+            } else if (timeStarted == 0 && Math.abs(currentRotation-targetAngle) <= maxError) {
+                timeStarted = System.currentTimeMillis();
+
+                return 1;
+            } else if (timeStarted != 0 && System.currentTimeMillis()-timeStarted >= 100 && Math.abs(currentRotation-targetAngle) <= maxError) {
+                robot.move(0,0,0,0);
+                return -1;
+            } else if (Math.abs(currentRotation-targetAngle) > maxError){
+                timeStarted = 0;
+            }
+            //find the current angle
+            double currentAngle = currentRotation;
+            //find the movement vector angle
+
+
+            //find the current angle on a 0 to 360 degree span
+            double currentAngle360 = currentAngle;
+            if (currentAngle < 0) currentAngle360 = currentAngle+360;
+
+            double targetAngle360 = targetAngle;
+            if (targetAngle < 0) targetAngle360 = targetAngle+360;
+
+            double robotRotation = 0;
+
+            //check to see which way is faster, moving left or right and tell it to move accordingly
+            if (Math.abs(targetAngle-currentAngle) < Math.abs(targetAngle360-currentAngle360)) {
+                robotRotation = targetAngle-currentAngle;
+            } else {
+                robotRotation = targetAngle360-currentAngle360;
+            }
+            //pass rotation and power to the move function in the constructor class
+            robot.move(0, 0, robotRotation/8, power);
+            //return that the program is still running
+            return 1;
+        }
+    }
+    public static class setMotorPower implements task {
+        //initial variables needed for program
+        final double power;
+        final DcMotor[] motors;
+        //initialization function for getting where it needs to go, it's angle, it's power, maxError, and how long it should take
+        public setMotorPower(double power, DcMotor ... motors) {
+            this.power = power;
+            this.motors = motors;
+        }
+        //set the robot's start time on init so we can have the program terminate after a set period of time
+        @Override
+        public void init() {
+        }
+        @Override
+        public int loop(RobotConstructor robot) {
+            for (DcMotor motor : motors) {
+                motor.setPower(power);
+            }
+            return -1;
         }
     }
 }

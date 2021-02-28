@@ -1,92 +1,106 @@
 package org.firstinspires.ftc.teamcode.Autonomous.GameChanger;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.Hardware_Maps.GameChangerBotHardware;
-import org.firstinspires.ftc.teamcode.Libraries.Bases.RobotConstructor;
-import org.firstinspires.ftc.teamcode.Libraries.Bases.task;
-import org.firstinspires.ftc.teamcode.Libraries.functions.FunctionLibrary.Point;
+import org.firstinspires.ftc.teamcode.Libraries.Bases.autoBase;
 import org.firstinspires.ftc.teamcode.Libraries.GameChanger.GameChangerOpenCVPipeline;
 import org.firstinspires.ftc.teamcode.Libraries.GameChanger.GamechangerAutoValues;
-import org.firstinspires.ftc.teamcode.Libraries.Bases.autoBase;
+import org.firstinspires.ftc.teamcode.Libraries.functions.FunctionLibrary.Point;
 import org.firstinspires.ftc.teamcode.Libraries.functions.baseTasks;
 import org.firstinspires.ftc.teamcode.Libraries.functions.taskHandler;
-import org.firstinspires.ftc.teamcode.Hardware_Maps.OldKissBotHArdware;
 import org.opencv.core.Scalar;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvWebcam;
 
-public class WobbleAndPark implements autoBase {
-    //setup initial variables need for the autonomous program
-    private final Telemetry telemetry;
+
+//Class inherits from autoBase and extends it to do the actual autonomous work
+public class PowerWobble2 implements autoBase {
+    //initialize variables needed for the program to run
     private final LinearOpMode opMode;
-    //initialization function to get robot information and functions
-    public WobbleAndPark(LinearOpMode opMode) {
+    private final Telemetry telemetry;
+    //initialization function to get the opmode so we can access the robot information
+    public PowerWobble2(LinearOpMode opMode) {
         this.opMode = opMode;
-        telemetry = opMode.telemetry;
+        this.telemetry = opMode.telemetry;
     }
-
-    //setup hardware map variable
+    //Setup robot hardwaremap class
     private GameChangerBotHardware robot;
-    //setup for taskhandler that moves the robot in autonomous
-    private final taskHandler handler = new taskHandler();
-    //setup openCV pipeline variable for detecting the rings
-    private GameChangerOpenCVPipeline pipeline;
-    private GamechangerAutoValues autoValues;
-    private int Alliance = 0;
-    private int Auto = 0;
-    private int Position = 0;
-    private int EndPosition = 0;
-
-
-    //initialization, take in values needed for doing the right movements
-    //initializes openCV pipeline
+    //Make a new task handler for autonomous movement
+    private taskHandler handler = new taskHandler();
+    GameChangerOpenCVPipeline pipeline;
+    GamechangerAutoValues autoValues;
+    int Alliance = 0;
+    int Auto = 0;
+    int Position = 0;
+    int EndPosition = 0;
+    //initialization, takes the values and sets up initial movements
     @Override
     public void init(int Alliance, int Auto, int Position, int EndPosition) {
+        autoValues = new GamechangerAutoValues(opMode.telemetry);
         this.Alliance = Alliance;
         this.Auto = Auto;
         this.Position = Position;
         this.EndPosition = EndPosition;
-        //setup class for displaying selected autonomous values
-        autoValues = new GamechangerAutoValues(telemetry);
         //print out the values read in text form
         autoValues.translateValues(Alliance, Auto, Position, EndPosition);
-        telemetry.update();
-        //based on picked alliance and starting position, setup the robot's movements
-        robot = new GameChangerBotHardware(opMode,0,0,0);
+        opMode.telemetry.update();
+        robot = new GameChangerBotHardware(opMode,0,0,180);
         robot.disableOdometry();
-        robot.setRotation(180);
+        robot.magazine.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.shooter.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        robot.intakeRD.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        robot.deflector.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        robot.CAM.setPosition(0.67);
+        //based on alliance and starting position pre-program the robot's movements
         if (Alliance == 0) { //blue
             if (Position == 1) { //left
-                //initialize robot hardware map with it's position
-                robot.setPosition(-48,-69);
-                //move to the side of the rings
-                handler.addTask(new baseTasks.move(new Point(-50,-34),180,1,1,5000));
-                //move on to the line
-                handler.addTask(new baseTasks.move(new Point(-50,0),180,1,1,5000));
+                //initialize the hardware map with the robots current position
+                robot.setPosition(-48,-71);
+                //move forward and to the side of the rings
+                handler.addTask(new baseTasks.move(new Point(-54,-34),180,1,1,5000));
+                //park on the line, same thing with the rest of the functions
+                handler.addTask(new baseTasks.move(new Point(-54,-14),180,1,1,5000));
             } else { //right
-                robot.setPosition(-24,-69);
+                robot = new GameChangerBotHardware(opMode,-24,-71,180);
                 handler.addTask(new baseTasks.move(new Point(-18,-34),180,1,1,5000));
-                handler.addTask(new baseTasks.move(new Point(-18,0),180,1,1,5000));
+                handler.addTask(new baseTasks.move(new Point(-18,-14),180,1,1,5000));
             }
+            handler.addTask(new baseTasks.move(new Point(-27.5,-13),0,0.5,0.5,5000));
+            handler.addTask(new baseTasks.rotate(0,0.5,1,1000));
+            handler.addTask(new baseTasks.motorMovement(robot.magazine,300,1,10,2000));
+            handler.addTask(new baseTasks.move(new Point(-25,-13),0,0.5,0.5,5000));
+            handler.addTask(new baseTasks.wait(750));
+            handler.addTask(new baseTasks.rotate(0,0.5,1,1000));
+            handler.addTask(new baseTasks.motorMovement(robot.magazine,600,1,10,2000));
+            handler.addTask(new baseTasks.move(new Point(-13,-13),0,0.5,0.5,5000));
+            handler.addTask(new baseTasks.wait(500));
+            handler.addTask(new baseTasks.rotate(0,0.5,1,1000));
+            handler.addTask(new baseTasks.motorMovement(robot.magazine,1600,1,10,2000));
+
+
         } else { //red
             if (Position == 0) { //right
-                robot.setPosition(48,-69);
+                robot.setPosition(48,-71);
                 handler.addTask(new baseTasks.move(new Point(54,-34),180,1,1,5000));
-                handler.addTask(new baseTasks.move(new Point(54,0),180,1,1,5000));
+                handler.addTask(new baseTasks.move(new Point(54,-9),180,1,1,5000));
             } else { //left
-                robot.setPosition(24,-69);
+                robot = new GameChangerBotHardware(opMode,24,-71,180);
                 handler.addTask(new baseTasks.move(new Point(18,-34),180,1,1,5000));
-                handler.addTask(new baseTasks.move(new Point(18,0),180,1,1,5000));
+                handler.addTask(new baseTasks.move(new Point(18,-9),180,1,1,5000));
             }
+            handler.addTask(new baseTasks.move(new Point(14,3),180,0.5,0.5,5000));
+            handler.addTask(new baseTasks.motorMovement(robot.magazine,500,1,10,2000));
+            handler.addTask(new baseTasks.move(new Point(11,3),180,0.5,0.5,5000));
+            handler.addTask(new baseTasks.motorMovement(robot.magazine,1000,1,10,2000));
+            handler.addTask(new baseTasks.move(new Point(8,3),180,0.5,0.5,5000));
+            handler.addTask(new baseTasks.motorMovement(robot.magazine,1500,1,10,2000));
         }
         robot.enableOdometry();
-        //setup openCV pipeline
         int cameraMonitorViewId = opMode.hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", opMode.hardwareMap.appContext.getPackageName());
         //initialize opencv camera factory using the designated webcam
         OpenCvWebcam webcam = OpenCvCameraFactory.getInstance().createWebcam(opMode.hardwareMap.get(WebcamName.class,"Webcam 1"), cameraMonitorViewId);
@@ -101,7 +115,6 @@ public class WobbleAndPark implements autoBase {
         webcam.startStreaming(320, 240, OpenCvCameraRotation.UPRIGHT);
     }
 
-    //variable for transferring the number of detected rings
     double numRings = 0;
     @Override
     public void init_loop() {
@@ -121,23 +134,25 @@ public class WobbleAndPark implements autoBase {
         autoValues.translateValues(Alliance, Auto, Position, EndPosition);
         telemetry.update();
     }
-    //from here, we now have the amount of rings we detected from our init loop
-    //From this, we define the extra movements based on that data
+
     @Override
     public void loop_init() {
-        //based on the alliance, tell it to move to the corresponding zone based on the number of rings
+        robot.intakeRD.setPower(1);
+        robot.deflector.setPower(1);
+        robot.shooter.setPower(-0.72);
         if (Alliance == 0) { //blue
             if (numRings == 4) {
                 handler.addTask(new baseTasks.move(new Point(-40,30),180,1,1,5000));
             } else if (numRings == 1) {
-                handler.addTask(new baseTasks.move(new Point(-21,16),180,1,1,5000));
+                handler.addTask(new baseTasks.move(new Point(-21,12),180,1,1,5000));
             } else {
                 handler.addTask(new baseTasks.move(new Point(-40,-5),180,1,1,5000));
             }
-            handler.addTask(new baseTasks.servoMovement(robot.wobblePivot,0.5,200));
+            handler.addTask(new baseTasks.servoMovement(robot.wobblePivot,0.5,400));
             handler.addTask(new baseTasks.servoMovement(robot.wobbleGrab,0,200));
             handler.addTask(new baseTasks.servoMovement(robot.wobblePivot,1,200));
 
+            handler.addTask(new baseTasks.move(new Point(-40,-5), 90, 1, 1, 5000));
             //Tell the robot it's given end position that has been selected by the user
             if (EndPosition == 1) { //left
                 handler.addTask(new baseTasks.move(new Point(-40,-5),180,1,1,5000));
@@ -161,15 +176,13 @@ public class WobbleAndPark implements autoBase {
             }
         }
     }
-    //run the main loop where the taskhandler will handle the movement based on it's given commands
+    //for the main loop, just keep running the task handler and let it make the robot move
+    //also output debugging information
     @Override
     public void loop() {
         handler.loop(robot);
-        telemetry.addData("rings: ", numRings);
-        telemetry.addData("curTask: ", handler.curTask);
-        telemetry.addData("x: ", robot.getX());
-        telemetry.addData("y: ", robot.getY());
-        telemetry.update();
+        opMode.telemetry.addData("Current Task:", handler.curTask);
+        opMode.telemetry.update();
     }
 
     @Override

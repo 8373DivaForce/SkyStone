@@ -28,12 +28,18 @@ public class GameChangerAutoPicker extends LinearOpMode {
                 "EndPosition"
         };
         File file = AppUtil.getInstance().getSettingsFile("AutoSelection");
+        boolean fileIsGood = false;
         if (file.exists()) {
-            String[] fileContents = ReadWriteFile.readFile(file).split(",");
-            for (int i = 0; i < thingsToControl.length; i++) {
-                autoValues.put(thingsToControl[i], Integer.parseInt(fileContents[i]));
+            String unParsedFile = ReadWriteFile.readFile(file);
+            if (unParsedFile.contains(",") && unParsedFile.split(",").length == 4) {
+                String[] fileContents = unParsedFile.split(",");
+                for (int i = 0; i < thingsToControl.length; i++) {
+                    autoValues.put(thingsToControl[i], Integer.parseInt(fileContents[i]));
+                }
+                fileIsGood = true;
             }
-        } else {
+        }
+        if (!fileIsGood) {
             for (String s : thingsToControl) {
                 autoValues.put(s,0);
             }

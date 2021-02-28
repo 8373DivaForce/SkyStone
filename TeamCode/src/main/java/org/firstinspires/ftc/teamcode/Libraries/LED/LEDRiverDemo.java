@@ -24,8 +24,8 @@ public class LEDRiverDemo extends LinearOpMode {
         ledRiver.setLEDCount(400);
         ledRiver.setMode(LEDRiver.Mode.SOLID);
         ledRiver.setLEDMode(LEDRiver.LEDMode.RGBW);
-        ledRiver.setColorDepth(LEDRiver.ColorDepth.BIT_8);
-        ledRiver.setBrightness(1);
+        ledRiver.setColorDepth(LEDRiver.ColorDepth.BIT_32);
+        ledRiver.setBrightness(0.5);
         ledRiver.setColor(0, new LEDRiver.Color(255, 0, 0, 0));
         ledRiver.setColor(1, new LEDRiver.Color(0,255,0,0));
         ledRiver.setColor(2, new LEDRiver.Color(0,0,0,0));
@@ -77,13 +77,13 @@ public class LEDRiverDemo extends LinearOpMode {
         Thread.sleep(2000);
 
         ledRiver.setHide(false);
-        ledRiver.setColorDepth(LEDRiver.ColorDepth.BIT_8);
+        ledRiver.setColorDepth(LEDRiver.ColorDepth.BIT_32);
         ledRiver.setMode(LEDRiver.Mode.INDIVIDUAL);
         long end_time = System.currentTimeMillis() + 5000;
         int shift = 0;
         while(System.currentTimeMillis() < end_time) {
             shift = (shift + 5) % 360;
-            for(int i = 0; i < 60; i++) {
+            for(int i = 0; i < 100; i++) {
                 ledRiver.setColor(i, Color.HSVToColor(new float[] {(i*5+shift)%360, 1, 1}));
             }
             ledRiver.apply();
@@ -98,19 +98,20 @@ public class LEDRiverDemo extends LinearOpMode {
         ledRiver.setMode(LEDRiver.Mode.SOLID).setColor(new LEDRiver.Color(0,0,0,0)).apply();
         Thread.sleep(1000);
         ledRiver.setHide(false);
-        ledRiver.setColorDepth(LEDRiver.ColorDepth.BIT_8);
+        ledRiver.setLEDCount(100);
+        ledRiver.setColorDepth(LEDRiver.ColorDepth.BIT_32);
         ledRiver.setMode(LEDRiver.Mode.INDIVIDUAL);
-        for (int i = 0; i < 104; i++) {
-            ledRiver.setColor(i, i < 104/3 ? new LEDRiver.Color(0,0,0,255) : new LEDRiver.Color(0,0,0,0));
+        for (int i = 0; i < 100; i++) {
+            ledRiver.setColor(i, i < 100/3 ? new LEDRiver.Color(0,0,0,255) : new LEDRiver.Color(0,0,0,0));
         }
         ledRiver.apply();
         Thread.sleep(1000);
-        for (int i = 0; i < 199; i++) {
-            ledRiver.setColor(i, i < 104/3*2 ? new LEDRiver.Color(0,0,0,255) : new LEDRiver.Color(0,0,0,0));
+        for (int i = 0; i < 100; i++) {
+            ledRiver.setColor(i, i < 100/3*2 ? new LEDRiver.Color(0,0,0,255) : new LEDRiver.Color(0,0,0,0));
         }
         ledRiver.apply();
         Thread.sleep(1000);
-        for (int i = 0; i < 104; i++) {
+        for (int i = 0; i < 100; i++) {
             ledRiver.setColor(i, new LEDRiver.Color(0,0,0,255));
         }
         ledRiver.apply();

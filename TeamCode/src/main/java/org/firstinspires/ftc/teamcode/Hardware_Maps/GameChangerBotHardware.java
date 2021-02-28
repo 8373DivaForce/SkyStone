@@ -2,7 +2,9 @@ package org.firstinspires.ftc.teamcode.Hardware_Maps;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ReadWriteFile;
 
 import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
@@ -44,9 +46,11 @@ public class GameChangerBotHardware extends RobotConstructor {
     public final DcMotor intakeRD;
     public final DcMotor magazine;
     public final DcMotor shooter;
-    public final DcMotor CAM;
+    public final DcMotor deflector;
 
-
+    public final Servo CAM;
+    public final Servo wobblePivot;
+    public final Servo wobbleGrab;
 
 
     private final static String name = "Kissbot";
@@ -63,14 +67,19 @@ public class GameChangerBotHardware extends RobotConstructor {
         dcBackLeft = hMap.dcMotor.get("backLeft");
         dcBackRight = hMap.dcMotor.get("backRight");
 
-        intakeRD = hMap.dcMotor.get("intakeRD");
+        intakeRD = hMap.dcMotor.get("intake");
         magazine = hMap.dcMotor.get("magazine");
         shooter = hMap.dcMotor.get("shooter");
-        CAM = hMap.dcMotor.get("CAM");
+        deflector = hMap.dcMotor.get("deflector");
 
+        CAM = hMap.servo.get("CAM");
+        wobbleGrab = hMap.servo.get("wobbleGrab");
+        wobblePivot = hMap.servo.get("wobblePivot");
         //setup the directions the devices need to operate in
         dcFrontRight.setDirection(DcMotor.Direction.REVERSE);
         dcBackRight.setDirection(DcMotor.Direction.REVERSE);
+
+        shooter.setDirection(DcMotorSimple.Direction.REVERSE);
 
         //make sure none of the devices are running
         dcFrontLeft.setPower(0);
@@ -81,7 +90,7 @@ public class GameChangerBotHardware extends RobotConstructor {
         intakeRD.setPower(0);
         magazine.setPower(0);
         shooter.setPower(0);
-        CAM.setPower(0);
+        deflector.setPower(0);
 
         //Reset the encoders on every motor
         dcFrontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -92,7 +101,7 @@ public class GameChangerBotHardware extends RobotConstructor {
         intakeRD.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         magazine.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         shooter.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        CAM.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        deflector.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         //set them to run without the encoders by default
         dcFrontRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -103,15 +112,18 @@ public class GameChangerBotHardware extends RobotConstructor {
         intakeRD.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         magazine.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         shooter.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        CAM.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        deflector.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
+        CAM.setPosition(0);
+        wobblePivot.setPosition(1);
+        wobbleGrab.setPosition(1);
         //initialize a variable useful in the odometry function
         double tempInchPerTick = (1/dcFrontLeft.getMotorType().getTicksPerRev())*getWheelCircumfrance();
         // old inchesPerTickX = tempInchPerTick*-0.92307692307692307692307692307692;
-        inchesPerTickX = tempInchPerTick*-1.36893203883;
+        inchesPerTickX = tempInchPerTick*-1.2527492589;
 
         // old inchesPerTickY = tempInchPerTick*1.1483253588516746411483253588517;
-        inchesPerTickY = tempInchPerTick*1.5;
+        inchesPerTickY = tempInchPerTick*-1.46049364685;
         useOdometry = false;
         setRotation(rotation);
         initOdometry();
@@ -140,14 +152,41 @@ public class GameChangerBotHardware extends RobotConstructor {
     //a boolean that allows you to disable the position tracking
     boolean useOdometry;
     //overide the odometry function to make it robot specific
+
+    double degreesPerTick = 0;
+    double ticksPerDegree = 0;
+
+    double ticksPerRev = 1024;
+    double radius = 1.9685/29;
+    double ticksPerInch = ticksPerRev/(Math.pow(radius,2)*Math.PI);
+
+    double lastFront1 = 0;
+    double lastFront2 = 0;
+    double lastLeft = 0;
     @Override
     public double[] updateOdometry() {
+
         //calls that parent classes version of this function to update rotation
         super.updateOdometry();
+        /*
+        double tFront1 = dcFrontLeft.getCurrentPosition();
+        double tFront2 = dcBackLeft.getCurrentPosition();
+        double tLeft = dcFrontRight.getCurrentPosition();
 
+        double front1 = tFront1-lastFront1;
+        double front2 = tFront2-lastFront2;
+        double left = tLeft-lastLeft;
+
+        lastFront1 = front1;
+        lastFront2 = front2;
+        lastLeft = left;
+
+        double angleChange = (front1-front2)/ticksPerDegree;
+         */
         //check if odometry is enabled
         if (useOdometry) {
             //find the offset per wheel
+
             double frontLeftOffset = (dcFrontLeft.getCurrentPosition() - lastFrontLeftPos);
             double frontRightOffset = (dcFrontRight.getCurrentPosition() - lastFrontRightPos);
             double backLeftOffset = (dcBackLeft.getCurrentPosition() - lastBackLeftPos);
@@ -163,6 +202,13 @@ public class GameChangerBotHardware extends RobotConstructor {
             double yOffset = ((frontLeftOffset + frontRightOffset + backLeftOffset + backRightOffset)/4)*inchesPerTickY;
             double xOffset = (-(-frontLeftOffset + frontRightOffset + backLeftOffset - backRightOffset)/4)*inchesPerTickX;
 
+             /*
+            double yOffset = ((front1+front2)/2)*ticksPerInch;
+            double xOffset = (left-degreesPerTick*angleChange)*ticksPerInch;
+
+            super.setRotation(getWorldRotation()+angleChange);
+
+              */
             //find the hypotenuse to run trigonometry
             double hypot = sqrt(pow(xOffset, 2) + pow(yOffset, 2));
 
