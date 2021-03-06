@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.Teleops;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -9,6 +10,7 @@ import org.firstinspires.ftc.teamcode.Libraries.functions.FunctionLibrary;
 import static org.firstinspires.ftc.teamcode.Libraries.functions.FunctionLibrary.GetYaw;
 
 @TeleOp
+@Disabled
 public class NewKissOp extends LinearOpMode {
 
     boolean intake = false;

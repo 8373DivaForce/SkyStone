@@ -52,11 +52,14 @@ public class PowerShot implements autoBase {
                 handler.addTask(new baseTasks.move(new Point(-18,-34),180,1,1,5000));
                 handler.addTask(new baseTasks.move(new Point(-18,-14),180,1,1,5000));
             }
+            //lines up with powershot 1 and then shoots
             handler.addTask(new baseTasks.move(new Point(-30,-13),0,0.5,0.5,5000));
             handler.addTask(new baseTasks.motorMovement(robot.magazine,500,1,10,2000));
+            //lines up with powershot 2, waits for the shooter to get up to speed, then shoots
             handler.addTask(new baseTasks.move(new Point(-25,-13),0,0.5,0.5,5000));
             handler.addTask(new baseTasks.wait(500));
             handler.addTask(new baseTasks.motorMovement(robot.magazine,1000,1,10,2000));
+            //lines up with powershot 3, waits for the shooter to get up to speed, then shoots
             handler.addTask(new baseTasks.move(new Point(-13,-13),0,0.5,0.5,5000));
             handler.addTask(new baseTasks.wait(500));
             handler.addTask(new baseTasks.motorMovement(robot.magazine,1500,1,10,2000));
@@ -89,6 +92,7 @@ public class PowerShot implements autoBase {
 
     @Override
     public void loop_init() {
+        //turns on the intake and shooter for the run
         robot.intakeRD.setPower(1);
         robot.deflector.setPower(1);
         robot.shooter.setPower(-0.72);

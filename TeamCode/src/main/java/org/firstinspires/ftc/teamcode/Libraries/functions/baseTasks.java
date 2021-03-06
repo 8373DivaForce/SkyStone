@@ -296,12 +296,12 @@ public class baseTasks {
     public static class wait implements task {
         //setup initial variables
         private final double time;
-        //initialization function to get the servos, there positions, and the amount of time to run for
+        //takes in the number of milliseconds to wait for
         public wait(double time) {
             this.time = time;
         }
         private double startTime = 0;
-        //set the initial start time so we can stop after x seconds
+        //set the initial start time so we can stop after x milliseconds
         @Override
         public void init() {
             startTime = System.currentTimeMillis();
@@ -324,7 +324,7 @@ public class baseTasks {
         final double power;
         final double maxError;
         final double timeOut;
-        //initialization function for getting where it needs to go, it's angle, it's power, maxError, and how long it should take
+        //initialization function for getting the angle it needs to turn to, max power, maxError, and timeout
         public rotate(double angle, double power, double maxError, double timeOut) {
             this.targetAngle = angle;
             this.power = power;
@@ -339,27 +339,27 @@ public class baseTasks {
         double timeStarted = 0;
         @Override
         public int loop(RobotConstructor robot) {
-            //get the robots current position
+            //get the robots current rotation
             double currentRotation = robot.getWorldRotation();
             //if this task has taken to long, stop the robot and terminate the program
             if (System.currentTimeMillis()-startTime >= timeOut) {
                 robot.move(0,0,0,0);
                 return -2;
-                //if the robot has reached it's target destination, stop the robots movement and terminate the program
+                //if the robot has reached it's target rotation, set a timer to check stability of angle
             } else if (timeStarted == 0 && Math.abs(currentRotation-targetAngle) <= maxError) {
                 timeStarted = System.currentTimeMillis();
 
                 return 1;
+                //if robot angle is stable, return that the task is done
             } else if (timeStarted != 0 && System.currentTimeMillis()-timeStarted >= 100 && Math.abs(currentRotation-targetAngle) <= maxError) {
                 robot.move(0,0,0,0);
                 return -1;
+                //if the robot angle is not stable, reset the timer
             } else if (Math.abs(currentRotation-targetAngle) > maxError){
                 timeStarted = 0;
             }
             //find the current angle
             double currentAngle = currentRotation;
-            //find the movement vector angle
-
 
             //find the current angle on a 0 to 360 degree span
             double currentAngle360 = currentAngle;
@@ -386,20 +386,21 @@ public class baseTasks {
         //initial variables needed for program
         final double power;
         final DcMotor[] motors;
-        //initialization function for getting where it needs to go, it's angle, it's power, maxError, and how long it should take
+        //initialization function for getting the motors and the power to set them to
         public setMotorPower(double power, DcMotor ... motors) {
             this.power = power;
             this.motors = motors;
         }
-        //set the robot's start time on init so we can have the program terminate after a set period of time
         @Override
         public void init() {
         }
         @Override
         public int loop(RobotConstructor robot) {
+            //give the motors the given power
             for (DcMotor motor : motors) {
                 motor.setPower(power);
             }
+            //return that the task is finished
             return -1;
         }
     }

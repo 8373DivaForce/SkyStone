@@ -63,20 +63,22 @@ public class PowerWobble implements autoBase {
                 robot.setPosition(-48,-71);
                 //move forward and to the side of the rings
                 handler.addTask(new baseTasks.move(new Point(-53,-32),180,1,1,5000));
-                //park on the line, same thing with the rest of the functions
+                //move on to the line as an intermediary point
                 handler.addTask(new baseTasks.move(new Point(-53,-14),180,1,1,5000));
             } else { //right
-                robot = new GameChangerBotHardware(opMode,-24,-71,180);
+                robot.setPosition(-24,-71);
                 handler.addTask(new baseTasks.move(new Point(-18,-34),180,1,1,5000));
                 handler.addTask(new baseTasks.move(new Point(-18,-14),180,1,1,5000));
             }
-            handler.addTask(new baseTasks.move(new Point(-26,-17),0,
-                    0.5,0.5,5000));
+            //moves in front of power shot 1, makes sure it is rotated correctly, then shoots.
+            handler.addTask(new baseTasks.move(new Point(-26,-17),0, 0.5,0.5,5000));
             handler.addTask(new baseTasks.rotate(0,0.5,1,1000));
             handler.addTask(new baseTasks.motorMovement(robot.magazine,300,1,10,2000));
+            //moves in front of power shot 2, waits to make sure the shooter is up to speed, then shoots
             handler.addTask(new baseTasks.move(new Point(-20,-17),0,0.5,0.5,5000));
             handler.addTask(new baseTasks.wait(1000));
             handler.addTask(new baseTasks.motorMovement(robot.magazine,700,1,10,2000));
+            //moves in front of power shot 3, waits to make sure the shooter is up to speed, then shoots
             handler.addTask(new baseTasks.move(new Point(-16,-17),0,0.5,0.5,5000));
             handler.addTask(new baseTasks.wait(1000));
             handler.addTask(new baseTasks.motorMovement(robot.magazine,1600,1,10,2000));
@@ -88,17 +90,21 @@ public class PowerWobble implements autoBase {
                 handler.addTask(new baseTasks.move(new Point(54,-34),180,1,1,5000));
                 handler.addTask(new baseTasks.move(new Point(54,-9),180,1,1,5000));
             } else { //left
-                robot = new GameChangerBotHardware(opMode,24,-71,180);
+                robot.setPosition(24,-71);
                 handler.addTask(new baseTasks.move(new Point(18,-34),180,1,1,5000));
                 handler.addTask(new baseTasks.move(new Point(18,-9),180,1,1,5000));
             }
             handler.addTask(new baseTasks.move(new Point(14,3),180,0.5,0.5,5000));
+            handler.addTask(new baseTasks.rotate(0,0.5,1,1000));
             handler.addTask(new baseTasks.motorMovement(robot.magazine,500,1,10,2000));
             handler.addTask(new baseTasks.move(new Point(11,3),180,0.5,0.5,5000));
+            handler.addTask(new baseTasks.wait(1000));
             handler.addTask(new baseTasks.motorMovement(robot.magazine,1000,1,10,2000));
             handler.addTask(new baseTasks.move(new Point(8,3),180,0.5,0.5,5000));
+            handler.addTask(new baseTasks.wait(1000));
             handler.addTask(new baseTasks.motorMovement(robot.magazine,1500,1,10,2000));
         }
+        //enables the odometry after intializing it for autonomous
         robot.enableOdometry();
         int cameraMonitorViewId = opMode.hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", opMode.hardwareMap.appContext.getPackageName());
         //initialize opencv camera factory using the designated webcam
@@ -113,7 +119,7 @@ public class PowerWobble implements autoBase {
         //tells the webcam to start streaming at a 320x240p resolution
         webcam.startStreaming(320, 240, OpenCvCameraRotation.UPRIGHT);
     }
-
+    //varible to transfer the number of rings detected across run states
     double numRings = 0;
     @Override
     public void init_loop() {
@@ -136,10 +142,12 @@ public class PowerWobble implements autoBase {
 
     @Override
     public void loop_init() {
+        //initialize the intake and shooter
         robot.intakeRD.setPower(1);
         robot.deflector.setPower(1);
         robot.shooter.setPower(-0.65);
         if (Alliance == 0) { //blue
+            //based on the number of rings, program the position for the zone the robot needs to go to
             if (numRings == 4) {
                 handler.addTask(new baseTasks.move(new Point(-40,30),180,1,1,5000));
             } else if (numRings == 1) {
@@ -147,6 +155,7 @@ public class PowerWobble implements autoBase {
             } else {
                 handler.addTask(new baseTasks.move(new Point(-40,-5),180,1,1,5000));
             }
+            //bring the wobble goal down, release it, and then bring it back up
             handler.addTask(new baseTasks.servoMovement(robot.wobblePivot,0.5,400));
             handler.addTask(new baseTasks.servoMovement(robot.wobbleGrab,0,400));
             handler.addTask(new baseTasks.servoMovement(robot.wobblePivot,1,400));
