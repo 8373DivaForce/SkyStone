@@ -71,15 +71,15 @@ public class PowerWobble implements autoBase {
                 handler.addTask(new baseTasks.move(new Point(-18,-14),180,1,1,5000));
             }
             //moves in front of power shot 1, makes sure it is rotated correctly, then shoots.
-            handler.addTask(new baseTasks.move(new Point(-26,-17),0, 0.5,0.5,5000));
+            handler.addTask(new baseTasks.move(new Point(-26,-17),0, 0.5,1,5000));
             handler.addTask(new baseTasks.rotate(0,0.5,1,1000));
             handler.addTask(new baseTasks.motorMovement(robot.magazine,300,1,10,2000));
             //moves in front of power shot 2, waits to make sure the shooter is up to speed, then shoots
-            handler.addTask(new baseTasks.move(new Point(-20,-17),0,0.5,0.5,5000));
+            handler.addTask(new baseTasks.move(new Point(-20,-17),0,0.5,1,5000));
             handler.addTask(new baseTasks.wait(1000));
             handler.addTask(new baseTasks.motorMovement(robot.magazine,700,1,10,2000));
             //moves in front of power shot 3, waits to make sure the shooter is up to speed, then shoots
-            handler.addTask(new baseTasks.move(new Point(-16,-17),0,0.5,0.5,5000));
+            handler.addTask(new baseTasks.move(new Point(-16,-17),0,0.5,1,5000));
             handler.addTask(new baseTasks.wait(1000));
             handler.addTask(new baseTasks.motorMovement(robot.magazine,1600,1,10,2000));
 
@@ -149,11 +149,11 @@ public class PowerWobble implements autoBase {
         if (Alliance == 0) { //blue
             //based on the number of rings, program the position for the zone the robot needs to go to
             if (numRings == 4) {
-                handler.addTask(new baseTasks.move(new Point(-40,30),180,1,1,5000));
+                handler.addTask(new baseTasks.move(new Point(-40,48),180,1,1,5000));
             } else if (numRings == 1) {
-                handler.addTask(new baseTasks.move(new Point(-21,12),180,1,1,5000));
+                handler.addTask(new baseTasks.move(new Point(-21,24),180,1,1,5000));
             } else {
-                handler.addTask(new baseTasks.move(new Point(-40,-5),180,1,1,5000));
+                handler.addTask(new baseTasks.move(new Point(-40,0),180,1,1,5000));
             }
             //bring the wobble goal down, release it, and then bring it back up
             handler.addTask(new baseTasks.servoMovement(robot.wobblePivot,0.5,400));
@@ -162,9 +162,9 @@ public class PowerWobble implements autoBase {
 
             //Tell the robot it's given end position that has been selected by the user
             if (EndPosition == 1) { //left
-                handler.addTask(new baseTasks.move(new Point(-40,-5),180,1,1,5000));
+                handler.addTask(new baseTasks.move(new Point(-40,0),180,1,1,5000));
             } else { //right
-                handler.addTask(new baseTasks.move(new Point(-18,-5),180,1,1,5000));
+                handler.addTask(new baseTasks.move(new Point(-18,0),180,1,1,5000));
             }
 
 

@@ -152,10 +152,17 @@ public class baseTasks {
             //translate the local movement vector to a global vecctor
             double robotAngle = angle + currentAngle;
 
+            double rampDistance = 8;
+            double minPower = 0.1;
             //find the x movement using distance times the cosine of the angle calculated
             double adjustedX = distance*Math.cos(Math.toRadians(robotAngle));
+            double xDir = Math.abs(adjustedX)/adjustedX;
+            adjustedX = Math.abs(adjustedX)/rampDistance < minPower ? minPower*xDir : Math.abs(adjustedX/rampDistance) > power ? power*xDir : adjustedX/rampDistance;
             //find the y movement using distance time the sin of the angle calculated
             double adjustedY = -distance*Math.sin(Math.toRadians(robotAngle));
+            double yDir = Math.abs(adjustedY)/adjustedY;
+            adjustedY = Math.abs(adjustedY)/rampDistance < minPower ? minPower*yDir : Math.abs(adjustedY/rampDistance) > power ? power*yDir : adjustedY/rampDistance;
+
 
             //if it has an angle to go to, calculate how it needs to rotate, otherwise skip it
             if (targetAngle != null) {

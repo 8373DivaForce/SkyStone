@@ -1,5 +1,8 @@
 package org.firstinspires.ftc.teamcode.Hardware_Maps;
 
+import android.util.Log;
+
+import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -13,9 +16,11 @@ import org.firstinspires.ftc.teamcode.Libraries.functions.FunctionLibrary;
 import org.opencv.core.Scalar;
 
 import java.io.File;
+import java.util.List;
 
 import static java.lang.Math.atan2;
 import static java.lang.Math.cos;
+import static java.lang.Math.log;
 import static java.lang.Math.pow;
 import static java.lang.Math.sin;
 import static java.lang.Math.sqrt;
@@ -52,14 +57,17 @@ public class GameChangerBotHardware extends RobotConstructor {
     public final Servo wobblePivot;
     public final Servo wobbleGrab;
 
+    public final List<LynxModule> allHubs;
 
     private final static String name = "Kissbot";
     //setup the constructor function
     public GameChangerBotHardware(LinearOpMode opMode, double rotation, String camera) {
+
         //provide the opMode given on creation as well as the variables defined above
         super(opMode, name, wheelDiameter, dKp, minMoveSpeed,rampingDistance, 0, CameraLeftDisplacement, CameraVerticalDisplacement, VuforiaKey, odometryUpdateRate);
         //save the hardware map from the opMode
         HardwareMap hMap = opMode.hardwareMap;
+        lastRotation = rotation;
 
         //set the variables to their corresponding hardware device
         dcFrontLeft = hMap.dcMotor.get("frontLeft");
@@ -75,6 +83,12 @@ public class GameChangerBotHardware extends RobotConstructor {
         CAM = hMap.servo.get("CAM");
         wobbleGrab = hMap.servo.get("wobbleGrab");
         wobblePivot = hMap.servo.get("wobblePivot");
+
+        allHubs = hMap.getAll(LynxModule.class);
+        for (LynxModule hub : allHubs) {
+            hub.setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL);
+        }
+
         //setup the directions the devices need to operate in
         dcFrontRight.setDirection(DcMotor.Direction.REVERSE);
         dcBackRight.setDirection(DcMotor.Direction.REVERSE);
@@ -153,40 +167,63 @@ public class GameChangerBotHardware extends RobotConstructor {
     boolean useOdometry;
     //overide the odometry function to make it robot specific
 
-    double degreesPerTick = 0;
-    double ticksPerDegree = 0;
+    double degreesPerTick = -89;
+    double ticksPerDegree = 73;
 
-    double ticksPerRev = 1024;
+    double ticksPerRev = 2048;
     double radius = 1.9685/29;
-    double ticksPerInch = ticksPerRev/(Math.pow(radius,2)*Math.PI);
+    double ticksPerInch = (((2*radius)*Math.PI)/ticksPerRev)*-4.0169690374577049291823236359309;
 
     double lastFront1 = 0;
     double lastFront2 = 0;
     double lastLeft = 0;
+    double overallDiffernce = 0;
+    double lastRotation = 0;
+    @Override
+    public void setRotation(double targetRotation) {
+        super.setRotation(targetRotation);
+        lastRotation = targetRotation;
+    }
     @Override
     public double[] updateOdometry() {
-
+        for (LynxModule module : allHubs) {
+            module.clearBulkCache();
+        }
         //calls that parent classes version of this function to update rotation
         super.updateOdometry();
-        /*
-        double tFront1 = dcFrontLeft.getCurrentPosition();
-        double tFront2 = dcBackLeft.getCurrentPosition();
-        double tLeft = dcFrontRight.getCurrentPosition();
+        double curRotation = getWorldRotation();
+        double rotationChange;
+        if (curRotation > 160 && lastRotation < -160) {
+            rotationChange = (180-curRotation)+(180-Math.abs(lastRotation));
+        } else if (curRotation < -160 && lastRotation > 160) {
+            rotationChange = -((180-Math.abs(curRotation))+(180-lastRotation));
+        } else {
+            rotationChange = curRotation-lastRotation;
+        }
+        lastRotation = curRotation;
+        //Log.d("previous encoder values", "Front1: " + lastFront1 + ", Front2: " + lastFront2 + ", left: " + lastLeft);
+        double tFront1 = dcBackLeft.getCurrentPosition();
+        double tFront2 = dcBackRight.getCurrentPosition()*(0.8978179);
+        double tLeft = dcFrontLeft.getCurrentPosition();
 
+        //Log.d("encoder values", "Front1: " + tFront1 + ", Front2: " + tFront2 + ", left: " + tLeft);
         double front1 = tFront1-lastFront1;
         double front2 = tFront2-lastFront2;
         double left = tLeft-lastLeft;
+        Log.d("changed encoder values", "Front1: " + front1 + ", Front2: " + front2 + ", left: " + left);
 
-        lastFront1 = front1;
-        lastFront2 = front2;
-        lastLeft = left;
+        lastFront1 = tFront1;
+        lastFront2 = tFront2;
+        lastLeft = tLeft;
+        //overallDiffernce += front1-front2;
+        Log.d("difference", overallDiffernce + "");
+        //double angleChange = (front1-front2)/ticksPerDegree;
+        //super.setRotation(getWorldRotation()+angleChange);
 
-        double angleChange = (front1-front2)/ticksPerDegree;
-         */
         //check if odometry is enabled
         if (useOdometry) {
             //find the offset per wheel
-
+            /*
             double frontLeftOffset = (dcFrontLeft.getCurrentPosition() - lastFrontLeftPos);
             double frontRightOffset = (dcFrontRight.getCurrentPosition() - lastFrontRightPos);
             double backLeftOffset = (dcBackLeft.getCurrentPosition() - lastBackLeftPos);
@@ -202,13 +239,14 @@ public class GameChangerBotHardware extends RobotConstructor {
             double yOffset = ((frontLeftOffset + frontRightOffset + backLeftOffset + backRightOffset)/4)*inchesPerTickY;
             double xOffset = (-(-frontLeftOffset + frontRightOffset + backLeftOffset - backRightOffset)/4)*inchesPerTickX;
 
-             /*
-            double yOffset = ((front1+front2)/2)*ticksPerInch;
-            double xOffset = (left-degreesPerTick*angleChange)*ticksPerInch;
+             */
 
-            super.setRotation(getWorldRotation()+angleChange);
+            double angleChange = 0;
+            double yOffset = (front1-(ticksPerDegree*rotationChange))*ticksPerInch;
+            double xOffset = (left-(degreesPerTick*rotationChange))*ticksPerInch*0.94527363184079601990049751243781;
 
-              */
+
+
             //find the hypotenuse to run trigonometry
             double hypot = sqrt(pow(xOffset, 2) + pow(yOffset, 2));
 

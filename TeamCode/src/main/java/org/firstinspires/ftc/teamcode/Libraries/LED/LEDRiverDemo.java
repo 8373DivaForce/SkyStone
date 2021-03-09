@@ -6,10 +6,12 @@ import com.qualcomm.hardware.ams.AMSColorSensor;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.hardware.lynx.LynxNackException;
 import com.qualcomm.hardware.lynx.commands.core.LynxI2cConfigureChannelCommand;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 @TeleOp(name = "LEDRiver Demo")
+@Disabled
 public class LEDRiverDemo extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {

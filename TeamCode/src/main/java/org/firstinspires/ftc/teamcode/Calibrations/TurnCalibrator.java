@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.Calibrations;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -11,6 +12,7 @@ import org.firstinspires.ftc.teamcode.Hardware_Maps.GameChangerBotHardware;
 import org.firstinspires.ftc.teamcode.Libraries.functions.FunctionLibrary;
 import org.firstinspires.ftc.teamcode.Libraries.functions.taskHandler;
 
+@Autonomous(group = "Calibration")
 public class TurnCalibrator extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
@@ -20,8 +22,8 @@ public class TurnCalibrator extends LinearOpMode {
         DcMotor backLeft = hardwareMap.dcMotor.get("backLeft");
         DcMotor backRight = hardwareMap.dcMotor.get("backRight");
 
-        frontLeft.setDirection(DcMotorSimple.Direction.REVERSE);
-        backLeft.setDirection(DcMotorSimple.Direction.REVERSE);
+        frontRight.setDirection(DcMotorSimple.Direction.REVERSE);
+        backRight.setDirection(DcMotorSimple.Direction.REVERSE);
 
         frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         frontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -33,11 +35,11 @@ public class TurnCalibrator extends LinearOpMode {
         backLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         backRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-        DcMotor front1 = frontLeft;
+        DcMotor front1 = backLeft;
         int front1Multi = 1;
-        DcMotor front2 = frontRight;
-        int front2Multi = 1;
-        DcMotor left = backLeft;
+        DcMotor front2 = backRight;
+        double front2Multi = 1*(0.8978179);
+        DcMotor left = frontLeft;
         int leftMulti = 1;
 
         BNO055IMU.Parameters BNparameters = new BNO055IMU.Parameters();
@@ -60,10 +62,10 @@ public class TurnCalibrator extends LinearOpMode {
         while (opModeIsActive()) {
             switch(nState) {
                 case 0:
-                    frontLeft.setPower(0.5);
+                    frontLeft.setPower(-0.5);
                     frontRight.setPower(0.5);
                     backLeft.setPower(-0.5);
-                    backRight.setPower(-0.5);
+                    backRight.setPower(0.5);
                     nState++;
                     break;
                 case 1:
@@ -83,7 +85,7 @@ public class TurnCalibrator extends LinearOpMode {
                     break;
                 case 4:
                     angle = FunctionLibrary.GetYaw(0,imu);
-                    ticksPerAngle = (front1.getCurrentPosition()*front1Multi-front2.getCurrentPosition()*front2Multi)/angle;
+                    ticksPerAngle = (front1.getCurrentPosition()*front1Multi)/angle;
                     anglePerTick = (left.getCurrentPosition()*leftMulti)/angle;
                     nState++;
                     break;

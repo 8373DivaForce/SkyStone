@@ -15,9 +15,9 @@ import static org.firstinspires.ftc.teamcode.Libraries.functions.FunctionLibrary
 public class GameChangerOp extends LinearOpMode {
 
     //constants for teleop run
-    int magazineTurnRate = 250;
+    int magazineTurnRate = 280;
     double speedMultiplier = 1;
-    double shooterPow = 0.72;
+    double shooterPow = 0.73;
     int CAMPos = 0;
     double[] camPoses = {
             0.96,
@@ -68,10 +68,13 @@ public class GameChangerOp extends LinearOpMode {
         DcMotorEx shooter = (DcMotorEx)robot.shooter;
         //main teleop loop
         while (opModeIsActive()) {
+            telemetry.addData("Front1", robot.dcBackLeft.getCurrentPosition());
+            telemetry.addData("Front2", robot.dcBackRight.getCurrentPosition());
+            telemetry.addData("left", robot.dcFrontLeft.getCurrentPosition());
             //gets position for testing purposes
             FunctionLibrary.Point position = robot.getPosition();
             telemetry.addData("position", position.x + ", " + position.y);
-
+            telemetry.addData("rotation", robot.getWorldRotation());
             //gets the controller x, y, and rotation movement from sticks and scales them
             double x = FunctionLibrary.scaleInput(gamepad1.left_stick_x);
             double y = FunctionLibrary.scaleInput(gamepad1.left_stick_y);
@@ -182,7 +185,7 @@ public class GameChangerOp extends LinearOpMode {
                 rightStickIsPressed = false;
             }
             //translates the specified position to it's servo position.
-            robot.wobblePivot.setPosition(wobblePivotPos == 0 ? 0 : wobblePivotPos == 1 ? 0.45 : 1);
+            robot.wobblePivot.setPosition(wobblePivotPos == 0 ? 0 : wobblePivotPos == 1 ? 0.55 : 1);
             //opens/closes the grabber on the wobble goal mechanism when the left stick button is pressed
             if (gamepad1.left_stick_button && !leftStickIsPressed) {
                 robot.wobbleGrab.setPosition(robot.wobbleGrab.getPosition() == 0 ? 1 : 0);
