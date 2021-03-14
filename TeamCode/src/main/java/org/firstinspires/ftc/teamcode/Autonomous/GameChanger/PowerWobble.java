@@ -55,7 +55,7 @@ public class PowerWobble implements autoBase {
         robot.shooter.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         robot.intakeRD.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         robot.deflector.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        robot.CAM.setPosition(0.75);
+        robot.CAM.setPosition(1);
         //based on alliance and starting position pre-program the robot's movements
         if (Alliance == 0) { //blue
             if (Position == 1) { //left
@@ -71,16 +71,16 @@ public class PowerWobble implements autoBase {
                 handler.addTask(new baseTasks.move(new Point(-18,-14),180,1,1,5000));
             }
             //moves in front of power shot 1, makes sure it is rotated correctly, then shoots.
-            handler.addTask(new baseTasks.move(new Point(-26,-17),0, 0.5,1,5000));
-            handler.addTask(new baseTasks.rotate(0,0.5,1,1000));
+            handler.addTask(new baseTasks.move(new Point(-43,-4),0, 0.5,1,5000));
+            handler.addTask(new baseTasks.rotate(0,0.25,2,2000));
             handler.addTask(new baseTasks.motorMovement(robot.magazine,300,1,10,2000));
             //moves in front of power shot 2, waits to make sure the shooter is up to speed, then shoots
-            handler.addTask(new baseTasks.move(new Point(-20,-17),0,0.5,1,5000));
-            handler.addTask(new baseTasks.wait(1000));
-            handler.addTask(new baseTasks.motorMovement(robot.magazine,700,1,10,2000));
+            //handler.addTask(new baseTasks.move(new Point(-22,-17),0,0.5,1,5000));
+            handler.addTask(new baseTasks.wait(2000));
+            handler.addTask(new baseTasks.motorMovement(robot.magazine,800,1,10,2000));
             //moves in front of power shot 3, waits to make sure the shooter is up to speed, then shoots
-            handler.addTask(new baseTasks.move(new Point(-16,-17),0,0.5,1,5000));
-            handler.addTask(new baseTasks.wait(1000));
+            //handler.addTask(new baseTasks.move(new Point(-18,-17),0,0.5,1,5000));
+            handler.addTask(new baseTasks.wait(2000));
             handler.addTask(new baseTasks.motorMovement(robot.magazine,1600,1,10,2000));
 
 
@@ -96,12 +96,12 @@ public class PowerWobble implements autoBase {
             }
             handler.addTask(new baseTasks.move(new Point(14,3),180,0.5,0.5,5000));
             handler.addTask(new baseTasks.rotate(0,0.5,1,1000));
-            handler.addTask(new baseTasks.motorMovement(robot.magazine,500,1,10,2000));
+            handler.addTask(new baseTasks.motorMovement(robot.magazine,550,1,10,2000));
             handler.addTask(new baseTasks.move(new Point(11,3),180,0.5,0.5,5000));
-            handler.addTask(new baseTasks.wait(1000));
+            handler.addTask(new baseTasks.wait(2000));
             handler.addTask(new baseTasks.motorMovement(robot.magazine,1000,1,10,2000));
             handler.addTask(new baseTasks.move(new Point(8,3),180,0.5,0.5,5000));
-            handler.addTask(new baseTasks.wait(1000));
+            handler.addTask(new baseTasks.wait(2000));
             handler.addTask(new baseTasks.motorMovement(robot.magazine,1500,1,10,2000));
         }
         //enables the odometry after intializing it for autonomous
@@ -156,15 +156,18 @@ public class PowerWobble implements autoBase {
                 handler.addTask(new baseTasks.move(new Point(-40,0),180,1,1,5000));
             }
             //bring the wobble goal down, release it, and then bring it back up
+            handler.addTask(new baseTasks.rotate(180,0.5,1,1000));
             handler.addTask(new baseTasks.servoMovement(robot.wobblePivot,0.5,400));
             handler.addTask(new baseTasks.servoMovement(robot.wobbleGrab,0,400));
             handler.addTask(new baseTasks.servoMovement(robot.wobblePivot,1,400));
 
             //Tell the robot it's given end position that has been selected by the user
             if (EndPosition == 1) { //left
-                handler.addTask(new baseTasks.move(new Point(-40,0),180,1,1,5000));
+                handler.addTask(new baseTasks.move(new Point(-40,6),180,1,1,5000));
             } else { //right
-                handler.addTask(new baseTasks.move(new Point(-18,0),180,1,1,5000));
+                handler.addTask(new baseTasks.move(new Point(-18,4),180,1,1,5000));
+                handler.addTask(new baseTasks.move(new Point(-18,6),180,1,1,5000));
+
             }
 
 

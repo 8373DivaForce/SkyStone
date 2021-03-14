@@ -21,7 +21,7 @@ public class GameChangerOp extends LinearOpMode {
     int CAMPos = 0;
     double[] camPoses = {
             0.96,
-            0.67
+            0.52
     };
     String[] camPosNames = {
             "High Goal",
@@ -217,7 +217,7 @@ public class GameChangerOp extends LinearOpMode {
             telemetry.addData("y: ", robot.getY());
             telemetry.addData("pivotPos", wobblePivotPos);
             double curCAMPos = Math.round(robot.CAM.getPosition()*100)/100;
-            telemetry.addData("CAMPos", curCAMPos);
+            telemetry.addData("CAMPos", robot.CAM.getPosition());
             telemetry.addData("Shooter", shooter.getVelocity());
             telemetry.update();
 

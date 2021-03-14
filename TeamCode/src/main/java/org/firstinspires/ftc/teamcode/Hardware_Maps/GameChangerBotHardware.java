@@ -243,7 +243,7 @@ public class GameChangerBotHardware extends RobotConstructor {
 
             double angleChange = 0;
             double yOffset = (front1-(ticksPerDegree*rotationChange))*ticksPerInch;
-            double xOffset = (left-(degreesPerTick*rotationChange))*ticksPerInch*0.94527363184079601990049751243781;
+            double xOffset = (left-(degreesPerTick*rotationChange))*ticksPerInch*0.92662379862700228832951945080092;
 
 
 
