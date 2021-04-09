@@ -8,6 +8,8 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.Hardware_Maps.GameChangerBotHardware;
 import org.firstinspires.ftc.teamcode.Libraries.functions.FunctionLibrary;
+import org.firstinspires.ftc.teamcode.Libraries.functions.baseTasks;
+import org.firstinspires.ftc.teamcode.Libraries.functions.taskHandler;
 
 import static org.firstinspires.ftc.teamcode.Libraries.functions.FunctionLibrary.GetYaw;
 
@@ -20,9 +22,15 @@ public class GameChangerOp extends LinearOpMode {
     double shooterPow = 0.73;
     int CAMPos = 0;
     double[] camPoses = {
-            0.96,
-            0.52
+            0.7,
+            0.4
     };
+    FunctionLibrary.Point startingPoint = new FunctionLibrary.Point(0,0);
+    taskHandler handler = new taskHandler();
+    boolean macroRunning = false;
+    boolean doneWithTask = false;
+    boolean moveOn = false;
+    int curTask = 0;
     String[] camPosNames = {
             "High Goal",
             "Power Shot"
@@ -88,23 +96,47 @@ public class GameChangerOp extends LinearOpMode {
                 if (fieldCentric) {
                     fieldCentric = false;
                 } else fieldCentric = true;
-                dOffset = -GetYaw(0,robot.imu);
+                dOffset = -robot.getWorldRotation();
                 leftBumperIsPressed = true;
             }
             else if (!gamepad1.left_bumper && leftBumperIsPressed) leftBumperIsPressed = false;
             //checks the rightBumper to reset which direction is forwards for field centric
             if (!rightBumperIsPressed && gamepad1.right_bumper) {
-                dOffset = -GetYaw(0,robot.imu);
-                rightBumperIsPressed = true;
+                if (!macroRunning) {
+                    handler = new taskHandler();
+                    startingPoint = robot.getPosition();
+                    double rot = robot.getWorldRotation();
+                    macroRunning = true;
+                    handler.addTask(new baseTasks.move(new FunctionLibrary.Point(startingPoint.x-20, startingPoint.y),rot,0.5,1,5000));
+                    handler.addTask(new baseTasks.move(new FunctionLibrary.Point(startingPoint.x-27, startingPoint.y),rot,0.5,1,5000));
+                    handler.addTask(new baseTasks.move(new FunctionLibrary.Point(startingPoint.x-34, startingPoint.y),rot,0.5,1,5000));
+                } else {
+                    if (doneWithTask) {
+                        moveOn = true;
+                    }
+                }
             }
             else if(!gamepad1.right_bumper && rightBumperIsPressed) rightBumperIsPressed = false;
+
+            if (macroRunning) {
+                if (handler.curTask == curTask) {
+                    handler.loop(robot);
+                } else if (moveOn) {
+                    curTask += 1;
+                    moveOn = false;
+                }
+                if (handler.curTask == 3) {
+                    macroRunning = false;
+                    curTask = 0;
+                }
+            }
             //translates the values for field centric if it is enabled
             if (fieldCentric) {
                 //gets the vector angle for the controller inputs in degress
                 double angle = Math.toDegrees(Math.atan2(y,x))+90;
                 telemetry.addData("angle:", angle);
                 //translates the vector inputs from the controller in relation to the robot angle
-                angle = angle - GetYaw(0,robot.imu) - dOffset;
+                angle = angle - robot.getWorldRotation() - dOffset;
                 telemetry.addData("adjustedAngle", angle);
                 //finds the hypot of that vector to use trig on
                 double hyp = Math.sqrt((x*x) + (y*y));
@@ -195,7 +227,7 @@ public class GameChangerOp extends LinearOpMode {
             }
             //enables/disables slow mode which halves the controller input for the drive motors to allow for finer control
             if (gamepad1.dpad_down && !dpadDownIsPressed) {
-                speedMultiplier = speedMultiplier == 0.25 ? 1 : 0.25;
+                speedMultiplier = speedMultiplier == 0.20 ? 1 : 0.20;
                 dpadDownIsPressed = true;
             } else if (!gamepad1.dpad_down && dpadDownIsPressed) {
                 dpadDownIsPressed = false;
@@ -211,7 +243,8 @@ public class GameChangerOp extends LinearOpMode {
             //allows for manual control of the CAM angle using dpad_left and dpad_right
             robot.CAM.setPosition(robot.CAM.getPosition()+((gamepad1.dpad_left ? 1 : 0) - (gamepad1.dpad_right ? 1 : 0))*getRuntime());
             resetStartTime();
-            robot.move(dX*speedMultiplier,dY*speedMultiplier,rotation*speedMultiplier,1);
+            if (!macroRunning)
+                robot.move(dX*speedMultiplier,dY*speedMultiplier,rotation*speedMultiplier,1);
             //logs current variable states
             telemetry.addData("x: ", robot.getX());
             telemetry.addData("y: ", robot.getY());

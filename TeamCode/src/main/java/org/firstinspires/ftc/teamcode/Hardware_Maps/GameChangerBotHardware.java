@@ -172,7 +172,7 @@ public class GameChangerBotHardware extends RobotConstructor {
 
     double ticksPerRev = 2048;
     double radius = 1.9685/29;
-    double ticksPerInch = (((2*radius)*Math.PI)/ticksPerRev)*-4.0169690374577049291823236359309;
+    double ticksPerInch = (((2*radius)*Math.PI)/ticksPerRev)*-3.72304447373;
 
     double lastFront1 = 0;
     double lastFront2 = 0;
@@ -243,19 +243,13 @@ public class GameChangerBotHardware extends RobotConstructor {
 
             double angleChange = 0;
             double yOffset = (front1-(ticksPerDegree*rotationChange))*ticksPerInch;
-            double xOffset = (left-(degreesPerTick*rotationChange))*ticksPerInch*0.92662379862700228832951945080092;
-
-
-
+            double xOffset = (left-(degreesPerTick*rotationChange))*ticksPerInch*1.0378186544622425629290617848971;
             //find the hypotenuse to run trigonometry
             double hypot = sqrt(pow(xOffset, 2) + pow(yOffset, 2));
-
             //find the angle in which we moved
             double angle = Math.toDegrees(atan2(yOffset, xOffset));
-
             //adjust that angle by the current rotation to find the global movement
             double adjustedAngle = angle - getWorldRotation();
-
             //find the global x and y offsets using the hypot and translated angle
             double deltaX = hypot * cos(Math.toRadians(adjustedAngle));
             double deltaY = hypot * sin(Math.toRadians(adjustedAngle));

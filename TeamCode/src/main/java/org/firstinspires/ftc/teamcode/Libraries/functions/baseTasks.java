@@ -107,6 +107,9 @@ public class baseTasks {
         final double power;
         final double maxError;
         final double timeOut;
+        double rampDistance = 8;
+        double minPower = 0.1;
+
         //initialization function for getting where it needs to go, it's angle, it's power, maxError, and how long it should take
         public move(FunctionLibrary.Point pos, double angle, double power, double maxError, double timeOut) {
             this.targetPos = pos;
@@ -114,6 +117,14 @@ public class baseTasks {
             this.power = power;
             this.maxError = maxError;
             this.timeOut = timeOut;
+        }
+        public move(FunctionLibrary.Point pos, double angle, double power, double maxError, double timeOut, double rampDistance) {
+            this(pos,angle,power,maxError,timeOut);
+            this.rampDistance = rampDistance;
+        }
+        public move(FunctionLibrary.Point pos, double angle, double power, double maxError, double timeOut, double rampDistance, double minPower) {
+            this(pos,angle,power,maxError,timeOut, rampDistance);
+            this.minPower = minPower;
         }
         //same as above except without a target angle to keep the robot at
         public move(FunctionLibrary.Point pos, double power, double maxError, double timeOut) {
@@ -152,8 +163,6 @@ public class baseTasks {
             //translate the local movement vector to a global vecctor
             double robotAngle = angle + currentAngle;
 
-            double rampDistance = 8;
-            double minPower = 0.1;
             //find the x movement using distance times the cosine of the angle calculated
             double adjustedX = distance*Math.cos(Math.toRadians(robotAngle));
             double xDir = Math.abs(adjustedX)/adjustedX;

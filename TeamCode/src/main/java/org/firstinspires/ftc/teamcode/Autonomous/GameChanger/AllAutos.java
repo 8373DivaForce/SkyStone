@@ -49,6 +49,12 @@ public class AllAutos extends LinearOpMode {
             case 3:
                 auto = new PowerWobble(this);
                 break;
+            case 4:
+                auto = new PowerWobble2(this);
+                break;
+            case 5:
+                auto = new HighWobble(this);
+                break;
             default:
                 stop();
         }
