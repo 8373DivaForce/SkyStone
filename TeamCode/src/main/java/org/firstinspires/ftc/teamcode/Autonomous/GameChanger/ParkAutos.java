@@ -8,6 +8,7 @@ import org.firstinspires.ftc.teamcode.Libraries.GameChanger.GamechangerAutoValue
 import org.firstinspires.ftc.teamcode.Libraries.functions.FunctionLibrary.Point;
 import org.firstinspires.ftc.teamcode.Libraries.functions.baseTasks;
 import org.firstinspires.ftc.teamcode.Libraries.functions.taskHandler;
+import org.firstinspires.ftc.teamcode.worldVariables;
 
 
 //Class inherits from autoBase and extends it to do the actual autonomous work
@@ -77,6 +78,6 @@ public class ParkAutos implements autoBase {
 
     @Override
     public void end() {
-
+        worldVariables.worldRotation = robot.getWorldRotation();
     }
 }

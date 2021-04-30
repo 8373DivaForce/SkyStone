@@ -1,30 +1,59 @@
 package org.firstinspires.ftc.teamcode.Teleops;
 
+import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.config.Config;
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 
-import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
+import org.firstinspires.ftc.teamcode.Autonomous.GameChanger.HighWobblePlus;
 import org.firstinspires.ftc.teamcode.Hardware_Maps.GameChangerBotHardware;
+import org.firstinspires.ftc.teamcode.Libraries.Bases.RobotConstructor;
+import org.firstinspires.ftc.teamcode.Libraries.Bases.task;
 import org.firstinspires.ftc.teamcode.Libraries.functions.FunctionLibrary;
 import org.firstinspires.ftc.teamcode.Libraries.functions.baseTasks;
 import org.firstinspires.ftc.teamcode.Libraries.functions.taskHandler;
-
-import static org.firstinspires.ftc.teamcode.Libraries.functions.FunctionLibrary.GetYaw;
+import org.firstinspires.ftc.teamcode.robotConstants;
+import org.firstinspires.ftc.teamcode.worldVariables;
 
 @TeleOp
+@Config
 public class GameChangerOp extends LinearOpMode {
+    public static class waitForSpeedUp implements task {
+        //initial variables for auto task
+        private final double timeOut;
+        private double startTime = 0;
+        public waitForSpeedUp(double timeOut) {
+            this.timeOut = timeOut;
+        }
+        @Override
+        public void init() {
+            //set the start time for the timeout and set the motors to run using encoders
+            startTime = System.currentTimeMillis();
+        }
 
+        @Override
+        public int loop(RobotConstructor robot) {
+            //check if the program has ran for too long, if so, terminate it
+            if (System.currentTimeMillis()-startTime >= timeOut) return -2;
+            //iterate through each motor
+            if (Math.abs(((DcMotorEx) GameChangerOp.robot.shooter).getVelocity()) > robotConstants.shooterSpeed-120) return -1;
+            //return that the program is still running if it has gotten to this point
+            return 1;
+        }
+    }
     //constants for teleop run
-    int magazineTurnRate = 280;
+    public static int magazineTurnRate = 280;
+    public static double camPosHigh = 0.62;
+    public static double camPosPow = 0.40;
     double speedMultiplier = 1;
-    double shooterPow = 0.73;
+    public static double shooterPow = 0.7;
     int CAMPos = 0;
-    double[] camPoses = {
-            0.7,
-            0.4
-    };
+    int shooterDir = 1;
+
     FunctionLibrary.Point startingPoint = new FunctionLibrary.Point(0,0);
     taskHandler handler = new taskHandler();
     boolean macroRunning = false;
@@ -35,10 +64,12 @@ public class GameChangerOp extends LinearOpMode {
             "High Goal",
             "Power Shot"
     };
+    public static GameChangerBotHardware robot;
     @Override
     public void runOpMode() throws InterruptedException {
+        //telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
         //initialization of variables like the robot and controller button states.
-        GameChangerBotHardware robot = new GameChangerBotHardware(this,0,0,0);
+        robot = new GameChangerBotHardware(this,0,0, worldVariables.worldRotation);
         boolean aIsPressed = false;
         boolean dpadDownIsPressed = false;
         boolean xIsPressed = false;
@@ -61,21 +92,39 @@ public class GameChangerOp extends LinearOpMode {
         //setting up the magazine and shooter motors for operation
         robot.magazine.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         robot.magazine.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        robot.shooter.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        robot.shooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         //setting initial CAM position
         robot.CAM.setPosition(0.57);
         //waits for the teleop to start
         waitForStart();
         //sets starting motor states
-        robot.shooter.setPower(-shooterPow);
         robot.intakeRD.setPower(1);
         robot.deflector.setPower(1);
         robot.magazine.setTargetPosition(0);
         robot.magazine.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         robot.magazine.setPower(1);
         DcMotorEx shooter = (DcMotorEx)robot.shooter;
+        shooter.setVelocity(robotConstants.shooterSpeed);
+        double lastShooterSpeed = robotConstants.shooterSpeed;
+        task rotate = null;
         //main teleop loop
         while (opModeIsActive()) {
+            if (lastShooterSpeed != robotConstants.shooterSpeed) {
+                lastShooterSpeed = robotConstants.shooterSpeed;
+                shooter.setVelocity(robotConstants.shooterSpeed);
+            }
+            telemetry.addData("Coefficients: ",shooter.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER).toString());
+            telemetry.addData("Magazine Coefficients: ",((DcMotorEx)robot.magazine).getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER).toString());
+            telemetry.addData("Shooter Velocity", shooter.getVelocity());
+            PIDFCoefficients pidfValsShooter = robotConstants.pidfValsShooter;
+            PIDFCoefficients shooterPID = shooter.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER);
+            if (shooterPID.p != pidfValsShooter.p || shooterPID.i != pidfValsShooter.i || shooterPID.d != pidfValsShooter.d || shooterPID.f != pidfValsShooter.f) {
+                shooter.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, pidfValsShooter);
+            }
+            double[] camPoses = {
+                    camPosHigh,
+                    camPosPow
+            };
             telemetry.addData("Front1", robot.dcBackLeft.getCurrentPosition());
             telemetry.addData("Front2", robot.dcBackRight.getCurrentPosition());
             telemetry.addData("left", robot.dcFrontLeft.getCurrentPosition());
@@ -100,35 +149,67 @@ public class GameChangerOp extends LinearOpMode {
                 leftBumperIsPressed = true;
             }
             else if (!gamepad1.left_bumper && leftBumperIsPressed) leftBumperIsPressed = false;
+
             //checks the rightBumper to reset which direction is forwards for field centric
-            if (!rightBumperIsPressed && gamepad1.right_bumper) {
+            if (!rightBumperIsPressed && gamepad1.dpad_up && gamepad1.back) {
+                rightBumperIsPressed = true;
+                macroRunning = false;
+            }
+            else if (!rightBumperIsPressed && gamepad1.dpad_up) {
                 if (!macroRunning) {
                     handler = new taskHandler();
                     startingPoint = robot.getPosition();
                     double rot = robot.getWorldRotation();
                     macroRunning = true;
-                    handler.addTask(new baseTasks.move(new FunctionLibrary.Point(startingPoint.x-20, startingPoint.y),rot,0.5,1,5000));
-                    handler.addTask(new baseTasks.move(new FunctionLibrary.Point(startingPoint.x-27, startingPoint.y),rot,0.5,1,5000));
-                    handler.addTask(new baseTasks.move(new FunctionLibrary.Point(startingPoint.x-34, startingPoint.y),rot,0.5,1,5000));
-                } else {
-                    if (doneWithTask) {
-                        moveOn = true;
-                    }
+                    robot.CAM.setPosition(.43);
+                    shooter.setVelocity(robotConstants.shooterSpeed);
+                    shooterDir = 1;
+                    robot.setRotation(0);
+                    int magStartPos = robot.magazine.getCurrentPosition();
+                    /*handler.addTask(new baseTasks.move(new FunctionLibrary.Point(startingPoint.x-26, startingPoint.y),0,0.71,5000));
+                    handler.addTask(new waitForSpeedUp(1000));
+                    handler.addTask(new baseTasks.motorMovement(robot.magazine,magStartPos+600,1,10,2000));
+                    handler.addTask(new baseTasks.move(new FunctionLibrary.Point(startingPoint.x-33, startingPoint.y),0,0.7,1,5000));
+                    handler.addTask(new waitForSpeedUp(1000));
+                    handler.addTask(new baseTasks.motorMovement(robot.magazine,magStartPos+800,1,10,2000));
+                    handler.addTask(new baseTasks.move(new FunctionLibrary.Point(startingPoint.x-40, startingPoint.y),0,0.7,1,5000));
+                    handler.addTask(new waitForSpeedUp(1000));
+                    handler.addTask(new baseTasks.motorMovement(robot.magazine,magStartPos+2500,1,10,2000));
+                    */
+                    handler.addTask(new baseTasks.rotate(-8, 0.25, 1, 3000));
+                    handler.addTask(new waitForSpeedUp(1000));
+                    handler.addTask(new baseTasks.motorMovement(robot.magazine,magStartPos+400,1,10,2000));
+                    handler.addTask(new baseTasks.rotate(0, 0.25, 1, 3000));
+                    handler.addTask(new waitForSpeedUp(1000));
+                    handler.addTask(new baseTasks.motorMovement(robot.magazine,magStartPos+800,1,10,2000));
+                    handler.addTask(new baseTasks.rotate(8, 0.25, 1, 3000));
+                    handler.addTask(new waitForSpeedUp(1000));
+                    handler.addTask(new baseTasks.motorMovement(robot.magazine,magStartPos+2500,1,10,2000));
+
+                    handler.addTask(new task() {
+                        @Override
+                        public void init() {
+
+                        }
+
+                        @Override
+                        public int loop(RobotConstructor robot) {
+                            GameChangerOp.robot.magazine.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                            GameChangerOp.robot.magazine.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                            GameChangerOp.robot.magazine.setTargetPosition(0);
+                            GameChangerOp.robot.magazine.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                            GameChangerOp.robot.magazine.setPower(1);
+                            return -1;
+                        }
+                    });
                 }
+                rightBumperIsPressed = true;
             }
-            else if(!gamepad1.right_bumper && rightBumperIsPressed) rightBumperIsPressed = false;
+            else if(!gamepad1.dpad_up && rightBumperIsPressed) rightBumperIsPressed = false;
 
             if (macroRunning) {
-                if (handler.curTask == curTask) {
-                    handler.loop(robot);
-                } else if (moveOn) {
-                    curTask += 1;
-                    moveOn = false;
-                }
-                if (handler.curTask == 3) {
-                    macroRunning = false;
-                    curTask = 0;
-                }
+                handler.loop(robot);
+                if (handler.curTask == handler.numberOfTasks()) macroRunning = false;
             }
             //translates the values for field centric if it is enabled
             if (fieldCentric) {
@@ -170,8 +251,9 @@ public class GameChangerOp extends LinearOpMode {
             } else if (xIsPressed && !gamepad1.x) {
                 xIsPressed = false;
             }
+            double shooterVelocity = shooter.getVelocity();
             //moves the magazine forwards the number of encoder ticks specified in the magazineTurnRate variable
-            if (!yIsPressed && gamepad1.y) {
+            if (!yIsPressed && gamepad1.y && (Math.abs(shooterVelocity) > robotConstants.shooterSpeed-120 || gamepad1.back || shooterDir == 0 || shooterDir == -1)) {
                 int targetPos = robot.magazine.getTargetPosition();
                 robot.magazine.setTargetPosition(targetPos < 0 ? robot.magazine.getCurrentPosition()+magazineTurnRate : targetPos+magazineTurnRate);
                 robot.magazine.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -191,53 +273,64 @@ public class GameChangerOp extends LinearOpMode {
 
             //enables/disables the shooter in the backwards direction
             if (!leftTriggerIsPressed && gamepad1.left_trigger > 0.1) {
-                double shooterPower = robot.shooter.getPower();
-                robot.shooter.setPower(shooterPower == 0 || shooterPower == -shooterPow ? shooterPow : 0);
+                if (shooterDir == 0 || shooterDir == 1) {
+                    shooter.setVelocity(-robotConstants.shooterSpeed);
+                    shooterDir = -1;
+                } else {
+                    shooter.setVelocity(0);
+                    shooterDir = 0;
+                }
                 leftTriggerIsPressed = true;
             } else if(leftTriggerIsPressed && !(gamepad1.left_trigger > 0)) {
                 leftTriggerIsPressed = false;
             }
+
             //enables/disables the shooter in the forwards direction
             if (!rightTriggerIsPressed && gamepad1.right_trigger > 0.1) {
-                double shooterPower = robot.shooter.getPower();
-                robot.shooter.setPower(shooterPower == 0 || shooterPower == shooterPow ? -shooterPow : 0);
+                if (shooterDir == 0 || shooterDir == -1) {
+                    shooter.setVelocity(robotConstants.shooterSpeed);
+                    shooterDir = 1;
+                } else {
+                    shooter.setVelocity(0);
+                    shooterDir = 0;
+                }
                 rightTriggerIsPressed = true;
             } else if (rightTriggerIsPressed && !(gamepad1.right_trigger > 0.1)) {
                 rightTriggerIsPressed = false;
             }
+            telemetry.addData("ShooterPower", robot.shooter.getPower());
             //iterates through the positions for the wobble goal mechanism
-            if (gamepad1.right_stick_button && !rightStickIsPressed) {
+            if (gamepad1.right_stick_button && !rightStickIsPressed && gamepad1.back) {
+                rightStickIsPressed = true;
+                robot.wobblePivot.setPosition(0.9);
+            } else if (gamepad1.right_stick_button && !rightStickIsPressed) {
 
-                if (!goingDown) wobblePivotPos = (wobblePivotPos+1)%3;
-                else wobblePivotPos = wobblePivotPos == 0 ? 2 : wobblePivotPos-1;
-                if (wobblePivotPos == 2) goingDown = true;
-                else if (wobblePivotPos == 0) goingDown = false;
+                robot.wobblePivot.setPosition(robot.wobblePivot.getPosition() != 0.5 ? 0.5 : 0);
                 rightStickIsPressed = true;
             } else if (!gamepad1.right_stick_button){
                 rightStickIsPressed = false;
             }
-            //translates the specified position to it's servo position.
-            robot.wobblePivot.setPosition(wobblePivotPos == 0 ? 0 : wobblePivotPos == 1 ? 0.55 : 1);
             //opens/closes the grabber on the wobble goal mechanism when the left stick button is pressed
             if (gamepad1.left_stick_button && !leftStickIsPressed) {
-                robot.wobbleGrab.setPosition(robot.wobbleGrab.getPosition() == 0 ? 1 : 0);
+                robot.wobbleGrab1.setPosition(robot.wobbleGrab1.getPosition() == 0 ? 1 : 0);
+                robot.wobbleGrab2.setPosition(robot.wobbleGrab1.getPosition());
                 leftStickIsPressed = true;
             } else if (!gamepad1.left_stick_button){
                 leftStickIsPressed = false;
             }
             //enables/disables slow mode which halves the controller input for the drive motors to allow for finer control
             if (gamepad1.dpad_down && !dpadDownIsPressed) {
-                speedMultiplier = speedMultiplier == 0.20 ? 1 : 0.20;
+                speedMultiplier = speedMultiplier == 0.30 ? 1 : 0.30;
                 dpadDownIsPressed = true;
             } else if (!gamepad1.dpad_down && dpadDownIsPressed) {
                 dpadDownIsPressed = false;
             }
             //cycles through the preset CAM positions for the shooter
-            if (gamepad1.dpad_up && !dpadUpPressed) {
-                CAMPos = (CAMPos+1)%2;
+            if (gamepad1.right_bumper && !dpadUpPressed) {
+                CAMPos = (CAMPos+1)%camPoses.length;
                 robot.CAM.setPosition(camPoses[CAMPos]);
                 dpadUpPressed = true;
-            } else if (!gamepad1.dpad_up && dpadUpPressed) {
+            } else if (!gamepad1.right_bumper && dpadUpPressed) {
                 dpadUpPressed = false;
             }
             //allows for manual control of the CAM angle using dpad_left and dpad_right
@@ -251,7 +344,6 @@ public class GameChangerOp extends LinearOpMode {
             telemetry.addData("pivotPos", wobblePivotPos);
             double curCAMPos = Math.round(robot.CAM.getPosition()*100)/100;
             telemetry.addData("CAMPos", robot.CAM.getPosition());
-            telemetry.addData("Shooter", shooter.getVelocity());
             telemetry.update();
 
         }

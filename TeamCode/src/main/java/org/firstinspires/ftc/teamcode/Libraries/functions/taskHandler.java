@@ -12,6 +12,7 @@ public class taskHandler {
     public void addTask(task Task) {
         tasks.add(Task);
     }
+    public int numberOfTasks() { return tasks.size(); }
     //Variable for keeping track of the task it is currently running
     public int curTask = 0;
     //variable so it knows whether or not to run the tasks' initialization or it's main loop

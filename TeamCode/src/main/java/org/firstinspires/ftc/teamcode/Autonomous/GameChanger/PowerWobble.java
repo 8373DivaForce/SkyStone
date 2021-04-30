@@ -12,6 +12,7 @@ import org.firstinspires.ftc.teamcode.Libraries.GameChanger.GamechangerAutoValue
 import org.firstinspires.ftc.teamcode.Libraries.functions.FunctionLibrary.Point;
 import org.firstinspires.ftc.teamcode.Libraries.functions.baseTasks;
 import org.firstinspires.ftc.teamcode.Libraries.functions.taskHandler;
+import org.firstinspires.ftc.teamcode.worldVariables;
 import org.opencv.core.Scalar;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
@@ -158,7 +159,7 @@ public class PowerWobble implements autoBase {
             //bring the wobble goal down, release it, and then bring it back up
             handler.addTask(new baseTasks.rotate(180,0.5,3,1000));
             handler.addTask(new baseTasks.servoMovement(robot.wobblePivot,0.5,400));
-            handler.addTask(new baseTasks.servoMovement(robot.wobbleGrab,0,400));
+            handler.addTask(new baseTasks.servoMovement(robot.wobbleGrab1,0,400));
             handler.addTask(new baseTasks.servoMovement(robot.wobblePivot,1,400));
 
             //Tell the robot it's given end position that has been selected by the user
@@ -196,6 +197,7 @@ public class PowerWobble implements autoBase {
 
     @Override
     public void end() {
+        worldVariables.worldRotation = robot.getWorldRotation();
 
     }
 }

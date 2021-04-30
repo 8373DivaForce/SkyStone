@@ -409,6 +409,12 @@ public class baseTasks {
         }
         @Override
         public void init() {
+            for (DcMotor motor : motors) {
+                if (motor.getMode() == DcMotor.RunMode.RUN_TO_POSITION || motor.getMode() == DcMotor.RunMode.RUN_USING_ENCODER) {
+                    motor.setPower(0);
+                    motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                }
+            }
         }
         @Override
         public int loop(RobotConstructor robot) {

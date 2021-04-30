@@ -11,6 +11,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ReadWriteFile;
 
 import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
+import org.firstinspires.ftc.teamcode.Autonomous.GameChanger.HighWobblePlus;
 import org.firstinspires.ftc.teamcode.Libraries.Bases.RobotConstructor;
 import org.firstinspires.ftc.teamcode.Libraries.functions.FunctionLibrary;
 import org.opencv.core.Scalar;
@@ -20,7 +21,6 @@ import java.util.List;
 
 import static java.lang.Math.atan2;
 import static java.lang.Math.cos;
-import static java.lang.Math.log;
 import static java.lang.Math.pow;
 import static java.lang.Math.sin;
 import static java.lang.Math.sqrt;
@@ -55,7 +55,8 @@ public class GameChangerBotHardware extends RobotConstructor {
 
     public final Servo CAM;
     public final Servo wobblePivot;
-    public final Servo wobbleGrab;
+    public final Servo wobbleGrab1;
+    public final Servo wobbleGrab2;
 
     public final List<LynxModule> allHubs;
 
@@ -81,7 +82,8 @@ public class GameChangerBotHardware extends RobotConstructor {
         deflector = hMap.dcMotor.get("deflector");
 
         CAM = hMap.servo.get("CAM");
-        wobbleGrab = hMap.servo.get("wobbleGrab");
+        wobbleGrab1 = hMap.servo.get("wobbleGrab1");
+        wobbleGrab2 = hMap.servo.get("wobbleGrab2");
         wobblePivot = hMap.servo.get("wobblePivot");
 
         allHubs = hMap.getAll(LynxModule.class);
@@ -94,6 +96,8 @@ public class GameChangerBotHardware extends RobotConstructor {
         dcBackRight.setDirection(DcMotor.Direction.REVERSE);
 
         shooter.setDirection(DcMotorSimple.Direction.REVERSE);
+
+        wobbleGrab1.setDirection(Servo.Direction.REVERSE);
 
         //make sure none of the devices are running
         dcFrontLeft.setPower(0);
@@ -128,9 +132,13 @@ public class GameChangerBotHardware extends RobotConstructor {
         shooter.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         deflector.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
+        shooter.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+
         CAM.setPosition(0);
-        wobblePivot.setPosition(1);
-        wobbleGrab.setPosition(1);
+        wobblePivot.setPosition(0);
+        wobbleGrab1.setPosition(1);
+        wobbleGrab2.setPosition(1);
         //initialize a variable useful in the odometry function
         double tempInchPerTick = (1/dcFrontLeft.getMotorType().getTicksPerRev())*getWheelCircumfrance();
         // old inchesPerTickX = tempInchPerTick*-0.92307692307692307692307692307692;
@@ -167,12 +175,12 @@ public class GameChangerBotHardware extends RobotConstructor {
     boolean useOdometry;
     //overide the odometry function to make it robot specific
 
-    double degreesPerTick = -89;
-    double ticksPerDegree = 73;
+    double degreesPerTick = -156.69;
+    double ticksPerDegree = -103.654;
 
     double ticksPerRev = 2048;
     double radius = 1.9685/29;
-    double ticksPerInch = (((2*radius)*Math.PI)/ticksPerRev)*-3.72304447373;
+    double ticksPerInch = (((2*radius)*Math.PI)/ticksPerRev)*-3.636125;
 
     double lastFront1 = 0;
     double lastFront2 = 0;
@@ -202,7 +210,7 @@ public class GameChangerBotHardware extends RobotConstructor {
         }
         lastRotation = curRotation;
         //Log.d("previous encoder values", "Front1: " + lastFront1 + ", Front2: " + lastFront2 + ", left: " + lastLeft);
-        double tFront1 = dcBackLeft.getCurrentPosition();
+        double tFront1 = -dcBackLeft.getCurrentPosition();
         double tFront2 = dcBackRight.getCurrentPosition()*(0.8978179);
         double tLeft = dcFrontLeft.getCurrentPosition();
 
@@ -243,7 +251,7 @@ public class GameChangerBotHardware extends RobotConstructor {
 
             double angleChange = 0;
             double yOffset = (front1-(ticksPerDegree*rotationChange))*ticksPerInch;
-            double xOffset = (left-(degreesPerTick*rotationChange))*ticksPerInch*1.0378186544622425629290617848971;
+            double xOffset = (left-(degreesPerTick*rotationChange))*ticksPerInch*0.9882026465;
             //find the hypotenuse to run trigonometry
             double hypot = sqrt(pow(xOffset, 2) + pow(yOffset, 2));
             //find the angle in which we moved
