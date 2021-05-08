@@ -26,8 +26,13 @@ public class GameChangerOp extends LinearOpMode {
         //initial variables for auto task
         private final double timeOut;
         private double startTime = 0;
+        private int shooterSpeed = 120;
         public waitForSpeedUp(double timeOut) {
             this.timeOut = timeOut;
+        }
+        public waitForSpeedUp(double timeOut, int shooterSpeed) {
+            this.timeOut = timeOut;
+            this.shooterSpeed = shooterSpeed;
         }
         @Override
         public void init() {
@@ -40,7 +45,44 @@ public class GameChangerOp extends LinearOpMode {
             //check if the program has ran for too long, if so, terminate it
             if (System.currentTimeMillis()-startTime >= timeOut) return -2;
             //iterate through each motor
-            if (Math.abs(((DcMotorEx) GameChangerOp.robot.shooter).getVelocity()) > robotConstants.shooterSpeed-120) return -1;
+            if (Math.abs(((DcMotorEx) GameChangerOp.robot.shooter).getVelocity()) > robotConstants.shooterSpeed-shooterSpeed) return -1;
+            //return that the program is still running if it has gotten to this point
+            return 1;
+        }
+    }
+    public static class runTillSpeedDown implements task {
+        //initial variables for auto task
+        private final double timeOut;
+        private double startTime = 0;
+        private int shooterSpeed = 120;
+        public runTillSpeedDown(double timeOut) {
+            this.timeOut = timeOut;
+        }
+        public runTillSpeedDown(double timeOut, int shooterSpeed) {
+            this.timeOut = timeOut;
+            this.shooterSpeed = shooterSpeed;
+        }
+        @Override
+        public void init() {
+            //set the start time for the timeout and set the motors to run using encoders
+            startTime = System.currentTimeMillis();
+            GameChangerOp.robot.magazine.setPower(0);
+            GameChangerOp.robot.magazine.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        }
+
+        @Override
+        public int loop(RobotConstructor robot) {
+            GameChangerOp.robot.magazine.setPower(1);
+            //check if the program has ran for too long, if so, terminate it
+            if (System.currentTimeMillis()-startTime >= timeOut) return -2;
+            //iterate through each motor
+            if (Math.abs(((DcMotorEx) GameChangerOp.robot.shooter).getVelocity()) < robotConstants.shooterSpeed-shooterSpeed) {
+                GameChangerOp.robot.magazine.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                GameChangerOp.robot.magazine.setTargetPosition(0);
+                GameChangerOp.robot.magazine.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                GameChangerOp.robot.magazine.setPower(1);
+                return -1;
+            }
             //return that the program is still running if it has gotten to this point
             return 1;
         }
@@ -57,6 +99,7 @@ public class GameChangerOp extends LinearOpMode {
     FunctionLibrary.Point startingPoint = new FunctionLibrary.Point(0,0);
     taskHandler handler = new taskHandler();
     boolean macroRunning = false;
+    boolean secondMacroRunning = false;
     boolean doneWithTask = false;
     boolean moveOn = false;
     int curTask = 0;
@@ -141,22 +184,57 @@ public class GameChangerOp extends LinearOpMode {
             //returns whether or not fieldCentric is enabled.
             telemetry.addData("fieldCentric", fieldCentric);
             //checks leftBumper to toggle field centric on and off
-            if (!leftBumperIsPressed && gamepad1.left_bumper) {
-                if (fieldCentric) {
+            if (!leftBumperIsPressed && gamepad1.left_bumper && gamepad1.back) {
+                rightBumperIsPressed = true;
+                secondMacroRunning = false;
+            }
+            else if (!leftBumperIsPressed && gamepad1.left_bumper) {
+                /*if (fieldCentric) {
                     fieldCentric = false;
                 } else fieldCentric = true;
-                dOffset = -robot.getWorldRotation();
+                dOffset = -robot.getWorldRotation();*/
+                if (!secondMacroRunning && !macroRunning) {
+                    handler = new taskHandler();
+                    secondMacroRunning = true;
+                    robot.CAM.setPosition(camPosHigh);
+                    shooter.setVelocity(robotConstants.shooterSpeed);
+                    shooterDir = 1;
+                    handler.addTask(new waitForSpeedUp(1000,120));
+                    handler.addTask(new runTillSpeedDown(1000,120));
+                    handler.addTask(new waitForSpeedUp(1000,120));
+                    handler.addTask(new runTillSpeedDown(1000,120));
+                    handler.addTask(new waitForSpeedUp(1000,120));
+                    handler.addTask(new runTillSpeedDown(1200,120));
+
+                    handler.addTask(new task() {
+                        @Override
+                        public void init() {
+
+                        }
+
+                        @Override
+                        public int loop(RobotConstructor robot) {
+                            GameChangerOp.robot.magazine.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                            GameChangerOp.robot.magazine.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                            GameChangerOp.robot.magazine.setTargetPosition(0);
+                            GameChangerOp.robot.magazine.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                            GameChangerOp.robot.magazine.setPower(1);
+                            return -1;
+                        }
+                    });
+                }
+                secondMacroRunning = true;
                 leftBumperIsPressed = true;
             }
             else if (!gamepad1.left_bumper && leftBumperIsPressed) leftBumperIsPressed = false;
 
-            //checks the rightBumper to reset which direction is forwards for field centric
+/*            //checks the rightBumper to reset which direction is forwards for field centric
             if (!rightBumperIsPressed && gamepad1.dpad_up && gamepad1.back) {
                 rightBumperIsPressed = true;
                 macroRunning = false;
             }
             else if (!rightBumperIsPressed && gamepad1.dpad_up) {
-                if (!macroRunning) {
+                if (!macroRunning && !secondMacroRunning) {
                     handler = new taskHandler();
                     startingPoint = robot.getPosition();
                     double rot = robot.getWorldRotation();
@@ -166,25 +244,19 @@ public class GameChangerOp extends LinearOpMode {
                     shooterDir = 1;
                     robot.setRotation(0);
                     int magStartPos = robot.magazine.getCurrentPosition();
-                    /*handler.addTask(new baseTasks.move(new FunctionLibrary.Point(startingPoint.x-26, startingPoint.y),0,0.71,5000));
-                    handler.addTask(new waitForSpeedUp(1000));
-                    handler.addTask(new baseTasks.motorMovement(robot.magazine,magStartPos+600,1,10,2000));
-                    handler.addTask(new baseTasks.move(new FunctionLibrary.Point(startingPoint.x-33, startingPoint.y),0,0.7,1,5000));
-                    handler.addTask(new waitForSpeedUp(1000));
-                    handler.addTask(new baseTasks.motorMovement(robot.magazine,magStartPos+800,1,10,2000));
-                    handler.addTask(new baseTasks.move(new FunctionLibrary.Point(startingPoint.x-40, startingPoint.y),0,0.7,1,5000));
-                    handler.addTask(new waitForSpeedUp(1000));
-                    handler.addTask(new baseTasks.motorMovement(robot.magazine,magStartPos+2500,1,10,2000));
-                    */
-                    handler.addTask(new baseTasks.rotate(-8, 0.25, 1, 3000));
-                    handler.addTask(new waitForSpeedUp(1000));
-                    handler.addTask(new baseTasks.motorMovement(robot.magazine,magStartPos+400,1,10,2000));
-                    handler.addTask(new baseTasks.rotate(0, 0.25, 1, 3000));
-                    handler.addTask(new waitForSpeedUp(1000));
-                    handler.addTask(new baseTasks.motorMovement(robot.magazine,magStartPos+800,1,10,2000));
-                    handler.addTask(new baseTasks.rotate(8, 0.25, 1, 3000));
-                    handler.addTask(new waitForSpeedUp(1000));
-                    handler.addTask(new baseTasks.motorMovement(robot.magazine,magStartPos+2500,1,10,2000));
+                    handler.addTask(new baseTasks.rotate(-4, 0.2, 1.5, 3000));
+                    handler.addTask(new waitForSpeedUp(1000,80));
+                    //handler.addTask(new baseTasks.motorMovement(robot.magazine,magStartPos+400,1,10,2000));
+                    handler.addTask(new runTillSpeedDown(1000,80));
+                    handler.addTask(new baseTasks.rotate(0, 0.2, 1.5, 3000));
+                    handler.addTask(new waitForSpeedUp(1000,80));
+                    //handler.addTask(new baseTasks.motorMovement(robot.magazine,magStartPos+900,1,10,2000));
+                    handler.addTask(new runTillSpeedDown(1000,80));
+
+                    handler.addTask(new baseTasks.rotate(8, 0.2, 1.5, 3000));
+                    handler.addTask(new waitForSpeedUp(1000,80));
+                    //handler.addTask(new baseTasks.motorMovement(robot.magazine,magStartPos+2500,1,10,2000));
+                    handler.addTask(new runTillSpeedDown(1000,80));
 
                     handler.addTask(new task() {
                         @Override
@@ -207,9 +279,14 @@ public class GameChangerOp extends LinearOpMode {
             }
             else if(!gamepad1.dpad_up && rightBumperIsPressed) rightBumperIsPressed = false;
 
-            if (macroRunning) {
+ */
+
+            if (macroRunning || secondMacroRunning) {
                 handler.loop(robot);
-                if (handler.curTask == handler.numberOfTasks()) macroRunning = false;
+                if (handler.curTask == handler.numberOfTasks()) {
+                    macroRunning = false;
+                    secondMacroRunning = false;
+                }
             }
             //translates the values for field centric if it is enabled
             if (fieldCentric) {
@@ -336,7 +413,7 @@ public class GameChangerOp extends LinearOpMode {
             //allows for manual control of the CAM angle using dpad_left and dpad_right
             robot.CAM.setPosition(robot.CAM.getPosition()+((gamepad1.dpad_left ? 1 : 0) - (gamepad1.dpad_right ? 1 : 0))*getRuntime());
             resetStartTime();
-            if (!macroRunning)
+            if (!macroRunning && !secondMacroRunning)
                 robot.move(dX*speedMultiplier,dY*speedMultiplier,rotation*speedMultiplier,1);
             //logs current variable states
             telemetry.addData("x: ", robot.getX());

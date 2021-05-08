@@ -97,7 +97,7 @@ public class GameChangerBotHardware extends RobotConstructor {
 
         shooter.setDirection(DcMotorSimple.Direction.REVERSE);
 
-        wobbleGrab1.setDirection(Servo.Direction.REVERSE);
+        wobbleGrab2.setDirection(Servo.Direction.REVERSE);
 
         //make sure none of the devices are running
         dcFrontLeft.setPower(0);
