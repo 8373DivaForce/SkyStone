@@ -89,8 +89,8 @@ public class GameChangerOp extends LinearOpMode {
     }
     //constants for teleop run
     public static int magazineTurnRate = 280;
-    public static double camPosHigh = 0.62;
-    public static double camPosPow = 0.40;
+    public static double camPosHigh = 0.65;
+    public static double camPosPow = 0.58;
     double speedMultiplier = 1;
     public static double shooterPow = 0.7;
     int CAMPos = 0;
@@ -137,7 +137,7 @@ public class GameChangerOp extends LinearOpMode {
         robot.magazine.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         robot.shooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         //setting initial CAM position
-        robot.CAM.setPosition(0.57);
+        robot.CAM.setPosition(camPosHigh);
         //waits for the teleop to start
         waitForStart();
         //sets starting motor states
@@ -196,7 +196,7 @@ public class GameChangerOp extends LinearOpMode {
                 if (!secondMacroRunning && !macroRunning) {
                     handler = new taskHandler();
                     secondMacroRunning = true;
-                    robot.CAM.setPosition(camPosHigh);
+                    robot.CAM.setPosition(0.7);
                     shooter.setVelocity(robotConstants.shooterSpeed);
                     shooterDir = 1;
                     handler.addTask(new waitForSpeedUp(1000,120));
