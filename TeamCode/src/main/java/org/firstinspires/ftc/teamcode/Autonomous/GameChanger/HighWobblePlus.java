@@ -1,7 +1,5 @@
 package org.firstinspires.ftc.teamcode.Autonomous.GameChanger;
 
-import com.acmerobotics.dashboard.FtcDashboard;
-import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -17,11 +15,9 @@ import org.firstinspires.ftc.teamcode.Libraries.Bases.task;
 import org.firstinspires.ftc.teamcode.Libraries.GameChanger.GameChangerOpenCVPipeline;
 import org.firstinspires.ftc.teamcode.Libraries.GameChanger.GamechangerAutoValues;
 import org.firstinspires.ftc.teamcode.Libraries.functions.AutoFunctions;
-import org.firstinspires.ftc.teamcode.Libraries.functions.FunctionLibrary;
 import org.firstinspires.ftc.teamcode.Libraries.functions.FunctionLibrary.Point;
 import org.firstinspires.ftc.teamcode.Libraries.functions.baseTasks;
 import org.firstinspires.ftc.teamcode.Libraries.functions.taskHandler;
-import org.firstinspires.ftc.teamcode.Teleops.GameChangerOp;
 import org.firstinspires.ftc.teamcode.robotConstants;
 import org.firstinspires.ftc.teamcode.worldVariables;
 import org.opencv.core.Scalar;
@@ -42,7 +38,7 @@ public class HighWobblePlus implements autoBase {
         this.telemetry = opMode.telemetry;
     }
     //Setup robot hardwaremap class
-    private static GameChangerBotHardware robot;
+    private GameChangerBotHardware robot;
     //Make a new task handler for autonomous movement
     private taskHandler handler = new taskHandler();
     GameChangerOpenCVPipeline pipeline;
@@ -59,17 +55,20 @@ public class HighWobblePlus implements autoBase {
             this.timeOut = timeOut;
         }
         @Override
-        public void init() {
+        public void init(RobotConstructor robot) {
             //set the start time for the timeout and set the motors to run using encoders
             startTime = System.currentTimeMillis();
         }
 
         @Override
         public int loop(RobotConstructor robot) {
+            if (!(robot instanceof GameChangerBotHardware)) {
+                return -5;
+            }
             //check if the program has ran for too long, if so, terminate it
             if (System.currentTimeMillis()-startTime >= timeOut) return -2;
             //iterate through each motor
-            if (Math.abs(((DcMotorEx) HighWobblePlus.robot.shooter).getVelocity()) > robotConstants.shooterSpeed-100) return -1;
+            if (Math.abs(((DcMotorEx) ((GameChangerBotHardware)robot).shooter).getVelocity()) > robotConstants.shooterSpeed-100) return -1;
             //return that the program is still running if it has gotten to this point
             return 1;
         }
@@ -87,24 +86,28 @@ public class HighWobblePlus implements autoBase {
             this.shooterSpeed = shooterSpeed;
         }
         @Override
-        public void init() {
+        public void init(RobotConstructor robots) {
             //set the start time for the timeout and set the motors to run using encoders
             startTime = System.currentTimeMillis();
-            HighWobblePlus.robot.magazine.setPower(0);
-            HighWobblePlus.robot.magazine.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            if (!(robots instanceof GameChangerBotHardware)) return;
+            GameChangerBotHardware robot = (GameChangerBotHardware)robots;
+            robot.magazine.setPower(0);
+            robot.magazine.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         }
 
         @Override
-        public int loop(RobotConstructor robot) {
-            HighWobblePlus.robot.magazine.setPower(0.75);
+        public int loop(RobotConstructor robots) {
+            if (!(robots instanceof GameChangerBotHardware)) return -5;
+            GameChangerBotHardware robot = (GameChangerBotHardware)robots;
+            robot.magazine.setPower(0.75);
             //check if the program has ran for too long, if so, terminate it
             if (System.currentTimeMillis()-startTime >= timeOut) return -2;
             //iterate through each motor
-            if (Math.abs(((DcMotorEx) HighWobblePlus.robot.shooter).getVelocity()) < robotConstants.shooterSpeed-shooterSpeed) {
-                HighWobblePlus.robot.magazine.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                HighWobblePlus.robot.magazine.setTargetPosition(0);
-                HighWobblePlus.robot.magazine.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                HighWobblePlus.robot.magazine.setPower(1);
+            if (Math.abs(((DcMotorEx) robot.shooter).getVelocity()) < robotConstants.shooterSpeed-shooterSpeed) {
+                robot.magazine.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                robot.magazine.setTargetPosition(0);
+                robot.magazine.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                robot.magazine.setPower(1);
                 return -1;
             }
             //return that the program is still running if it has gotten to this point
@@ -114,14 +117,16 @@ public class HighWobblePlus implements autoBase {
     public static class stopShooter implements task {
         //initial variables for auto task
         @Override
-        public void init() {
+        public void init(RobotConstructor robots) {
+            if (!(robots instanceof GameChangerBotHardware)) return;
+            GameChangerBotHardware robot = (GameChangerBotHardware)robots;
             //set the start time for the timeout and set the motors to run using encoders
-            HighWobblePlus.robot.shooter.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-            HighWobblePlus.robot.shooter.setPower(0);
-            HighWobblePlus.robot.shooter.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-            HighWobblePlus.robot.intakeRD.setPower(0);
-            HighWobblePlus.robot.deflector.setPower(0);
-            HighWobblePlus.robot.magazine.setPower(0);
+            robot.shooter.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            robot.shooter.setPower(0);
+            robot.shooter.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            robot.intakeRD.setPower(0);
+            robot.deflector.setPower(0);
+            robot.magazine.setPower(0);
         }
 
         @Override
@@ -146,7 +151,7 @@ public class HighWobblePlus implements autoBase {
             this.intakeVoltage = intakeVoltage;
         }
         @Override
-        public void init() {
+        public void init(RobotConstructor robot) {
             //set the start time for the timeout and set the motors to run using encoders
             startTime = System.currentTimeMillis();
         }
@@ -157,7 +162,9 @@ public class HighWobblePlus implements autoBase {
         int state = 0;
         Point forwardPoint = null;
         @Override
-        public int loop(RobotConstructor robot) {
+        public int loop(RobotConstructor robots) {
+            if (!(robots instanceof GameChangerBotHardware)) return -5;
+            GameChangerBotHardware robot = (GameChangerBotHardware)robots;
             //check if the program has ran for too long, if so, terminate it
             if (auto == null) auto = new AutoFunctions(robot);
             if (System.currentTimeMillis()-startTime >= timeOut) return -2;
@@ -167,7 +174,7 @@ public class HighWobblePlus implements autoBase {
                 backState = auto.gotoPosition(new Point(-9,-45),approachSpeed,1,angle);
             }
             else if (state == 1){
-                if (Math.abs(((DcMotorEx) HighWobblePlus.robot.shooter).getVelocity()-previousSpeed) >= 80) state = 0;
+                if (Math.abs(((DcMotorEx) robot.shooter).getVelocity()-previousSpeed) >= 80) state = 0;
             } else {
                 int res = auto.gotoPosition(forwardPoint, leaveSpeed, 1, angle);
                 if (res < 0) {
@@ -179,8 +186,8 @@ public class HighWobblePlus implements autoBase {
                 }
             }
 
-            if (((DcMotorEx)HighWobblePlus.robot.intakeRD).getCurrent(CurrentUnit.AMPS) > 1.2) {
-                previousSpeed = ((DcMotorEx)HighWobblePlus.robot.shooter).getVelocity();
+            if (((DcMotorEx) robot.intakeRD).getCurrent(CurrentUnit.AMPS) > 1.2) {
+                previousSpeed = ((DcMotorEx) robot.shooter).getVelocity();
                 Point roboPos = robot.getPosition();
                 forwardPoint = new Point(roboPos.x, roboPos.y+3);
                 state = 2;
@@ -208,7 +215,7 @@ public class HighWobblePlus implements autoBase {
         robot.shooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         robot.intakeRD.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         robot.deflector.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        robot.CAM.setPosition(0.62);
+        robot.CAM.setPosition(0.88);
         //based on alliance and starting position pre-program the robot's movements
         if (Alliance == 0) { //blue
             if (Position == 1) { //left
@@ -223,8 +230,6 @@ public class HighWobblePlus implements autoBase {
                 handler.addTask(new baseTasks.move(new Point(-18,-34),180,1,3,5000));
                 handler.addTask(new baseTasks.move(new Point(-18,-14),180,1,3,5000));
             }
-            handler.addTask(new baseTasks.rotate(0,0.75,40,2000));
-            handler.addTask(new baseTasks.wait(3000));
             //moves in front of power shot 1, makes sure it is rotated correctly, then shoots.
             handler.addTask(new baseTasks.move(new Point(-21,-15),0, 0.85,1,5000));
             handler.addTask(new baseTasks.rotate(0,0.25,2,2000));
@@ -254,7 +259,6 @@ public class HighWobblePlus implements autoBase {
             }
             //moves in front of power shot 1, makes sure it is rotated correctly, then shoots.
             handler.addTask(new baseTasks.rotate(0,0.75,40,2000));
-            handler.addTask(new baseTasks.wait(5000));
             handler.addTask(new baseTasks.move(new Point(54,-15),0, 0.85,1,5000));
             handler.addTask(new baseTasks.rotate(0,0.25,2,2000));
             handler.addTask(new HighWobblePlus.runTillSpeedDown(1000,120));
@@ -315,68 +319,175 @@ public class HighWobblePlus implements autoBase {
         if (Alliance == 0) { //blue
             //based on the number of rings, program the position for the zone the robot needs to go to
             if (numRings == 4) {
-                handler.addTask(new baseTasks.move(new Point(-40,36),180,1,1,5000));
+                handler.addTask(new baseTasks.move(new Point(-45,38),180,1,1,5000));
             } else if (numRings == 1) {
                 handler.addTask(new baseTasks.move(new Point(-21,25),180,1,1,5000));
             } else {
-                handler.addTask(new baseTasks.move(new Point(-38,5),180,1,1,5000));
-                handler.addTask(new baseTasks.rotate(180,0.75,20,3000));
+                handler.addTask(new baseTasks.move(new Point(-44,0),180,1,1,5000));
             }
             //bring the wobble goal down, release it, and then bring it back up
             handler.addTask(new baseTasks.rotate(180,0.25,5,1000));
-            handler.addTask(new baseTasks.servoMovement(robot.wobblePivot,0.5,200));
+            handler.addTask(new baseTasks.servoMovement(robot.wobblePivot,0.4,200));
             handler.addTask(new baseTasks.servoMovement(new Servo[]{robot.wobbleGrab1, robot.wobbleGrab2},new double[]{0,0},300));
             handler.addTask(new baseTasks.servoMovement(robot.wobblePivot,0,300));
 
-            handler.addTask(new HighWobblePlus.stopShooter());
-            if (numRings == 4) {
-                //handler.addTask(new baseTasks.move(new Point(64,0),0,1,1,5000));
-                handler.addTask(new baseTasks.move(new Point(-35,0),0,1,1,5000));
-            } else if (numRings == 1) {
-                handler.addTask(new baseTasks.move(new Point(-15,0),0,1,1,5000));
-                handler.addTask(new baseTasks.move(new Point(-35,0),0,1,1,5000));
-            } else {
-                handler.addTask(new baseTasks.move(new Point(-15,0),0,1,1,5000));
-                handler.addTask(new baseTasks.move(new Point(20,0),0,1,1,5000));
+            handler.addTask(new baseTasks.rotate(0,0.8,10,1000));
+            handler.addTask(new baseTasks.move(new Point(-11,-25),0, .9,1,5000));
+            if (numRings > 0) {
+                handler.addTask(new baseTasks.rotate(-6, 0.2, 2, 1000));
+                handler.addTask(new baseTasks.setMotorPower(0.75, robot.magazine));
+                handler.addTask(new baseTasks.servoMovement(robot.CAM, .68, 10));
+
+
+                handler.addTask(new baseTasks.move(new Point(-11, -30), -6, 0.5, 1, 5000));
+                handler.addTask(new HighWobblePlus.runTillSpeedDown(1000,120));
+                handler.addTask(new baseTasks.setMotorPower(0.75, robot.magazine));
+
+                if (numRings == 4) {
+                    handler.addTask(new baseTasks.setMotorPower(0.75, robot.magazine));
+
+                    handler.addTask(new baseTasks.servoMovement(robot.CAM, .72, 10));
+
+                    handler.addTask(new baseTasks.move(new Point(-11, -37), -6, 0.5, 1, 5000));
+                    handler.addTask(new baseTasks.move(new Point(-11, -33), -6, 0.7, 1, 5000));
+
+                    handler.addTask(new baseTasks.servoMovement(robot.CAM, .64, 10));
+
+                    handler.addTask(new baseTasks.move(new Point(-11, -45), -6, 0.5, 1, 5000));
+                    handler.addTask(new baseTasks.move(new Point(-11, -40), -6, 0.7, 1, 5000));
+                    handler.addTask(new baseTasks.servoMovement(robot.CAM, .6, 10));
+                    handler.addTask(new baseTasks.move(new Point(-11, -48), -6, 0.5, 1, 5000));
+
+
+                    //handler.addTask(new pickUpNShootRings(20000,-7,0.4,0.6,1));
+                    handler.addTask(new baseTasks.wait(1500));
+                }
             }
+            handler.addTask(new baseTasks.move(new Point(-12,-47), 0, 0.6, 1, 3000));
+
+            handler.addTask(new baseTasks.move(new Point(-15,-55), 0, 0.6, 1, 3000));
+            handler.addTask(new baseTasks.servoMovement(robot.wobblePivot,0.4,400));
+            handler.addTask(new baseTasks.move(new Point(-8.8,-55), 0, 0.4, 1, 1000));
+            handler.addTask(new baseTasks.servoMovement(new Servo[]{robot.wobbleGrab1, robot.wobbleGrab2},new double[]{1,1},400));
+            handler.addTask(new baseTasks.servoMovement(robot.wobblePivot,0,100));
+            handler.addTask(new stopShooter());
+            if (numRings == 4) {
+                handler.addTask(new baseTasks.move(new Point(-40,34),180,1,1,5000));
+            } else if (numRings == 1) {
+                handler.addTask(new baseTasks.move(new Point(-21,10),180,1,1,5000));
+            } else {
+                handler.addTask(new baseTasks.move(new Point(-39,-11),180,1,1,5000));
+            }
+            handler.addTask(new baseTasks.servoMovement(robot.wobblePivot,0.4,200));
+            handler.addTask(new baseTasks.servoMovement(new Servo[]{robot.wobbleGrab1, robot.wobbleGrab2},new double[]{0,0},400));
+            handler.addTask(new baseTasks.servoMovement(robot.wobblePivot,0,200));
+            //Tell the robot it's given end position that has been selected by the user
+            if (EndPosition == 1) { //left
+                handler.addTask(new baseTasks.move(new Point(-40,6),180,1,1,5000));
+            } else { //right
+                handler.addTask(new baseTasks.move(new Point(-18,4),180,1,1,5000,24));
+
+            }
+
 
 
 
         } else { //red
             //based on the number of rings, program the position for the zone the robot needs to go to
             if (numRings == 4) {
-                handler.addTask(new baseTasks.move(new Point(64,40),0,1,1,5000));
+                handler.addTask(new baseTasks.move(new Point(70,40),0,1,1,5000));
             } else if (numRings == 1) {
-                handler.addTask(new baseTasks.move(new Point(45,23),0,1,1,5000));
+                handler.addTask(new baseTasks.move(new Point(45,25),0,1,1,5000));
             } else {
-                handler.addTask(new baseTasks.move(new Point(70,0),0,1,1,5000));
+                handler.addTask(new baseTasks.move(new Point(64,0),0,1,1,5000));
             }
             //bring the wobble goal down, release it, and then bring it back up
-            handler.addTask(new baseTasks.servoMovement(robot.wobblePivot,0.5,200));
+            handler.addTask(new baseTasks.servoMovement(robot.wobblePivot,0.4,200));
             handler.addTask(new baseTasks.servoMovement(new Servo[]{robot.wobbleGrab1, robot.wobbleGrab2},new double[]{0,0},300));
             handler.addTask(new baseTasks.servoMovement(robot.wobblePivot,0,300));
 
+            if (numRings==1) {
+                handler.addTask(new baseTasks.move(new Point(45,0), 0, 0.75,2,5000));
+                handler.addTask(new baseTasks.move(new Point(60,0), 0, 0.75,2,5000));
+            }
+            handler.addTask(new baseTasks.move(new Point(60,-25),0, .9,1,5000));
+            if (numRings > 0) {
+                handler.addTask(new baseTasks.rotate(-5, 0.2, 2, 1000));
+                handler.addTask(new baseTasks.setMotorPower(0.75, robot.magazine));
+                handler.addTask(new baseTasks.servoMovement(robot.CAM, .81, 10));
 
+
+                handler.addTask(new baseTasks.move(new Point(60, -30), -5, 0.5, 1, 5000));
+                handler.addTask(new HighWobblePlus.runTillSpeedDown(1000,120));
+                if (numRings == 1) handler.addTask(new baseTasks.wait(1500));
+                if (numRings == 4) {
+                    handler.addTask(new baseTasks.setMotorPower(0.75, robot.magazine));
+                    handler.addTask(new baseTasks.servoMovement(robot.CAM, .75, 10));
+                    handler.addTask(new baseTasks.move(new Point(60, -37), -5, 0.5, 1, 5000));
+                    handler.addTask(new baseTasks.move(new Point(60, -33), -5, 0.7, 1, 5000));
+
+                    handler.addTask(new baseTasks.servoMovement(robot.CAM, .68, 10));
+
+                    handler.addTask(new baseTasks.move(new Point(60, -45), -5, 0.5, 1, 5000));
+                    handler.addTask(new baseTasks.move(new Point(60, -38), -5, 0.7, 1, 5000));
+
+                    handler.addTask(new baseTasks.servoMovement(robot.CAM, .63, 10));
+                    handler.addTask(new baseTasks.move(new Point(60, -52.5), -5, 0.5, 1, 5000));
+
+                    //handler.addTask(new pickUpNShootRings(20000,-7,0.4,0.6,1));
+                    handler.addTask(new baseTasks.wait(2000));
+                }
+            }
+            if (Position == 1) { //left
+                handler.addTask(new baseTasks.move(new Point(58, -47), 0, 1, 2, 3000));
+
+                handler.addTask(new baseTasks.move(new Point(59, -58), 0, 0.6, 1, 3000));
+                handler.addTask(new baseTasks.servoMovement(robot.wobblePivot, 0.4, 300));
+                handler.addTask(new baseTasks.move(new Point(60, -58), 0, 0.4, 1, 1000));
+            } else { //right
+                handler.addTask(new baseTasks.move(new Point(60, -43), 0, 1, 2, 3000));
+
+                handler.addTask(new baseTasks.move(new Point(32, -43), 0, 1, 2, 3000));
+
+                handler.addTask(new baseTasks.move(new Point(32, -57), 0, 0.6, 1, 3000));
+                handler.addTask(new baseTasks.servoMovement(robot.wobblePivot, 0.4, 300));
+                handler.addTask(new baseTasks.move(new Point(35, -57), 0, 0.4, 1, 1000));
+
+
+                /*
+                handler.addTask(new baseTasks.move(new Point(70, -52.5), 0, 1, 2, 3000));
+
+                handler.addTask(new baseTasks.rotate(180,0.7,30,3000));
+                handler.addTask(new baseTasks.rotate(180,0.25,5,1000));
+                handler.addTask(new baseTasks.move(new Point(41, -64), 180, 0.6, 1, 3000));
+
+                handler.addTask(new baseTasks.servoMovement(robot.wobblePivot, 0.5, 300));
+                handler.addTask(new baseTasks.move(new Point(39, -64), 180, 0.6, 1, 3000));
+
+                 */
+            }
+            handler.addTask(new baseTasks.servoMovement(new Servo[]{robot.wobbleGrab1, robot.wobbleGrab2},new double[]{1,1},300));
+            handler.addTask(new baseTasks.servoMovement(robot.wobblePivot,0,100));
+            handler.addTask(new stopShooter());
+            if (numRings == 4) {
+                handler.addTask(new baseTasks.move(new Point(65,40),0,1,1,5000));
+            } else if (numRings == 1) {
+                handler.addTask(new baseTasks.move(new Point(45,15),0,1,1,5000));
+            } else {
+                handler.addTask(new baseTasks.move(new Point(64,-7),0,1,1,5000));
+            }
+            handler.addTask(new baseTasks.servoMovement(robot.wobblePivot,0.4,200));
+            handler.addTask(new baseTasks.servoMovement(new Servo[]{robot.wobbleGrab1, robot.wobbleGrab2},new double[]{0,0},300));
+            handler.addTask(new baseTasks.servoMovement(robot.wobblePivot,0,200));
+            if (numRings==1) {
+                handler.addTask(new baseTasks.move(new Point(45,0), 0, 0.75,2,5000));
+            }
             //Tell the robot it's given end position that has been selected by the user
-            /*
             if (EndPosition == 0) { //right
                 handler.addTask(new baseTasks.move(new Point(60,0),0,1,1,5000));
             } else { //left
                 handler.addTask(new baseTasks.move(new Point(42,0),0,1,1,5000,24));
 
-            }
-
-             */
-            handler.addTask(new HighWobblePlus.stopShooter());
-            if (numRings == 4) {
-                //handler.addTask(new baseTasks.move(new Point(64,0),0,1,1,5000));
-                handler.addTask(new baseTasks.move(new Point(85,0),0,1,1,5000));
-            } else if (numRings == 1) {
-                handler.addTask(new baseTasks.move(new Point(45,0),0,1,1,5000));
-                handler.addTask(new baseTasks.move(new Point(85,0),0,1,1,5000));
-            } else {
-                handler.addTask(new baseTasks.move(new Point(70,0),0,1,1,5000));
-                handler.addTask(new baseTasks.move(new Point(40,0),0,1,1,5000));
             }
         }
     }

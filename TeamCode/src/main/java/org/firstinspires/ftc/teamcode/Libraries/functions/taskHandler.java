@@ -21,7 +21,7 @@ public class taskHandler {
         if (curTask < tasks.size()) {
             //if the task hasn't been started yet, initialize it
             if (!started) {
-                tasks.get(curTask).init();
+                tasks.get(curTask).init(robot);
                 started = true;
             }
             //run one iteration of the task's main loop and retrieve it's output

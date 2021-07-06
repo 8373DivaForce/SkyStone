@@ -9,7 +9,6 @@ import com.qualcomm.robotcore.hardware.TouchSensor;
 
 import org.firstinspires.ftc.teamcode.Libraries.Bases.RobotConstructor;
 import org.firstinspires.ftc.teamcode.Libraries.Bases.task;
-import org.firstinspires.ftc.teamcode.Libraries.functions.FunctionLibrary;
 
 //holder of some basic autonomous tasks
 public class baseTasks {
@@ -59,7 +58,7 @@ public class baseTasks {
             this.sensors = sensors;
         }
         @Override
-        public void init() {
+        public void init(RobotConstructor robot) {
             //if we have motors, set all of them to run without encoders
             if (motors != null) {
                 for (DcMotor motor : motors) {
@@ -135,7 +134,7 @@ public class baseTasks {
         }
         //set the robot's start time on init so we can have the program terminate after a set period of time
         @Override
-        public void init() {
+        public void init(RobotConstructor robot) {
             startTime = System.currentTimeMillis();
         }
 
@@ -227,7 +226,7 @@ public class baseTasks {
             this.timeOut = timeOut;
         }
         @Override
-        public void init() {
+        public void init(RobotConstructor robot) {
             //set the start time for the timeout and set the motors to run using encoders
             startTime = System.currentTimeMillis();
             for (DcMotor motor : motors) {
@@ -289,7 +288,7 @@ public class baseTasks {
         private double startTime = 0;
         //set the initial start time so we can stop after x seconds
         @Override
-        public void init() {
+        public void init(RobotConstructor robot) {
             startTime = System.currentTimeMillis();
         }
 
@@ -319,7 +318,7 @@ public class baseTasks {
         private double startTime = 0;
         //set the initial start time so we can stop after x milliseconds
         @Override
-        public void init() {
+        public void init(RobotConstructor robot) {
             startTime = System.currentTimeMillis();
         }
 
@@ -349,7 +348,7 @@ public class baseTasks {
         }
         //set the robot's start time on init so we can have the program terminate after a set period of time
         @Override
-        public void init() {
+        public void init(RobotConstructor robot) {
             startTime = System.currentTimeMillis();
         }
         double timeStarted = 0;
@@ -408,7 +407,7 @@ public class baseTasks {
             this.motors = motors;
         }
         @Override
-        public void init() {
+        public void init(RobotConstructor robot) {
             for (DcMotor motor : motors) {
                 if (motor.getMode() == DcMotor.RunMode.RUN_TO_POSITION || motor.getMode() == DcMotor.RunMode.RUN_USING_ENCODER) {
                     motor.setPower(0);

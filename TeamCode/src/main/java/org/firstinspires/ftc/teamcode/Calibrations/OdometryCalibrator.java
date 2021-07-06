@@ -10,8 +10,6 @@ import org.firstinspires.ftc.teamcode.Libraries.functions.AutoFunctions;
 import org.firstinspires.ftc.teamcode.Libraries.functions.FunctionLibrary;
 import org.firstinspires.ftc.teamcode.Libraries.functions.FunctionLibrary.Point;
 
-import org.firstinspires.ftc.teamcode.Hardware_Maps.OldKissBotHArdware;
-
 import static org.firstinspires.ftc.teamcode.Libraries.functions.FunctionLibrary.GetYaw;
 
 @Autonomous(group = "Calibration")
@@ -41,7 +39,7 @@ public class OdometryCalibrator extends LinearOpMode {
         }
         //set the robot's start time on init so we can have the program terminate after a set period of time
         @Override
-        public void init() {
+        public void init(RobotConstructor robot) {
             startTime = System.currentTimeMillis();
         }
 
@@ -143,7 +141,7 @@ public class OdometryCalibrator extends LinearOpMode {
             telemetry.addData("left", robot.dcFrontLeft.getCurrentPosition());
             switch (nSwitch) {
                 case 0:
-                    moveTask.init();
+                    moveTask.init(robot);
                     nSwitch++;
                     break;
                 case 1:

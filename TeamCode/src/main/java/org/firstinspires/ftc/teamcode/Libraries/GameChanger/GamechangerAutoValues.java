@@ -15,7 +15,9 @@ public class GamechangerAutoValues {
             "Power and Wobble",
             "Power and Wobble 2",
             "HighGoal and Wobble",
-            "HighWobble+"
+            "HighWobble+",
+            "RN1",
+            "HighWobbleRings"
     };
     public String[] FinalPositions = {
             "Right",

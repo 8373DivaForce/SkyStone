@@ -9,9 +9,9 @@ import com.qualcomm.hardware.lynx.commands.core.LynxI2cConfigureChannelCommand;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.I2cDevice;
 
 @TeleOp(name = "LEDRiver Demo")
-@Disabled
 public class LEDRiverDemo extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
@@ -23,7 +23,8 @@ public class LEDRiverDemo extends LinearOpMode {
         }
 
         LEDRiver ledRiver = hardwareMap.get(LEDRiver.IMPL, "ledriver");
-        ledRiver.setLEDCount(400);
+        ledRiver.reset();
+        ledRiver.setLEDCount(200);
         ledRiver.setMode(LEDRiver.Mode.SOLID);
         ledRiver.setLEDMode(LEDRiver.LEDMode.RGBW);
         ledRiver.setColorDepth(LEDRiver.ColorDepth.BIT_32);
@@ -39,6 +40,7 @@ public class LEDRiverDemo extends LinearOpMode {
         ledRiver.apply();
 
         Thread.sleep(1000);
+        /*
         ledRiver.setColor(new LEDRiver.Color(0,0,255,0)).apply();
         Thread.sleep(1000);
 
@@ -79,7 +81,7 @@ public class LEDRiverDemo extends LinearOpMode {
         Thread.sleep(2000);
 
         ledRiver.setHide(false);
-        ledRiver.setColorDepth(LEDRiver.ColorDepth.BIT_32);
+        ledRiver.setColorDepth(LEDRiver.ColorDepth.BIT_16);
         ledRiver.setMode(LEDRiver.Mode.INDIVIDUAL);
         long end_time = System.currentTimeMillis() + 5000;
         int shift = 0;
@@ -99,10 +101,31 @@ public class LEDRiverDemo extends LinearOpMode {
         ledRiver.setLEDMode(LEDRiver.LEDMode.RGBW);
         ledRiver.setMode(LEDRiver.Mode.SOLID).setColor(new LEDRiver.Color(0,0,0,0)).apply();
         Thread.sleep(1000);
-        ledRiver.setHide(false);
-        ledRiver.setLEDCount(100);
-        ledRiver.setColorDepth(LEDRiver.ColorDepth.BIT_32);
-        ledRiver.setMode(LEDRiver.Mode.INDIVIDUAL);
+
+         */
+        telemetry.addData("first","f");
+        telemetry.update();
+        double lastRun = getRuntime();
+        int iteration = 0;
+
+        while (opModeIsActive()) {
+            telemetry.addData("runtime",getRuntime());
+            telemetry.addData("lastrun",lastRun);
+            telemetry.update();
+            if (getRuntime()-lastRun >= .1 || true) {
+                ledRiver.setHide(false);
+                ledRiver.setLEDCount(100);
+                ledRiver.setColorDepth(LEDRiver.ColorDepth.BIT_8);
+                ledRiver.setMode(LEDRiver.Mode.INDIVIDUAL);
+                for (int i = 0; i < 100; i++) {
+                    ledRiver.setColor(i,i%10 == iteration ? new LEDRiver.Color(0,0,0,255) : new LEDRiver.Color(0,0,0,0));
+                }
+                ledRiver.apply();
+                iteration = (iteration+1)%10;
+                lastRun = getRuntime();
+            }
+        }
+        /*
         for (int i = 0; i < 100; i++) {
             ledRiver.setColor(i, i < 100/3 ? new LEDRiver.Color(0,0,0,255) : new LEDRiver.Color(0,0,0,0));
         }
@@ -119,6 +142,7 @@ public class LEDRiverDemo extends LinearOpMode {
         ledRiver.apply();
         Thread.sleep(2000);
         ledRiver.reset();
-        while (opModeIsActive());
+
+         */
     }
 }

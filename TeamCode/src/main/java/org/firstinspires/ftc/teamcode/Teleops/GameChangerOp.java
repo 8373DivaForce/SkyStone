@@ -1,15 +1,12 @@
 package org.firstinspires.ftc.teamcode.Teleops;
 
-import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
-import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 
-import org.firstinspires.ftc.teamcode.Autonomous.GameChanger.HighWobblePlus;
 import org.firstinspires.ftc.teamcode.Hardware_Maps.GameChangerBotHardware;
 import org.firstinspires.ftc.teamcode.Libraries.Bases.RobotConstructor;
 import org.firstinspires.ftc.teamcode.Libraries.Bases.task;
@@ -22,6 +19,7 @@ import org.firstinspires.ftc.teamcode.worldVariables;
 @TeleOp
 @Config
 public class GameChangerOp extends LinearOpMode {
+    boolean wobblePivotUp = true;
     public static class waitForSpeedUp implements task {
         //initial variables for auto task
         private final double timeOut;
@@ -35,7 +33,7 @@ public class GameChangerOp extends LinearOpMode {
             this.shooterSpeed = shooterSpeed;
         }
         @Override
-        public void init() {
+        public void init(RobotConstructor robot) {
             //set the start time for the timeout and set the motors to run using encoders
             startTime = System.currentTimeMillis();
         }
@@ -63,7 +61,7 @@ public class GameChangerOp extends LinearOpMode {
             this.shooterSpeed = shooterSpeed;
         }
         @Override
-        public void init() {
+        public void init(RobotConstructor robot) {
             //set the start time for the timeout and set the motors to run using encoders
             startTime = System.currentTimeMillis();
             GameChangerOp.robot.magazine.setPower(0);
@@ -89,8 +87,8 @@ public class GameChangerOp extends LinearOpMode {
     }
     //constants for teleop run
     public static int magazineTurnRate = 280;
-    public static double camPosHigh = 0.65;
-    public static double camPosPow = 0.58;
+    public static double camPosHigh = 0.85;
+    public static double camPosPow = 0.64;
     double speedMultiplier = 1;
     public static double shooterPow = 0.7;
     int CAMPos = 0;
@@ -196,7 +194,7 @@ public class GameChangerOp extends LinearOpMode {
                 if (!secondMacroRunning && !macroRunning) {
                     handler = new taskHandler();
                     secondMacroRunning = true;
-                    robot.CAM.setPosition(0.7);
+                    robot.CAM.setPosition(camPosHigh);
                     shooter.setVelocity(robotConstants.shooterSpeed);
                     shooterDir = 1;
                     handler.addTask(new waitForSpeedUp(1000,120));
@@ -208,7 +206,7 @@ public class GameChangerOp extends LinearOpMode {
 
                     handler.addTask(new task() {
                         @Override
-                        public void init() {
+                        public void init(RobotConstructor robot) {
 
                         }
 
@@ -228,7 +226,7 @@ public class GameChangerOp extends LinearOpMode {
             }
             else if (!gamepad1.left_bumper && leftBumperIsPressed) leftBumperIsPressed = false;
 
-/*            //checks the rightBumper to reset which direction is forwards for field centric
+            //checks the rightBumper to reset which direction is forwards for field centric
             if (!rightBumperIsPressed && gamepad1.dpad_up && gamepad1.back) {
                 rightBumperIsPressed = true;
                 macroRunning = false;
@@ -260,7 +258,7 @@ public class GameChangerOp extends LinearOpMode {
 
                     handler.addTask(new task() {
                         @Override
-                        public void init() {
+                        public void init(RobotConstructor robot) {
 
                         }
 
@@ -279,7 +277,7 @@ public class GameChangerOp extends LinearOpMode {
             }
             else if(!gamepad1.dpad_up && rightBumperIsPressed) rightBumperIsPressed = false;
 
- */
+
 
             if (macroRunning || secondMacroRunning) {
                 handler.loop(robot);
@@ -382,7 +380,8 @@ public class GameChangerOp extends LinearOpMode {
                 robot.wobblePivot.setPosition(0.9);
             } else if (gamepad1.right_stick_button && !rightStickIsPressed) {
 
-                robot.wobblePivot.setPosition(robot.wobblePivot.getPosition() != 0.5 ? 0.5 : 0);
+                robot.wobblePivot.setPosition(wobblePivotUp ? 0.4 : 0);
+                wobblePivotUp = !wobblePivotUp;
                 rightStickIsPressed = true;
             } else if (!gamepad1.right_stick_button){
                 rightStickIsPressed = false;
